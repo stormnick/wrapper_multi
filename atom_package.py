@@ -130,7 +130,7 @@ def write_atom(self, file):
         f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
         f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
         # energy system
-        f.write("* Energy, Stat. weight / multiplicity, Label, Ion")
+        f.write("* Energy, Stat. weight / multiplicity, Label, Ion \n")
         for i in range(len( self.en )):
             f.write(" %10.5f %10.2f '%s' %.0f \n " %(self.en[i], self.g[i], self.label[i], self.ion[i]) )
         # b-b transitions

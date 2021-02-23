@@ -33,7 +33,7 @@ def setup_multi_job(setup, job):
 
     """ Link input files to a temporary directory """
     for file in ['absmet', 'abslin', 'abund', 'absdat']:
-        os.symlink( setup.common_wd + setup.m1d_input + '/' + file, tmp_wd + file.upper() )
+        os.symlink( setup.m1d_input + '/' + file, tmp_wd + file.upper() )
 
 
 def run_multi( wd, atom, atmos, input_path ):
