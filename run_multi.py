@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import setup
-from parallel_worker import run_job
+from parallel_worker import run_serial_job
 
 
 
@@ -18,4 +18,4 @@ set = setup(file=config_file)
 # here comes the multiprocessing part
 for k in set.jobs.keys():
     job = set.jobs[k]
-    run_job(set, job)
+    run_serial_job(set, job)

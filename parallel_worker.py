@@ -22,26 +22,24 @@ def setup_multi_job(setup, job):
     Note: Multi 1D expects all input files to be named only in upper case
 
     input:
+    # TODO:
     (string) directory: common working directory, default: "./"
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
 
     """ Make a temporary directory """
-    job.update({'common_wd':setup.common_wd})
-    tmp_wd = setup.common_wd + '/job_%03d/' %(job['id'])
-    mkdir(tmp_wd)
-    job.update({'tmp_wd':tmp_wd})
+    mkdir(job.tmp_wd)
 
     """ Link input files to a temporary directory """
     for file in ['absmet', 'abslin', 'abund', 'absdat']:
-        os.symlink( setup.m1d_input + '/' + file, tmp_wd + file.upper() )
+        os.symlink( setup.m1d_input + '/' + file, job.tmp_wd + file.upper() )
 
     """ Link INPUT file (M1D input file complimenting the model atom) """
-    os.symlink( setup.m1d_input_file, tmp_wd +  '/INPUT' )
+    os.symlink( setup.m1d_input_file, job.tmp_wd +  '/INPUT' )
 
     """ Link executable """
-    os.symlink(setup.m1d_exe, tmp_wd + 'multi1d.exe')
+    os.symlink(setup.m1d_exe, job.tmp_wd + 'multi1d.exe')
 
 
     """
@@ -50,14 +48,13 @@ def setup_multi_job(setup, job):
     What kind of output from M1D should be saved?
     Read from the config file, passed here throught the object setup
     """
-    job.update({'output' :\
-            {'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }  })
-    if job['output']['write_ew'] == 1 or job['output']['write_ew'] == 2:
+    job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
+    if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
         with open(job['tmp_wd'] + '/output_EW.dat', 'w') as f:
             f.write("# Lambda, temp, logg.... \n")
-        job['output'].update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
-    elif job['output']['write_ew'] == 0:
+        job.output.update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
+    elif job.output['write_ew'] == 0:
         pass
     else:
         print("write_ew flag unrecognised, stoppped")
@@ -85,36 +82,35 @@ def run_multi( job, atom, atmos):
     """
 
     """ Create ATOM input file for M1D """
-    write_atom(atom, job['tmp_wd'] +  '/ATOM' )
+    write_atom(atom, job.tmp_wd +  '/ATOM' )
 
     """ Create ATMOS input file for M1D """
-    write_atmos_m1d(atmos, job['tmp_wd'] +  '/ATMOS' )
-    write_dscale_m1d(atmos, job['tmp_wd'] +  '/DSCALE' )
+    write_atmos_m1d(atmos, job.tmp_wd +  '/ATMOS' )
+    write_dscale_m1d(atmos, job.tmp_wd +  '/DSCALE' )
 
     """ Go to directory and run MULTI 1D """
-    os.chdir(job['tmp_wd'])
-    # nohup multi1d.exe
+    os.chdir(job.tmp_wd)
     sp.call(['multi1d.exe'])
 
     """ Read MULTI1D output and print to the common file """
     out = m1d('./IDL1')
-    if job['output']['write_ew'] > 0:
-        if job['output']['write_ew'] == 1:
+    if job.output['write_ew'] > 0:
+        if job.output['write_ew'] == 1:
             mask = out.nline * [True]
-        elif job['output']['write_ew'] == 2:
+        elif job.output['write_ew'] == 2:
             mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))
 
-        with open(job['output']['file_ew'], 'a')as f:
+        with open(job.output['file_ew'], 'a')as f:
             for kr in range(out.nline[mask]):
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.temp, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vmic)) )
 
+    print("Dooone")
 
 
-
-    os.chdir(job['common_wd'])
+    os.chdir(job.common_wd)
     return
 
 def read_m1d_output():
@@ -122,14 +118,14 @@ def read_m1d_output():
 
 
 
-def run_job(setup, job):
+def run_serial_job(setup, job):
         setup_multi_job( setup, job )
-        print("job # %5.0f: %5.0f M1D runs" %( job['id'], len(job['atmos']) ) )
-        for i in range(len(job['atmos'])):
+        print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
+        for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
-            atom.abund  =  job['abund'][i]
-            atmos = model_atmosphere(file = job['atmos'][i], format = setup.atmos_format)
+            atom.abund  =  job.abund[i]
+            atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
             # read output
         # shutil.rmtree(job['tmp_wd'])

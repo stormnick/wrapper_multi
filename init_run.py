@@ -48,9 +48,24 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
     step = totn_jobs//ncpu
     self.jobs = { }
     for i in range(ncpu-1):
-        self.jobs.update( { i : {'id':i, 'atmos':atmos_list[step*i: step*(i+1)], 'abund':abund_list[step*i: step*(i+1)]}  })
-    self.jobs.update( { ncpu-1 : {'id':ncpu-1, 'atmos':atmos_list[step*(ncpu-1):totn_jobs], 'abund':abund_list[step*(ncpu-1):totn_jobs]}})
+        job = serial_job(self, i)
+        job.atmos = atmos_list[step*i: step*(i+1)]
+        job.abund = abund_list[step*i: step*(i+1)]
+        self.jobs.update({ i : job })
+    job = serial_job(self, ncpu-1)
+    job.atmos = atmos_list[step*i : ]
+    job.abund = abund_list[step*i : ]
+    self.jobs.update({ ncpu-1 : job })
+
     return
+
+class serial_job(object):
+    def __init__(self, parent, i):
+        self.id = i
+        self.common_wd = parent.common_wd
+        self.tmp_wd = parent.common_wd + '/job_%03d/' %(self.id)
+        self.atmos = []
+        self.abudn = []
 
 # a setup of the run to compute NLTE grid, e.g. Mg over all MARCS grid
 class setup(object):
