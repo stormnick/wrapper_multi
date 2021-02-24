@@ -171,7 +171,7 @@ class bbline():
         """
         self.comment_line = com_line.strip()
         data_line = data_line.strip()
-        self.i, self.j = np.array(data_line.split()[0:2]).astype(int)
+        self.j, self.i = np.array(data_line.split()[0:2]).astype(int)
         self.f_osc = float(data_line.split()[2])
         self.nq = int(data_line.split()[3])
         self.qmax, self.q0 = np.array(data_line.split()[4:6]).astype(float)

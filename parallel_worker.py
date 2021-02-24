@@ -54,7 +54,8 @@ def setup_multi_job(setup, job):
             {'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }  })
     if job['output']['write_ew'] == 1 or job['output']['write_ew'] == 2:
         # create file to dump output
-        f = open(job['tmp_wd'] + '/output_EW.dat', 'w')
+        with open(job['tmp_wd'] + '/output_EW.dat', 'w') as f:
+            f.write("# Lambda, temp, logg.... \n")
         job['output'].update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
     elif job['output']['write_ew'] == 0:
         pass
@@ -90,12 +91,29 @@ def run_multi( job, atom, atmos):
     write_atmos_m1d(atmos, job['tmp_wd'] +  '/ATMOS' )
     write_dscale_m1d(atmos, job['tmp_wd'] +  '/DSCALE' )
 
-    """ Got to directory and run MULTI 1D """
+    """ Go to directory and run MULTI 1D """
     os.chdir(job['tmp_wd'])
     # nohup multi1d.exe
     sp.call(['multi1d.exe'])
-    """ Read MULTI1D output and print all requered into to the common file """
-    print("Hi there")
+
+    """ Read MULTI1D output and print to the common file """
+    out = m1d('./IDL1')
+    if job['output']['write_ew'] > 0:
+        if job['output']['write_ew'] == 1:
+            mask = out.nline * [True]
+        elif job['output']['write_ew'] == 2:
+            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))
+
+        with open(job['output']['file_ew'], 'a')as f:
+            for kr in range(out.nline[mask]):
+                line = out.line[kr]
+                f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
+                    %(atmos.temp, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
+                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vmic)) )
+
+
+
+
     os.chdir(job['common_wd'])
     return
 
