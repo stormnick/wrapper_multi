@@ -46,8 +46,7 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
         exit(1)
 
     step = totn_jobs//ncpu
-    self.jobs = {}
-    print(step)
+    self.jobs = { }
     for i in range(ncpu-1):
         self.jobs.update( { i : {'id':i, 'atmos':atmos_list[step*i: step*(i+1)], 'abund':abund_list[step*i: step*(i+1)]}  })
     self.jobs.update( { ncpu-1 : {'id':ncpu-1, 'atmos':atmos_list[step*(ncpu-1):totn_jobs], 'abund':abund_list[step*(ncpu-1):totn_jobs]}})
@@ -113,7 +112,7 @@ class setup(object):
         print("Reading model atom from %s" %self.atom_path)
         self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id)
         # M1D input file that comes with model atom
-        self.m1d_input_path = self.atom_path + '/input.' + self.atom_id
+        self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 
         print(50*"-")
         print("Distributing model atmospheres over %.0f CPUs" %(self.ncpu) )

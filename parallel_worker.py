@@ -25,31 +25,47 @@ def setup_multi_job(setup, job):
     (object) setup: object of class setup, regulates a setup for the whole run
     """
 
-    """ Make and change to a temporary directory """
+    """ Make and a temporary directory """
+    job.update({'common_wd':setup.common_wd})
     tmp_wd = setup.common_wd + '/job_%03d/' %(job['id'])
     mkdir(tmp_wd)
-    job.update({'wd':tmp_wd})
-    # os.chdir(tmp_wd)
+    job.update({'tmp_wd':tmp_wd})
 
     """ Link input files to a temporary directory """
     for file in ['absmet', 'abslin', 'abund', 'absdat']:
         os.symlink( setup.m1d_input + '/' + file, tmp_wd + file.upper() )
 
+    """ Link INPUT file (M1D input file complimenting the model atom) """
+    os.symlink( setup.m1d_input_file, tmp_wd +  '/INPUT' )
 
-def run_multi( wd, atom, atmos, input_path ):
+    """ Link executable """
+    os.symlink(setup.m1d_exe, tmp_wd + 'multi1d.exe')
+
+
+def run_multi( job, atom, atmos):
     """
     Run MULTI1D
+    input:
+    (string) wd: path to a temporary working directory,
+        created in setup_multi_job
+    (object) atom:  object of class model_atom
+    (object) atmos: object of class model_atmosphere
     """
 
     """ Create ATOM input file for M1D """
-    write_atom(atom, wd +  '/ATOM' )
+    write_atom(atom, job['tmp_wd'] +  '/ATOM' )
 
     """ Create ATMOS input file for M1D """
-    write_atmos_m1d(atmos, wd +  '/ATMOS' )
-    write_dscale_m1d(atmos, wd +  '/DSCALE' )
+    write_atmos_m1d(atmos, job['tmp_wd'] +  '/ATMOS' )
+    write_dscale_m1d(atmos, job['tmp_wd'] +  '/DSCALE' )
 
-    """ Link INPUT file """
-    os.symlink( input_path, wd +  '/INPUT' )
+    """ Got to directory and run MULTI 1D """
+    os.chdir(job['tmp_wd'])
+    # nohup multi1d.exe
+    print("Hi there")
+    os.chdir(job['common_wd'])
+
+
 
     # nohup mul23lus.x
     return
@@ -63,10 +79,11 @@ def run_job(setup, job):
         setup_multi_job( setup, job )
         print("job # %5.0f: %5.0f M1D runs" %( job['id'], len(job['atmos']) ) )
         for i in range(len(job['atmos'])):
+            # model atom is only read once
             atom = setup.atom
             atom.abund  =  job['abund'][i]
             atmos = model_atmosphere(file = job['atmos'][i], format = setup.atmos_format)
-            run_multi( job['wd'], atom, atmos, setup.m1d_input_path)
+            run_multi( job, atom, atmos)
             # read output
         # shutil.rmtree(job['wd'])
 
