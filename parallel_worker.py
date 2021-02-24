@@ -1,9 +1,11 @@
 import multiprocessing
 import sys
+import subprocess as sp
 import os
 import shutil
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
+from multi_package.m1d import m1d
 
 
 def mkdir(s):
@@ -25,7 +27,7 @@ def setup_multi_job(setup, job):
     (object) setup: object of class setup, regulates a setup for the whole run
     """
 
-    """ Make and a temporary directory """
+    """ Make a temporary directory """
     job.update({'common_wd':setup.common_wd})
     tmp_wd = setup.common_wd + '/job_%03d/' %(job['id'])
     mkdir(tmp_wd)
@@ -40,6 +42,35 @@ def setup_multi_job(setup, job):
 
     """ Link executable """
     os.symlink(setup.m1d_exe, tmp_wd + 'multi1d.exe')
+
+
+    """
+    find a smarter way to do all of this...
+    It doesn't need to be here, but..
+    What kind of output from M1D should be saved?
+    Read from the config file, passed here throught the object setup
+    """
+    job.update({'output' :\
+            {'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }  })
+    if job['output']['write_ew'] == 1 or job['output']['write_ew'] == 2:
+        # create file to dump output
+        f = open(job['tmp_wd'] + '/output_EW.dat', 'w')
+        job['output'].update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
+    elif job['output']['write_ew'] == 0:
+        pass
+    else:
+        print("write_ew flag unrecognised, stoppped")
+        exit(1)
+
+    ## departure coefficients for TS?
+    # if job['output']['write_ts'] == 1:
+        # f = open(job['tmp_wd'] + '/output_EW.dat', 'w')
+
+
+
+
+
+    return
 
 
 def run_multi( job, atom, atmos):
@@ -62,12 +93,10 @@ def run_multi( job, atom, atmos):
     """ Got to directory and run MULTI 1D """
     os.chdir(job['tmp_wd'])
     # nohup multi1d.exe
+    sp.call(['multi1d.exe'])
+    """ Read MULTI1D output and print all requered into to the common file """
     print("Hi there")
     os.chdir(job['common_wd'])
-
-
-
-    # nohup mul23lus.x
     return
 
 def read_m1d_output():
@@ -85,7 +114,7 @@ def run_job(setup, job):
             atmos = model_atmosphere(file = job['atmos'][i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
             # read output
-        # shutil.rmtree(job['wd'])
+        # shutil.rmtree(job['tmp_wd'])
 
 
 

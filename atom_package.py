@@ -126,34 +126,33 @@ def read_atom(self, file):
 def write_atom(self, file):
     with open(file, 'w') as f:
         for li in self.header:
-            f.write(li + "\n")
-        f.write("%s\n" %(self.element))
-        f.write("%10.2f %10.4f\n" %(self.abund, self.atomic_weight))
-        f.write("%6.0f %6.0f %6.0f %6.0f\n" %(self.nk, self.nline, self.ncont, self.nrfix) )
+            f.write(li + '\n')
+        f.write("%s \n" %(self.element))
+        f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
+        f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
         # energy system
         f.write("* Energy, Stat. weight / multiplicity, Label, Ion\n")
         for i in range(len( self.en )):
-            f.write(" %10.5f %10.2f '%50s' %5.0f\n" %(self.en[i], self.g[i], self.label[i], self.ion[i]) )
+            f.write(" %10.5f %10.2f '%s' %.0f \n" %(self.en[i], self.g[i], self.label[i], self.ion[i]) )
         # b-b transitions
         for kr in range(self.nline):
             bb = self.bb[kr]
-            f.write("%s\n" %bb.comment_line )
+            f.write("%s \n" %bb.comment_line )
             f.write("%4.0f %4.0f %10.4E %6.0f %6.1f %4.1f %4.0f %10.4E %10.4f %10.4E %s\n" \
                 %(bb.j, bb.i, bb.f_osc, bb.nq, bb.qmax, bb.q0, bb.iwide, bb.ga, bb.gvw, bb.gs, bb.profile_type) )
         # b-f transitions
-        f.write("* PHOTO-ION\n")
         for kr in range(self.ncont):
             bf = self.bf[kr]
-            f.write("%4.0f %4.0f %10.4E %5.0f %3.0f %3.0f\n" \
+            f.write("%4.0f %4.0f %10.4E %5.0f %3.0f %3.0f \n" \
                 %(bf.j, bf.i, bf.x[0], bf.nq, -1.0, 0.0) ) # what's -1.0 and 0.0 ?
             for i in range(len(bf.x)):
-                f.write(" %10.4f %10.4E\n" %(bf.wave[i], bf.x[i]) )
+                f.write(" %10.4f %10.4E \n" %(bf.wave[i], bf.x[i]) )
         # write collisional data
-        f.write("%s\n" %self.col_routine)
+        f.write("%s \n" %self.col_routine)
         # f.write("TEMP \n")
         # temporary solution for collisional rates
         for line in self.col:
-            f.write("%s\n" %line)
+            f.write("%s \n" %line)
         # signal end
         f.write("END")
     return
@@ -172,7 +171,7 @@ class bbline():
         """
         self.comment_line = com_line.strip()
         data_line = data_line.strip()
-        self.j, self.i = np.array(data_line.split()[0:2]).astype(int)
+        self.i, self.j = np.array(data_line.split()[0:2]).astype(int)
         self.f_osc = float(data_line.split()[2])
         self.nq = int(data_line.split()[3])
         self.qmax, self.q0 = np.array(data_line.split()[4:6]).astype(float)
