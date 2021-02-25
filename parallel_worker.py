@@ -54,7 +54,7 @@ def setup_multi_job(setup, job):
         # create file to dump output
         with open(job.tmp_wd + '/output_EW.dat', 'w') as f:
             f.write("# Lambda, temp, logg.... \n")
-        job.output.update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
+        job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
     elif job.output['write_ew'] == 0:
         pass
     else:
