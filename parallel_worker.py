@@ -51,16 +51,30 @@ def setup_multi_job(setup, job):
     Read from the config file, passed here throught the object setup
     """
     job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
+
+    """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
-        with open(job.tmp_wd + '/output_EW.dat', 'w') as f:
-            f.write("# Lambda, temp, logg.... \n")
         job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
+        with open(job.output['file_ew'], 'w') as f:
+            f.write("# Lambda, temp, logg.... \n")
     elif job.output['write_ew'] == 0:
         pass
     else:
         print("write_ew flag unrecognised, stoppped")
         exit(1)
+
+    """ Output for TS? """
+    if job.output['write_ts'] == 1:
+        header = "departure coefficients from serial job # %.0f" %(job.id)
+        header = str.encode('%500s', %(header) )
+        # create a file to dump output from this serial job
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin' } )
+        with open(job.output['file_4ts'], 'wb') as f:
+            f.write(header)
+
+
+
 
     ## departure coefficients for TS?
     # if job['output']['write_ts'] == 1:
@@ -95,8 +109,8 @@ def run_multi( job, atom, atmos):
     sp.call(['multi1d.exe'])
 
     """ Read MULTI1D output and print to the common file """
-    out = m1d('./IDL1')
     if job.output['write_ew'] > 0:
+        out = m1d('./IDL1')
         if job.output['write_ew'] == 1:
             mask = np.arange(out.nline)
         elif job.output['write_ew'] == 2:
@@ -110,6 +124,10 @@ def run_multi( job, atom, atmos):
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
+    """ Read MULTI1D output and save in a common binary file in the format for TS """
+
+
+
     print("Dooone")
     os.chdir(job.common_wd)
     return
