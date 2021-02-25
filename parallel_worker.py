@@ -68,7 +68,6 @@ def setup_multi_job(setup, job):
     if job.output['write_ts'] == 1:
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%500s' %(header) )
-        print(header)
         # create a file to dump output from this serial job
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin' } )
         with open(job.output['file_4ts'], 'wb') as f:
@@ -78,16 +77,6 @@ def setup_multi_job(setup, job):
     else:
         print("write_ts flag unrecognised, stoppped")
         exit(1)
-
-
-
-
-
-    ## departure coefficients for TS?
-    # if job['output']['write_ts'] == 1:
-        # f = open(job['tmp_wd'] + '/output_EW.dat', 'w')
-
-
 
 
 
@@ -132,7 +121,8 @@ def run_multi( job, atom, atmos):
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
     """ Read MULTI1D output and save in a common binary file in the format for TS """
-
+    if job.output['write_ew'] == 1:
+        fbin = open(job.output['file_4ts'], 'ab')
 
 
     print("Dooone")
