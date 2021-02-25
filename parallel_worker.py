@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
-from m1d_output import m1d
+from m1d_output import *
 
 
 def mkdir(s):
