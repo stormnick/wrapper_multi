@@ -109,7 +109,7 @@ def run_multi( job, atom, atmos):
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.temp, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
-                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vmic)) )
+                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
     print("Dooone")
     os.chdir(job.common_wd)
     return
