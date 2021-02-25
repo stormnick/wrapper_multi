@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
-from m1d_output import *
+from m1d_output import m1d, m1dline
 
 
 def mkdir(s):
@@ -117,6 +117,7 @@ def run_multi( job, atom, atmos):
             # print(out.nline[mask])
             for kr in mask:
                 line = out.line[kr]
+                print(line)
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
