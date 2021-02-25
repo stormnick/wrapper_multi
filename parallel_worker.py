@@ -67,11 +67,18 @@ def setup_multi_job(setup, job):
     """ Output for TS? """
     if job.output['write_ts'] == 1:
         header = "departure coefficients from serial job # %.0f" %(job.id)
-        header = str.encode('%500s', %(header) )
+        header = str.encode('%500s' %(header) )
+        print(header)
         # create a file to dump output from this serial job
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin' } )
         with open(job.output['file_4ts'], 'wb') as f:
             f.write(header)
+    elif job.output['write_ts'] == 0:
+        pass
+    else:
+        print("write_ts flag unrecognised, stoppped")
+        exit(1)
+
 
 
 
