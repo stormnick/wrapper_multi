@@ -9,8 +9,9 @@ from multi_package.m1d import m1d
 
 
 def mkdir(s):
-    if (not os.path.isdir(s)):
-        os.mkdir(s)
+    if os.path.isdir(s):
+        shutil.rmtree(s)
+    os.mkdir(s)
     return
 
 def setup_multi_job(setup, job):
@@ -51,7 +52,7 @@ def setup_multi_job(setup, job):
     job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
-        with open(job['tmp_wd'] + '/output_EW.dat', 'w') as f:
+        with open(job.tmp_wd + '/output_EW.dat', 'w') as f:
             f.write("# Lambda, temp, logg.... \n")
         job.output.update({'file_ew' : job['tmp_wd'] + '/output_EW.dat' } )
     elif job.output['write_ew'] == 0:
