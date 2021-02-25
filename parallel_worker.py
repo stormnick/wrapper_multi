@@ -100,10 +100,11 @@ def run_multi( job, atom, atmos):
             mask = out.nline * [True]
         elif job.output['write_ew'] == 2:
             mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))
+            print(mask)
 
         with open(job.output['file_ew'], 'a')as f:
 
-            print(out.nline[mask])
+            # print(out.nline[mask])
             for kr in range(out.nline[mask]):
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
