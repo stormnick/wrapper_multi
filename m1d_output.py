@@ -34,7 +34,7 @@ def f77_string(f, dtype='a20'):
 
 
 class m1d(object):
-    def __init__(self, file, lines=None):
+    def __init__(self, file, lines=[]]):
         f = FortranFile(file, 'r')
 
         clear_output(wait=True)
