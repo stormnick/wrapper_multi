@@ -128,7 +128,8 @@ class m1d(object):
         self.xnorm  = f.read_reals(np.float32)
         self.height = f.read_reals(np.float32)
 
-        self.atmosid, self.dpid, self.dptype = f77_string(f, dtype='a').split()
+        print(read_str(f, dtype=None).split())
+        # self.atmosid, self.dpid, self.dptype = f77_string(f, dtype='a').split()
 
         self.vturb = f.read_reals(np.float32)
 
