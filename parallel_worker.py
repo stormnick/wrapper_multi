@@ -126,7 +126,7 @@ def run_multi( job, atom, atmos):
         with open(job.output['file_4ts'], 'ab') as fbin:
             atmosID = str.encode('%500s' %atmos.id)
             job.output['pointer'] = job.output['pointer'] + 500
-            fbin.write(atmosID500)
+            fbin.write(atmosID)
 
             ndep = np.array([int(out.ndep)])
             print(out.ndep, out.nk)
