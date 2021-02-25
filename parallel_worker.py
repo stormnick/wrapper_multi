@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
-from multi_package.m1d import m1d
+from m1d_output import m1d
 
 
 def mkdir(s):
@@ -141,7 +141,9 @@ def run_multi( job, atom, atmos):
             tau500.tofile(fbin, format='f8')
             job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
             #
-            
+            depart = out.n/out.nstar
+            print(np.shape(depart))
+            print(depart)
             # b.tofile(fbin, format='f8')
             # job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
 

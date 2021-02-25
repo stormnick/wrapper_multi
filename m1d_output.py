@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.io import FortranFile
 from IPython.display import clear_output, display
-from multi_package.auxfuncs import vacuum2obs
+from m1d_output_auxfuncs import vacuum2obs
 
 hh=6.626176E-27
 cc=2.99792458E+10
