@@ -98,9 +98,10 @@ def run_multi( job, atom, atmos):
     out = m1d('./IDL1')
     if job.output['write_ew'] > 0:
         if job.output['write_ew'] == 1:
-            mask = out.nline * [True]
+            mask = np.arange(out.nline)
+            print(mask)
         elif job.output['write_ew'] == 2:
-            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0][0]
+            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
             print(mask)
 
         with open(job.output['file_ew'], 'a')as f:
