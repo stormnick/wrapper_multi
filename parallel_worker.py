@@ -3,6 +3,7 @@ import sys
 import subprocess as sp
 import os
 import shutil
+import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
 from multi_package.m1d import m1d
@@ -97,19 +98,18 @@ def run_multi( job, atom, atmos):
     out = m1d('./IDL1')
     if job.output['write_ew'] > 0:
         if job.output['write_ew'] == 1:
-            mask = out.nline * [True]
+            mask = np.arange(out.nline)
         elif job.output['write_ew'] == 2:
-            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))
-            print(mask)
+            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
 
         with open(job.output['file_ew'], 'a')as f:
 
             # print(out.nline[mask])
-            for kr in range(out.nline[mask]):
+            for kr in mask:
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
-                    %(atmos.temp, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
-                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vmic)) )
+                    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
+                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
     print("Dooone")
     os.chdir(job.common_wd)
     return
