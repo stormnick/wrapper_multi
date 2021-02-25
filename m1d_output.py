@@ -6,6 +6,24 @@ from m1d_output_auxfuncs import vacuum2obs
 hh=6.626176E-27
 cc=2.99792458E+10
 
+def read_str(f, dtype='a20'):
+    if dtype==None:
+        size = f._read_size(eof_ok=True)
+        dtype = 'a' + str(int(size))
+
+        data = np.fromfile(f._fp, dtype=dtype, count=1)
+        waste = f._read_size(eof_ok=True)
+
+        return str(data)
+
+    else:
+        data = f.read_record(dtype)
+
+        if len(data) > 1:
+            return np.array(list(map( lambda s: str(s).split("'")[1].rstrip(), data)))
+        else:
+            return str(data).split("'")[1].rstrip()
+
 def f77_string(f, dtype='a20'):
     data = f.read_record(dtype)
 
