@@ -219,7 +219,7 @@ class m1d(object):
         self.line = [None] * self.nline
 
         if lines != None:
-            for kr in lines:
+            for kr in range(self.nline):
                 self.line[kr] = m1dline(self, kr)
 
 
