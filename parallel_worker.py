@@ -121,7 +121,8 @@ def run_multi( job, atom, atmos):
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
     """ Read MULTI1D output and save in a common binary file in the format for TS """
-    if job.output['write_ew'] == 1:
+    if job.output['write_ts'] == 1:
+        out = m1d('./IDL1')
         with open(job.output['file_4ts'], 'ab') as fbin:
             atmosID = str.encode('%500s' %atmos.id)
             job.output['pointer'] = job.output['pointer'] + 500
