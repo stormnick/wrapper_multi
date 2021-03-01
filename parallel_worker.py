@@ -71,7 +71,7 @@ def setup_multi_job(setup, job):
         # array rec_len stores a length of the record in bytes
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
                 'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
-                'rec_len': np.zeros(len(job.atmos)) } )
+                'rec_len': np.zeros(len(job.atmos), dtype=int) } )
         with open(job.output['file_4ts'], 'wb') as f:
             pass
         with open(job.output['file_4ts_aux'], 'w') as f:
