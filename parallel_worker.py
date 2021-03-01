@@ -68,10 +68,10 @@ def setup_multi_job(setup, job):
     """ Output for TS? """
     if job.output['write_ts'] == 1:
         # create a file to dump output from this serial job
-        # array point_end stores a pointed to the end of each record
+        # array rec_len stores a length of the record in bytes
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
                 'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
-                'pointer_end': np.zeros(len(job.atmos)) } )
+                'rec_len': np.zeros(len(job.atmos)) } )
         with open(job.output['file_4ts'], 'wb') as f:
             pass
         with open(job.output['file_4ts_aux'], 'w') as f:
@@ -159,7 +159,7 @@ def run_multi( job, i, atom, atmos):
         fbin.write(depart.tobytes())
         p = p + out.ndep * out.nk * 8
 
-        job.output['pointer_end'][i] = p
+        job.output['rec_len'][i] = p
 
         fbin.close()
         faux.close()
