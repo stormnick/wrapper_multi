@@ -27,15 +27,9 @@ if __name__ == '__main__':
     for k in set.jobs.keys():
         args.append([set, set.jobs[k]] )
     with Pool(processes=set.ncpu) as pool:
-        print(pool.map( run_serial_job, args ))
-
-
-
-
-
-
-
-
+        results = pool.map( run_serial_job, args )
+    for res in results:
+        print(res)
 
     #
     # # """ Start individual jobs """
