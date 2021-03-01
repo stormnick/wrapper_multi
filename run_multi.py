@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import setup, serial_job
-from parallel_worker import run_serial_job, collect_output, setup_multi_job
+from parallel_worker import run_serial_job, collect_output
 import multiprocessing
 from multiprocessing import Pool
 import time
@@ -25,9 +25,6 @@ if __name__ == '__main__':
     workers = []
     for k in set.jobs.keys():
         job = set.jobs[k]
-        print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
-        setup_multi_job( setup, job )
-
         p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
         workers.append(p)
     # start every process with a delay of 1 second

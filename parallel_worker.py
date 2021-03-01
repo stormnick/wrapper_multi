@@ -202,6 +202,8 @@ def collect_output(setup):
 
 
 def run_serial_job(setup, job):
+        print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
+        setup_multi_job( setup, job )
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
