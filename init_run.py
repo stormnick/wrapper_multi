@@ -39,6 +39,7 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
     atmos_list, abund_list= np.meshgrid(atmos_list, abund_list)
     atmos_list = atmos_list.flatten()
     abund_list = abund_list.flatten()
+    # print(atmos_list,abund_list )
 
 
     if (ncpu > totn_jobs):

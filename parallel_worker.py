@@ -71,7 +71,6 @@ def setup_multi_job(setup, job):
         # create a file to dump output from this serial job
         # a pointer is set to 100
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':len(header)} )
-        print(job.output['pointer'])
         with open(job.output['file_4ts'], 'wb') as f:
             f.write(header)
     elif job.output['write_ts'] == 0:
