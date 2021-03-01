@@ -28,7 +28,7 @@ def setup_multi_job(setup, job):
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
-
+    print("SETTING UP")
     """ Make a temporary directory """
     mkdir(job.tmp_wd)
 
