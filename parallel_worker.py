@@ -69,9 +69,13 @@ def setup_multi_job(setup, job):
     if job.output['write_ts'] == 1:
         # create a file to dump output from this serial job
         # array rec_len stores a length of the record in bytes
-        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin',\
+                'file_4ts_aux' : job.tmp_wd + '/auxdata_4TS.txt', \
                 'rec_len': np.zeros(len(job.atmos), dtype=int) } )
+        # create the files
         with open(job.output['file_4ts'], 'wb') as f:
+            pass
+        with open(job.output['file_4ts_aux'], 'w') as f:
             pass
     elif job.output['write_ts'] == 0:
         pass
@@ -84,7 +88,7 @@ def setup_multi_job(setup, job):
     return
 
 
-def run_multi( setup, job, i, atom):
+def run_multi( job, atom, atmos):
     """
     Run MULTI1D
     input:
@@ -96,19 +100,10 @@ def run_multi( setup, job, i, atom):
     (object) atom:  object of class model_atom
     """
 
-    """
-    Change the abundance of the NLTE element if reqiuested
-    Create ATOM input file for M1D
-    """
-
-    atom.abund  =  job.abund[i]
+    """ Create ATOM input file for M1D """
     write_atom(atom, job.tmp_wd +  '/ATOM' )
 
-    """
-    Read model atmopshere
-    Create ATMOS input file for M1D
-    """
-    atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
+    """ Create ATMOS input file for M1D """
     write_atmos_m1d(atmos, job.tmp_wd +  '/ATMOS' )
     write_dscale_m1d(atmos, job.tmp_wd +  '/DSCALE' )
 
@@ -129,7 +124,6 @@ def run_multi( setup, job, i, atom):
             # print(out.nline[mask])
             for kr in mask:
                 line = out.line[kr]
-                print(line)
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
@@ -138,6 +132,8 @@ def run_multi( setup, job, i, atom):
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
         fbin = open(job.output['file_4ts'], 'ab')
+        faux = open(job.output['file_4ts_aux'], 'a')
+
         # length of the record in the binary file for this model atmosphere and abundance
         record_len = 0
 
@@ -161,9 +157,12 @@ def run_multi( setup, job, i, atom):
         fbin.write(depart.tobytes())
         record_len = record_len + out.ndep * out.nk * 8
 
-        job.output['rec_len'][i] = record_len
+
+        faux.write(" %s %10.4f %10.4f %10.4f  %10.2f %10.4f %10.0f \n" \
+                    %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  np.mean(atmos.vturb), out.abnd, record_len  ) )
 
         fbin.close()
+        faux.close()
 
     os.chdir(job.common_wd)
     return
@@ -202,8 +201,20 @@ def collect_output(setup):
             # points to the begining of the record
             for i in range(len(job.atmos)):
                 pointer = pointer + job.output['rec_len'][i]
-                com_aux.write("%s %10.0f" %(job.atmos[i], pointer) )
-                # atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
+                com_aux.write("%s %10.0f \n" %(job.atmos[i], pointer) )
+
+                # I don't want to store all the model atmosphere in the memory
+                # so I will read them once again at the end of the run, to access the detailed info for the output
+                # # TODO: im not sure it's the best solution...
+                atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
+                com_aux.write("%s %10.4f %10.4f %10.4f %10.4f %10.0f \n" \
+                                %(atmos.ID,a tmos.teff, atmos.logg, atmos.feh, out.abnd, pointer) )
+
+
+f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
+    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
+        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
+
 
         com_f.close()
         com_aux.close()
@@ -217,8 +228,9 @@ def run_serial_job(setup, job):
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
-
-            run_multi( setup, job, i, atom)
+            atom.abund  =  job.abund[i]
+            atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
+            run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
 
 
