@@ -47,7 +47,6 @@ def setup_multi_job(setup, job):
     Read from the config file, passed here throught the object setup
     """
     job.output.update( { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts } )
-    print('AA',job, job.output)
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
@@ -79,6 +78,7 @@ def setup_multi_job(setup, job):
         print("write_ts flag unrecognised, stoppped")
         exit(1)
 
+    print('AA',job, job.output)
 
 
     return
