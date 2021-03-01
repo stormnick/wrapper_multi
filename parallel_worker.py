@@ -135,13 +135,13 @@ def run_multi( job, atom, atmos):
             job.output['pointer'] = job.output['pointer'] + 8
             ndep.tofile(fbin, format='i4')
 
-            nk = np.array([int(out.nk)])
+            nk = np.array(int(out.nk))
             job.output['pointer'] = job.output['pointer'] + 8
             nk.tofile(fbin, format='i4')
 
             tau500 = out.tau
             print(tau500)
-            tau500.tofile(fbin, format='f8')
+            tau500.tofile(fbin, format='f16')
             job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
             #
             depart = (out.n/out.nstar).reshape(out.ndep, out.nk)
