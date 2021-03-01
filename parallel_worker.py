@@ -198,7 +198,7 @@ def collect_output(setup):
             # departure coefficients in binary format
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
-            for line in open(job.output['file_4ts_aux'], 'rb').readlines():
+            for line in open(job.output['file_4ts_aux'], 'r').readlines():
                 print(line)
                 if not line.startswith('#'):
                     print(line.split()[0:-2])
