@@ -84,10 +84,11 @@ def setup_multi_job(setup, job):
     return
 
 
-def run_multi( job, i, atom):
+def run_multi( setup, job, i, atom):
     """
     Run MULTI1D
     input:
+    (object) setup:
     (object) job:
     (integer) i: index pointing to the current model atmosphere and abundance
                  (in job.atmos, job.abund)
@@ -215,7 +216,7 @@ def run_serial_job(setup, job):
             # model atom is only read once
             atom = setup.atom
 
-            run_multi( job, i, atom)
+            run_multi( setup, job, i, atom)
         # shutil.rmtree(job['tmp_wd'])
 
 
