@@ -156,11 +156,14 @@ def collect_output(setup):
     if setup.write_ew > 0:
         print("Collecting EW grids...")
         comEW = setup.common_wd + '/output_EWgrid_%s.dat' %(today)
-        # with open(comEW, 'w') as f:
-
-    # for k in set.jobs.keys():
-        # job = set.jobs[k]
-
+        """ Collect all EW grids into one """
+        with open(comEW, 'w') as f:
+            for k in set.jobs.keys():
+                job = set.jobs[k]
+                data = open(job.output['file_ew'], 'r').readlines()
+                # skip the comment lines
+                mask = ~np.where(data.startswith('#'))
+                print(mask)
     return
 
 
