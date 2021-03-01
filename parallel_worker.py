@@ -162,7 +162,7 @@ def collect_output(setup):
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
                 print(data)
-                data.tofile(comEW)
+                np.savetxt(comEW, data)
     return
 
 
