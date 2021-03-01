@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import setup, serial_job
-from parallel_worker import run_serial_job, collect_output
+from parallel_worker import run_serial_job, collect_output, setup_multi_job
 import multiprocessing
 from multiprocessing import Pool
 import time
