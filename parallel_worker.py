@@ -68,10 +68,10 @@ def setup_multi_job(setup, job):
     """ Output for TS? """
     if job.output['write_ts'] == 1:
         # create a file to dump output from this serial job
-        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        # array point_end stores a pointed to the end of each record
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
                 'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
-                'pointer': 1 } )
+                'pointer_end': np.zeros(len(job.atmos)) } )
         with open(job.output['file_4ts'], 'wb') as f:
             pass
         with open(job.output['file_4ts_aux'], 'w') as f:
@@ -88,8 +88,9 @@ def setup_multi_job(setup, job):
     return
 
 
-def run_multi( job, atom, atmos):
+def run_multi( job, i, atom, atmos):
     """
+    # TODO update input
     Run MULTI1D
     input:
     (string) wd: path to a temporary working directory,
@@ -135,25 +136,30 @@ def run_multi( job, atom, atmos):
 
         faux.write("%10.0f \n" %(job.output['pointer']))
 
+        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        p = 1
+
         atmosID = str.encode('%500s' %atmos.id)
-        job.output['pointer'] = job.output['pointer'] + 500
+         = job.output['pointer'] + 500
         fbin.write(atmosID)
 
         ndep = int(out.ndep).to_bytes(4, 'little')
-        job.output['pointer'] = job.output['pointer'] + 4
+        p = p + 4
         fbin.write(ndep)
 
         nk = int(out.nk).to_bytes(4, 'little')
-        job.output['pointer'] = job.output['pointer'] + 4
+        p = p + 4
         fbin.write(nk)
 
         tau500 = np.array(out.tau, dtype='f8')
         fbin.write(tau500.tobytes())
-        job.output['pointer'] = job.output['pointer'] + out.ndep * 8
+        p = p + out.ndep * 8
         # #
         depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
         fbin.write(depart.tobytes())
-        job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
+        p = p + out.ndep * out.nk * 8
+
+        job.output['pointer_end'][i] = p
 
         fbin.close()
         faux.close()
@@ -187,13 +193,12 @@ def collect_output(setup):
 
         for k in setup.jobs.keys():
             job = setup.jobs[k]
-            with open(job.output['file_4ts'], 'rb') as f:
-                com_f.write(f.read())
-            for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                if not line.startswith('#'):
-                    # pointer = p + int(line.strip())
-                    print(k, job.output['pointer'])#, pointer)
-            # p = pointer
+            # a pointer to the last record
+            print(k, job.output['pointer_end'])#, pointer)
+            # with open(job.output['file_4ts'], 'rb') as f:
+                # com_f.write(f.read())
+            # for line in open(job.output['file_4ts_aux'], 'r').readlines():
+                # if not line.startswith('#'):/
 
         com_f.close()
         com_aux.close()
@@ -209,7 +214,7 @@ def run_serial_job(setup, job):
             atom = setup.atom
             atom.abund  =  job.abund[i]
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
-            run_multi( job, atom, atmos)
+            run_multi( job, i, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
 
 
