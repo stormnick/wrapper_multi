@@ -30,8 +30,10 @@ if __name__ == '__main__':
         workers.append(p)
     for p in workers:
         p.start()
+        time.sleep(1)
     for p in workers:
-        p.join()        
+        p.join()
+    print("done")
         # p.join()
 
 # collect_output(set)
