@@ -158,7 +158,7 @@ def run_multi( job, atom, atmos):
         job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
 
         fbin.close()
-        faux.clos()
+        faux.close()
 
     os.chdir(job.common_wd)
     return
