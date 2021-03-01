@@ -77,7 +77,7 @@ def setup_multi_job(setup, job):
     else:
         print("write_ts flag unrecognised, stoppped")
         exit(1)
-    return job
+    return
 
 
 def run_multi( job, atom, atmos):
@@ -203,7 +203,7 @@ def collect_output(setup):
 
 def run_serial_job(setup, job):
         print(job.__dict__)
-        job = setup_multi_job( setup, job )
+        setup_multi_job( setup, job )
         print(job.__dict__)
         exit(1)
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
