@@ -28,7 +28,6 @@ def setup_multi_job(setup, job):
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
-
     """ Make a temporary directory """
     mkdir(job.tmp_wd)
 
@@ -44,13 +43,10 @@ def setup_multi_job(setup, job):
 
 
     """
-    find a smarter way to do all of this...
-    It doesn't need to be here, but..
     What kind of output from M1D should be saved?
     Read from the config file, passed here throught the object setup
     """
-    job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
-
+    job.output.update( { 'write_ew':setup.write_ew, 'write_ts':setup.write_ts } )
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
@@ -81,9 +77,6 @@ def setup_multi_job(setup, job):
     else:
         print("write_ts flag unrecognised, stoppped")
         exit(1)
-
-
-
     return
 
 
@@ -114,7 +107,7 @@ def run_multi( job, atom, atmos):
     if job.output['write_ew'] > 0:
         out = m1d('./IDL1')
         if job.output['write_ew'] == 1:
-            mask = np.arange(out.nline)
+            mask = np.arange(out.nline-1)
         elif job.output['write_ew'] == 2:
             mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
 
@@ -167,18 +160,20 @@ def run_multi( job, atom, atmos):
     return
 
 
-def collect_output(setup):
+def collect_output(setup, jobs):
     from datetime import date
     today = date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
+    print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
-            for k in setup.jobs.keys():
-                job = setup.jobs[k]
+            for job in jobs:
                 data = open(job.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
+
     """ Collect all TS formatted NLTE grids into one """
+    print("Collecting TS formatted NLTE grids")
     if setup.write_ts > 0:
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
@@ -189,9 +184,8 @@ def collect_output(setup):
         com_f.write(header)
         # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
         pointer = len(header) + 1
-
-        for k in setup.jobs.keys():
-            job = setup.jobs[k]
+    #
+        for job in jobs:
             # departure coefficients in binary format
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
@@ -207,9 +201,11 @@ def collect_output(setup):
 
 
 
-def run_serial_job(setup, job):
-        setup_multi_job( setup, job )
+def run_serial_job(args):
+        setup = args[0]
+        job = args[1]
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
+        setup_multi_job( setup, job )
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
@@ -217,3 +213,4 @@ def run_serial_job(setup, job):
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
+        return job

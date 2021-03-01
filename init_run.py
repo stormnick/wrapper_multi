@@ -75,7 +75,8 @@ class serial_job(object):
         self.common_wd = parent.common_wd
         self.tmp_wd = parent.common_wd + '/job_%03d/' %(self.id)
         self.atmos = []
-        self.abudn = []
+        self.abund = []
+        self.output = {}
 
 # a setup of the run to compute NLTE grid, e.g. Mg over all MARCS grid
 class setup(object):
