@@ -34,6 +34,8 @@ if __name__ == '__main__':
     # wait until all processes are done before proceeding
     for p in workers:
         p.join()
+    for p in workers:
+        res = p.get()
 
     for k in set.jobs.keys():
         job = set.jobs[k]

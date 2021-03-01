@@ -214,4 +214,4 @@ def run_serial_job(setup, job):
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
-        return
+        return job
