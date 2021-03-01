@@ -136,30 +136,29 @@ def run_multi( job, i, atom, atmos):
 
         # faux.write("%10.0f \n" %(job.output['pointer']))
 
-        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
-        p = 1
+        record_len = 0
 
         atmosID = str.encode('%500s' %atmos.id)
-        p = p + 500
+        record_len = record_len + 500
         fbin.write(atmosID)
 
         ndep = int(out.ndep).to_bytes(4, 'little')
-        p = p + 4
+        record_len = record_len + 4
         fbin.write(ndep)
 
         nk = int(out.nk).to_bytes(4, 'little')
-        p = p + 4
+        record_len = record_len + 4
         fbin.write(nk)
 
         tau500 = np.array(out.tau, dtype='f8')
         fbin.write(tau500.tobytes())
-        p = p + out.ndep * 8
+        record_len = record_len + out.ndep * 8
         # #
         depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
         fbin.write(depart.tobytes())
-        p = p + out.ndep * out.nk * 8
+        record_len = record_len + out.ndep * out.nk * 8
 
-        job.output['rec_len'][i] = p
+        job.output['rec_len'][i] = record_len
 
         fbin.close()
         faux.close()
@@ -189,7 +188,8 @@ def collect_output(setup):
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
-        p = len(header)
+        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        p = len(header) + 1
 
         for k in setup.jobs.keys():
             job = setup.jobs[k]
@@ -198,7 +198,7 @@ def collect_output(setup):
                 com_f.write(f.read())
             # pointers to the begining of the record
             for i in range(len(job.atmos)):
-                print(i, job.atmos[i], job.abund[i], p)
+                print(i, job.atmos[i], job.abund[i], p, job.output['rec_len'][i],  p + job.output['rec_len'][i])
                 p = p + job.output['rec_len'][i]
 
         com_f.close()
