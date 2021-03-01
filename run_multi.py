@@ -30,6 +30,6 @@ if __name__ == '__main__':
         # p.start()
         # p.join()
 
-    collect_output(set)
+# collect_output(set)
 
     exit(0)
