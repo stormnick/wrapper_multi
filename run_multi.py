@@ -2,6 +2,7 @@ import sys
 import os
 from init_run import setup
 from parallel_worker import run_serial_job, collect_output
+import multiprocessing
 
 
 
@@ -29,4 +30,5 @@ for k in set.jobs.keys():
     p.start()
 
 collect_output(set)
-exit('Done')
+
+exit(0)
