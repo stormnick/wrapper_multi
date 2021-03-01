@@ -47,6 +47,7 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
         exit(1)
 
     step = totn_jobs//ncpu
+    print('step=', step)
     self.jobs = { }
     for i in range(ncpu-1):
         job = serial_job(self, i)
