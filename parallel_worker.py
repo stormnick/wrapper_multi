@@ -199,22 +199,9 @@ def collect_output(setup):
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
             # points to the begining of the record
-            for i in range(len(job.atmos)):
-                pointer = pointer + job.output['rec_len'][i]
-                com_aux.write("%s %10.0f \n" %(job.atmos[i], pointer) )
-
-                # I don't want to store all the model atmosphere in the memory
-                # so I will read them once again at the end of the run, to access the detailed info for the output
-                # # TODO: im not sure it's the best solution...
-                atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
-                com_aux.write("%s %10.4f %10.4f %10.4f %10.4f %10.0f \n" \
-                                %(atmos.ID,a tmos.teff, atmos.logg, atmos.feh, out.abnd, pointer) )
-
-
-f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
-    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
-        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
-
+            # for i in range(len(job.atmos)):
+                # pointer = pointer + job.output['rec_len'][i]
+                # com_aux.write("%s %10.0f \n" %(job.atmos[i], pointer) )
 
         com_f.close()
         com_aux.close()
