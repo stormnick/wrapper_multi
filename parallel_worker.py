@@ -142,7 +142,7 @@ def run_multi( job, atom, atmos):
             tau500.tofile(fbin, format='f8')
             job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
             #
-            depart = out.n/out.nstar
+            depart = (out.n/out.nstar).reshape(out.ndep, out.nk)
             print(np.shape(depart))
             print(depart)
             # b.tofile(fbin, format='f8')
