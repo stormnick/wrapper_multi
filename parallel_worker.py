@@ -165,6 +165,7 @@ def collect_output(setup, jobs):
     today = date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
+    print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
             for job in jobs:
@@ -172,6 +173,7 @@ def collect_output(setup, jobs):
                 com_f.writelines(data)
 
     """ Collect all TS formatted NLTE grids into one """
+    print("Collecting TS formatted NLTE grids")
     if setup.write_ts > 0:
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
