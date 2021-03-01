@@ -138,7 +138,8 @@ def run_multi( job, atom, atmos):
 
             nk = np.array([int(out.nk)])
             job.output['pointer'] = job.output['pointer'] + 8
-            nk.tofile(fbin, format='i4')
+            # nk.tofile(fbin, format='i4')
+            fbin.write(nk.tobytes())
 
             tau500 = out.tau
             tau500.tofile(fbin, format='f64')
