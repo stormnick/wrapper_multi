@@ -6,7 +6,7 @@ import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
-from multi_package.m1d import m1d
+from m1d_output import m1d, m1dline
 
 
 def mkdir(s):
@@ -51,22 +51,33 @@ def setup_multi_job(setup, job):
     Read from the config file, passed here throught the object setup
     """
     job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
+
+    """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
-        with open(job.tmp_wd + '/output_EW.dat', 'w') as f:
-            f.write("# Lambda, temp, logg.... \n")
         job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
+        with open(job.output['file_ew'], 'w') as f:
+            f.write("# Lambda, temp, logg.... \n")
     elif job.output['write_ew'] == 0:
         pass
     else:
         print("write_ew flag unrecognised, stoppped")
         exit(1)
 
-    ## departure coefficients for TS?
-    # if job['output']['write_ts'] == 1:
-        # f = open(job['tmp_wd'] + '/output_EW.dat', 'w')
-
-
+    """ Output for TS? """
+    if job.output['write_ts'] == 1:
+        header = "departure coefficients from serial job # %.0f" %(job.id)
+        header = str.encode('%1000s' %(header) )
+        # create a file to dump output from this serial job
+        # a pointer is set to 100
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':len(header)} )
+        with open(job.output['file_4ts'], 'wb') as f:
+            f.write(header)
+    elif job.output['write_ts'] == 0:
+        pass
+    else:
+        print("write_ts flag unrecognised, stoppped")
+        exit(1)
 
 
 
@@ -95,8 +106,8 @@ def run_multi( job, atom, atmos):
     sp.call(['multi1d.exe'])
 
     """ Read MULTI1D output and print to the common file """
-    out = m1d('./IDL1')
     if job.output['write_ew'] > 0:
+        out = m1d('./IDL1')
         if job.output['write_ew'] == 1:
             mask = np.arange(out.nline)
         elif job.output['write_ew'] == 2:
@@ -107,10 +118,35 @@ def run_multi( job, atom, atmos):
             # print(out.nline[mask])
             for kr in mask:
                 line = out.line[kr]
+                print(line)
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
-    print("Dooone")
+    """ Read MULTI1D output and save in a common binary file in the format for TS """
+    if job.output['write_ts'] == 1:
+        out = m1d('./IDL1')
+        with open(job.output['file_4ts'], 'ab') as fbin:
+            atmosID = str.encode('%500s' %atmos.id)
+            job.output['pointer'] = job.output['pointer'] + 500
+            fbin.write(atmosID)
+
+            ndep = int(out.ndep).to_bytes(4, 'little')
+            job.output['pointer'] = job.output['pointer'] + 4
+            fbin.write(ndep)
+
+            nk = int(out.nk).to_bytes(4, 'little')
+            job.output['pointer'] = job.output['pointer'] + 4
+            fbin.write(nk)
+
+            tau500 = np.array(out.tau, dtype='f8')
+            fbin.write(tau500.tobytes())
+            job.output['pointer'] = job.output['pointer'] + out.ndep * 8
+            # #
+            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+            fbin.write(depart.tobytes())
+            job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
+            print(job.output['pointer'])
+
     os.chdir(job.common_wd)
     return
 
