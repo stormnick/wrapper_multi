@@ -28,7 +28,6 @@ def setup_multi_job(setup, job):
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
-    print("SETTING UP")
     """ Make a temporary directory """
     mkdir(job.tmp_wd)
 
@@ -50,7 +49,7 @@ def setup_multi_job(setup, job):
     Read from the config file, passed here throught the object setup
     """
     job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
-
+    print(job.output, 'AAA')
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
