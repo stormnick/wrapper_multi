@@ -28,8 +28,6 @@ for k in set.jobs.keys():
     job = set.jobs[k]
     p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
     workers.append(p)
-with Pool(processes=4) as pool:
-    pool.map(run_serial_job, args=(set, job))
 # for p in workers:
     # p.start()
     # p.join()
