@@ -130,26 +130,22 @@ def run_multi( job, atom, atmos):
             job.output['pointer'] = job.output['pointer'] + 500
             fbin.write(atmosID)
 
-            # ndep = np.array([int(out.ndep)])
-            # print(out.ndep, out.nk)
             ndep = int(out.ndep).to_bytes(4, 'little')
             job.output['pointer'] = job.output['pointer'] + 4
-            # ndep.tofile(fbin, format='i4')
             fbin.write(ndep)
 
             nk = int(out.nk).to_bytes(4, 'little')
             job.output['pointer'] = job.output['pointer'] + 4
-            # nk.tofile(fbin, format='i4')
             fbin.write(nk)
 
             tau500 = np.array(out.tau, dtype='f8')
             fbin.write(tau500.tobytes())
-            # tau500.tofile(fbin, format='f64')
-            job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
+            job.output['pointer'] = job.output['pointer'] + 4 * 8
             # #
             depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
             fbin.write(depart.tobytes())
-            job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
+            job.output['pointer'] = job.output['pointer'] + 4 * 4 * 8
+            print(job.output['pointer'])
 
     os.chdir(job.common_wd)
     return
