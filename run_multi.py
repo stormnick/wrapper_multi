@@ -27,7 +27,7 @@ if __name__ == '__main__':
         for k in set.jobs.keys():
             job = set.jobs[k]
             # p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
-            pool.map(target=run_serial_job, args=(set, job))
+            pool.map(run_serial_job, args=(set, job))
             # print(p, p.is_alive())
             # workers.append(p)
         # for p in workers:
