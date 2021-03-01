@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.io import FortranFile
-from IPython.display import clear_output, display
+# from IPython.display import clear_output, display
 from m1d_output_auxfuncs import vacuum2obs
 
 hh=6.626176E-27
@@ -37,8 +37,7 @@ class m1d(object):
     def __init__(self, file, lines=[]):
         f = FortranFile(file, 'r')
 
-        clear_output(wait=True)
-        print('reading values from ' + file)
+        # clear_output(wait=True)
 
         iformat = 0
 
