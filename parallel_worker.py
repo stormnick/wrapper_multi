@@ -160,43 +160,42 @@ def run_multi( job, atom, atmos):
     return
 
 
-def collect_output(setup):
+def collect_output(setup, results):
     from datetime import date
     today = date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
-            for k in setup.jobs.keys():
-                job = setup.jobs[k]
-                print(job, job.__dict__)
-                data = open(job.output['file_ew'], 'r').readlines()
+            for res in results:
+                data = open(res.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
-    """ Collect all TS formatted NLTE grids into one """
-    if setup.write_ts > 0:
-        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
-        com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
-
-        # # TODO: write a proper header
-        header = "departure coefficients from all serial jobs"
-        header = str.encode('%1000s' %(header) )
-        com_f.write(header)
-        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
-        pointer = len(header) + 1
-
-        for k in setup.jobs.keys():
-            job = setup.jobs[k]
-            # departure coefficients in binary format
-            with open(job.output['file_4ts'], 'rb') as f:
-                com_f.write(f.read())
-            for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                if not line.startswith('#'):
-                    rec_len = int(line.split()[-1])
-                    com_aux.write('\t'.join(line.split()[0:-1]))
-                    com_aux.write("%10.0f \n" %(pointer))
-                    pointer = pointer + rec_len
-        com_f.close()
-        com_aux.close()
+                
+    # """ Collect all TS formatted NLTE grids into one """
+    # if setup.write_ts > 0:
+    #     com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
+    #     com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
+    #
+    #     # # TODO: write a proper header
+    #     header = "departure coefficients from all serial jobs"
+    #     header = str.encode('%1000s' %(header) )
+    #     com_f.write(header)
+    #     # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+    #     pointer = len(header) + 1
+    #
+    #     for k in setup.jobs.keys():
+    #         job = setup.jobs[k]
+    #         # departure coefficients in binary format
+    #         with open(job.output['file_4ts'], 'rb') as f:
+    #             com_f.write(f.read())
+    #         for line in open(job.output['file_4ts_aux'], 'r').readlines():
+    #             if not line.startswith('#'):
+    #                 rec_len = int(line.split()[-1])
+    #                 com_aux.write('\t'.join(line.split()[0:-1]))
+    #                 com_aux.write("%10.0f \n" %(pointer))
+    #                 pointer = pointer + rec_len
+    #     com_f.close()
+    #     com_aux.close()
     return
 
 
