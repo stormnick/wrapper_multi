@@ -199,9 +199,11 @@ def collect_output(setup):
             # departure coefficients in binary format
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
-            # pointers to the begining of the record
+            # points to the begining of the record
             for i in range(len(job.atmos)):
                 pointer = pointer + job.output['rec_len'][i]
+                com_aux.write("%s %10.0f" %(job.atmos[i], pointer) )
+                # atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
 
         com_f.close()
         com_aux.close()
