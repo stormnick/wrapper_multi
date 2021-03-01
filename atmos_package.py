@@ -136,7 +136,7 @@ class model_atmosphere(object):
         """
         if format.lower() == 'marcs':
             read_atmos_marcs(self, file)
-            print("Setting depth scale to tau500")
+            # print("Setting depth scale to tau500")
             self.depth_scale_type = 'TAU500'
             self.depth_scale = self.tau500
         elif format.lower() == 'm1d':

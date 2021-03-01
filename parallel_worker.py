@@ -1,4 +1,3 @@
-import multiprocessing
 import sys
 import subprocess as sp
 import os
@@ -57,6 +56,7 @@ def setup_multi_job(setup, job):
         # create file to dump output
         job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
         with open(job.output['file_ew'], 'w') as f:
+            ## TODO: write a proper comment string
             f.write("# Lambda, temp, logg.... \n")
     elif job.output['write_ew'] == 0:
         pass
@@ -66,13 +66,16 @@ def setup_multi_job(setup, job):
 
     """ Output for TS? """
     if job.output['write_ts'] == 1:
-        header = "departure coefficients from serial job # %.0f" %(job.id)
-        header = str.encode('%1000s' %(header) )
         # create a file to dump output from this serial job
-        # pointer = 1+ because Fortran starts with 1, Python starts with 0
-        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':1 + len(header)} )
+        # array rec_len stores a length of the record in bytes
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin',\
+                'file_4ts_aux' : job.tmp_wd + '/auxdata_4TS.txt', \
+                'rec_len': np.zeros(len(job.atmos), dtype=int) } )
+        # create the files
         with open(job.output['file_4ts'], 'wb') as f:
-            f.write(header)
+            pass
+        with open(job.output['file_4ts_aux'], 'w') as f:
+            pass
     elif job.output['write_ts'] == 0:
         pass
     else:
@@ -88,10 +91,12 @@ def run_multi( job, atom, atmos):
     """
     Run MULTI1D
     input:
-    (string) wd: path to a temporary working directory,
-        created in setup_multi_job
+    (object) setup:
+    (object) job:
+    (integer) i: index pointing to the current model atmosphere and abundance
+                 (in job.atmos, job.abund)
+                 this model atmosphere and abund will be used to run M1D
     (object) atom:  object of class model_atom
-    (object) atmos: object of class model_atmosphere
     """
 
     """ Create ATOM input file for M1D """
@@ -115,42 +120,89 @@ def run_multi( job, atom, atmos):
 
         with open(job.output['file_ew'], 'a')as f:
 
-            # print(out.nline[mask])
             for kr in mask:
                 line = out.line[kr]
-                print(line)
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
+
     """ Read MULTI1D output and save in a common binary file in the format for TS """
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
-        print(job.output['pointer'])
-        with open(job.output['file_4ts'], 'ab') as fbin:
-            atmosID = str.encode('%500s' %atmos.id)
-            job.output['pointer'] = job.output['pointer'] + 500
-            fbin.write(atmosID)
 
-            ndep = int(out.ndep).to_bytes(4, 'little')
-            job.output['pointer'] = job.output['pointer'] + 4
-            fbin.write(ndep)
+        fbin = open(job.output['file_4ts'], 'ab')
+        faux = open(job.output['file_4ts_aux'], 'a')
 
-            nk = int(out.nk).to_bytes(4, 'little')
-            job.output['pointer'] = job.output['pointer'] + 4
-            fbin.write(nk)
+        # length of the record in the binary file for this model atmosphere and abundance
+        record_len = 0
 
-            tau500 = np.array(out.tau, dtype='f8')
-            fbin.write(tau500.tobytes())
-            job.output['pointer'] = job.output['pointer'] + out.ndep * 8
-            # #
-            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
-            fbin.write(depart.tobytes())
-            job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
+        atmosID = str.encode('%500s' %atmos.id)
+        record_len = record_len + 500
+        fbin.write(atmosID)
+
+        ndep = int(out.ndep).to_bytes(4, 'little')
+        record_len = record_len + 4
+        fbin.write(ndep)
+
+        nk = int(out.nk).to_bytes(4, 'little')
+        record_len = record_len + 4
+        fbin.write(nk)
+
+        tau500 = np.array(out.tau, dtype='f8')
+        fbin.write(tau500.tobytes())
+        record_len = record_len + out.ndep * 8
+
+        depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+        fbin.write(depart.tobytes())
+        record_len = record_len + out.ndep * out.nk * 8
+
+
+        faux.write(" %s %10.4f %10.4f %10.4f  %10.2f %10.4f %10.0f \n" \
+                    %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  np.mean(atmos.vturb), out.abnd, record_len  ) )
+
+        fbin.close()
+        faux.close()
 
     os.chdir(job.common_wd)
     return
 
-def read_m1d_output():
+
+def collect_output(setup):
+    from datetime import date
+    today = date.today().strftime("%b-%d-%Y")
+
+    """ Collect all EW grids into one """
+    if setup.write_ew > 0:
+        with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
+            for k in setup.jobs.keys():
+                job = setup.jobs[k]
+                data = open(job.output['file_ew'], 'r').readlines()
+                com_f.writelines(data)
+    """ Collect all TS formatted NLTE grids into one """
+    if setup.write_ts > 0:
+        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
+        com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
+
+        # # TODO: write a proper header
+        header = "departure coefficients from all serial jobs"
+        header = str.encode('%1000s' %(header) )
+        com_f.write(header)
+        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        pointer = len(header) + 1
+
+        for k in setup.jobs.keys():
+            job = setup.jobs[k]
+            # departure coefficients in binary format
+            with open(job.output['file_4ts'], 'rb') as f:
+                com_f.write(f.read())
+            for line in open(job.output['file_4ts_aux'], 'r').readlines():
+                if not line.startswith('#'):
+                    rec_len = int(line.split()[-1])
+                    com_aux.write('\t'.join(line.split()[0:-1]))
+                    com_aux.write("%10.0f \n" %(pointer))
+                    pointer = pointer + rec_len
+        com_f.close()
+        com_aux.close()
     return
 
 
@@ -164,14 +216,4 @@ def run_serial_job(setup, job):
             atom.abund  =  job.abund[i]
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
-            # read output
         # shutil.rmtree(job['tmp_wd'])
-
-
-
-    # """ Start individual jobs """
-    # workers = []
-    # for k in set.jobs.keys():
-    #     p = multiprocessing.Process( target=run_multi( k, set ) )
-    #     workers.append(p)
-    #     p.start()
