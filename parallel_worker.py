@@ -57,6 +57,7 @@ def setup_multi_job(setup, job):
         # create file to dump output
         job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
         with open(job.output['file_ew'], 'w') as f:
+            ## TODO: write a proper comment string
             f.write("# Lambda, temp, logg.... \n")
     elif job.output['write_ew'] == 0:
         pass
@@ -66,6 +67,7 @@ def setup_multi_job(setup, job):
 
     """ Output for TS? """
     if job.output['write_ts'] == 1:
+        # # TODO: write a proper header
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
         # create a file to dump output from this serial job
@@ -153,14 +155,29 @@ def run_multi( job, atom, atmos):
 def collect_output(setup):
     from datetime import date
     today = date.today().strftime("%b-%d-%Y")
+
+    """ Collect all EW grids into one """
     if setup.write_ew > 0:
         print("Collecting EW grids...")
-        """ Collect all EW grids into one """
-        with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as f:
+        with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
-                f.writelines(data)
+                com_f.writelines(data)
+    """ Collect all TS formatted NLTE grids into one """
+    if setup.write_ts > 0:
+        print("Collecting TS formatted grids...")
+        with open(setup.common_wd + '/output_NLTEgrid4TS_%s.dat' %(today), 'wb') as com_f:
+            for k in setup.jobs.keys():
+                job = setup.jobs[k]
+                with open(job.output['file_4ts']) as f:
+                    com_f.write(f.read())
+                # data = open(job.output['file_ew'], 'r').readlines()
+
+
+
+
+
     return
 
 
