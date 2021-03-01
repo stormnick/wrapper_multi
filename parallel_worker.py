@@ -69,8 +69,8 @@ def setup_multi_job(setup, job):
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
         # create a file to dump output from this serial job
-        # a pointer is set to 100
-        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':len(header)} )
+        # pointer = 1+ because Fortran starts with 1, Python starts with 0
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':1 + len(header)} )
         with open(job.output['file_4ts'], 'wb') as f:
             f.write(header)
     elif job.output['write_ts'] == 0:
@@ -145,7 +145,7 @@ def run_multi( job, atom, atmos):
             # #
             depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
             fbin.write(depart.tobytes())
-            job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8 + 1
+            job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
 
     os.chdir(job.common_wd)
     return
