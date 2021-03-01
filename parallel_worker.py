@@ -160,7 +160,7 @@ def collect_output(setup):
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
-                f.writelines()
+                f.writelines(data)
     return
 
 
