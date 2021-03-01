@@ -35,5 +35,8 @@ if __name__ == '__main__':
     for p in workers:
         p.join()
 
+    for k in set.jobs.keys():
+        job = set.jobs[k]
+        print('before collecting:', job.output)
     collect_output(set)
     exit(0)
