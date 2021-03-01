@@ -49,7 +49,6 @@ def setup_multi_job(setup, job):
     Read from the config file, passed here throught the object setup
     """
     job.output = { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts }
-    print(job.output, 'AAA')
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
@@ -175,6 +174,7 @@ def collect_output(setup):
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
+                print(job, job.__dict__)
                 data = open(job.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
     """ Collect all TS formatted NLTE grids into one """
