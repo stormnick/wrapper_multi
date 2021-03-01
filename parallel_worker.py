@@ -201,7 +201,9 @@ def collect_output(setup):
 
 
 
-def run_serial_job(setup, job):
+def run_serial_job(args):
+        setup = args[0]
+        job = args[1]
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
         setup_multi_job( setup, job )
         for i in range(len(job.atmos)):
