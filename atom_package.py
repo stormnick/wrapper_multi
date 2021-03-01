@@ -79,8 +79,6 @@ def read_atom(self, file):
                 if  len(li.split()) != 2:
                     c_noncom += 1
                     # how many frequency points for this transition?
-                    print(li)
-                    
                     nq = int(li.split()[3])
                     self.bf[kr] = bfline(data[ c_all - 1 : c_all+nq ])
                     kr += 1

@@ -46,7 +46,7 @@ def setup_multi_job(setup, job):
     What kind of output from M1D should be saved?
     Read from the config file, passed here throught the object setup
     """
-    job.output.update( { 'write_ew':setup.write_ew, 'write_profiles':setup.write_profiles, 'write_ts':setup.write_ts } )
+    job.output.update( { 'write_ew':setup.write_ew, 'write_ts':setup.write_ts } )
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
