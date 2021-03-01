@@ -214,5 +214,6 @@ def run_serial_job(setup, job):
             atom.abund  =  job.abund[i]
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
+            print('After multi run:', job.output)
         # shutil.rmtree(job['tmp_wd'])
         return
