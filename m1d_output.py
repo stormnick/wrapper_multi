@@ -146,6 +146,8 @@ class m1d(object):
         self.height = f.read_reals(np.float32)
 
         # print(read_str(f, dtype=None).split())
+        print(read_str(f, dtype=None).split())
+
         self.atmosid, self.dpid, self.dptype = read_str(f, dtype=None).split()
 
         self.vturb = f.read_reals(np.float32)
