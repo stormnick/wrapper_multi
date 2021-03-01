@@ -205,14 +205,6 @@ def collect_output(setup):
                     com_aux.write('\t'.join(line.split()[0:-1]))
                     com_aux.write("%10.0f \n" %(pointer))
                     pointer = pointer + rec_len
-
-
-
-            # points to the begining of the record
-            # for i in range(len(job.atmos)):
-                # pointer = pointer + job.output['rec_len'][i]
-                # com_aux.write("%s %10.0f \n" %(job.atmos[i], pointer) )
-
         com_f.close()
         com_aux.close()
     return
