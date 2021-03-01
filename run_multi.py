@@ -27,23 +27,7 @@ if __name__ == '__main__':
     for k in set.jobs.keys():
         args.append([set, set.jobs[k]] )
     with Pool(processes=set.ncpu) as pool:
-        results = pool.map( run_serial_job, args )
+        jobs_with_result = pool.map( run_serial_job, args )
 
-    collect_output(set, results)
-
-    #
-    # # """ Start individual jobs """
-    # workers = []
-    # for k in set.jobs.keys():
-    #     job = set.jobs[k]
-    #     p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
-    #     workers.append(p)
-    # # start every process with a delay of 1 second
-    # for p in workers:
-    #     p.start()
-    #     time.sleep(1)
-    # # wait until all processes are done before proceeding
-    # for p in workers:
-    #     p.join()
-    #
-    # exit(0)
+    collect_output(set, jobs_with_result)
+    exit(0)
