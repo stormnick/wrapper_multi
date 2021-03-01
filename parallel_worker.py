@@ -162,6 +162,7 @@ def collect_output(setup):
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
                 print(data)
+                data.tofile(comEW)
     return
 
 
@@ -175,7 +176,6 @@ def run_serial_job(setup, job):
             atom.abund  =  job.abund[i]
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
-            # read output
         # shutil.rmtree(job['tmp_wd'])
 
 
