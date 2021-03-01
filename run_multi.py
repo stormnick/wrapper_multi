@@ -26,7 +26,6 @@ if __name__ == '__main__':
     for k in set.jobs.keys():
         job = set.jobs[k]
         p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
-        print(p, p.is_alive())
         workers.append(p)
     # start every process with a delay of 1 second
     for p in workers:
