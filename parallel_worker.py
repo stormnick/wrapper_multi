@@ -201,11 +201,11 @@ def collect_output(setup):
             for line in open(job.output['file_4ts_aux'], 'r').readlines():
                 print(line)
                 if not line.startswith('#'):
-                    print(line.split()[0:-2])
                     rec_len = int(line.split()[-1])
+                    com_aux.writelines(line.split()[0:-2])
+                    com_aux.write("  %10.0f \n" %(pointer))
                     pointer = pointer + rec_len
-                    print(rec_len)
-                    com_aux.write("%10.0f \n" %(pointer))
+
 
 
             # points to the begining of the record
