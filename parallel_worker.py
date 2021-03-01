@@ -135,7 +135,7 @@ def run_multi( job, atom, atmos):
         fbin = open(job.output['file_4ts'], 'ab')
         faux = open(job.output['file_4ts_aux'], 'a')
 
-        faux.write("%10.0 \n" %(job.output['pointer']))
+        faux.write("%10.0f \n" %(job.output['pointer']))
 
         atmosID = str.encode('%500s' %atmos.id)
         job.output['pointer'] = job.output['pointer'] + 500
@@ -187,7 +187,7 @@ def collect_output(setup):
                 com_f.write(f.read())
             with open(job.output['file_4ts_aux'], 'r') as f:
                 com_aux.write(f.read())
-                
+
         com_f.close()
         com_aux.close()
     return
