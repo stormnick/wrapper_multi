@@ -23,9 +23,9 @@ if __name__ == '__main__':
 
 
     from multiprocessing import Pool
-    args = np.zeros(set.ncpu)
+    args = []
     for k in set.jobs.keys():
-        args[k] = [set, set.jobs[k]]
+        args.append([set, set.jobs[k]] )
     with Pool(processes=set.ncpu) as pool:
         print(pool.map( run_serial_job, args ))
 
