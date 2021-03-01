@@ -187,9 +187,9 @@ def collect_output(setup):
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
             for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                pointer = p + int(line.strip())
-                print(line, pointer)
-                
+                if not line.startswith('#'):
+                    pointer = p + int(line.strip())
+                    print(line, pointer)
             p = pointer
 
         com_f.close()
