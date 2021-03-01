@@ -132,14 +132,15 @@ def run_multi( job, atom, atmos):
 
             # ndep = np.array([int(out.ndep)])
             # print(out.ndep, out.nk)
+            ndep = int(out.ndep).to_bytes(4, 'little')
             job.output['pointer'] = job.output['pointer'] + 4
             # ndep.tofile(fbin, format='i4')
-            fbin.write(int(out.ndep).to_bytes(4, 'little'))
+            fbin.write(ndep)
 
-            nk = np.array([int(out.nk)])
-            job.output['pointer'] = job.output['pointer'] + 8
+            nk = int(out.nk).to_bytes(4, 'little')
+            job.output['pointer'] = job.output['pointer'] + 4
             # nk.tofile(fbin, format='i4')
-            fbin.write(nk.tobytes())
+            fbin.write(nk)
 
             # tau500 = np.array(out.tau, dtype='f8')
             # fbin.write(tau500.tobytes())
