@@ -140,7 +140,7 @@ def run_multi( job, i, atom, atmos):
         p = 1
 
         atmosID = str.encode('%500s' %atmos.id)
-         = job.output['pointer'] + 500
+        p = p + 500
         fbin.write(atmosID)
 
         ndep = int(out.ndep).to_bytes(4, 'little')
