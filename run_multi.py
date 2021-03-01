@@ -29,6 +29,7 @@ for k in set.jobs.keys():
     p = multiprocessing.Process( target=run_serial_job(set, job) )
     workers.append(p)
     p.start()
+    p.join()
 
 collect_output(set)
 
