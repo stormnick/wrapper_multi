@@ -150,7 +150,18 @@ def run_multi( job, atom, atmos):
     os.chdir(job.common_wd)
     return
 
-def read_m1d_output():
+def collect_output(setup):
+    from datetime import date
+    today = date.today()
+    print("%s" %today)
+    if setup.write_ew > 0:
+        print("Collecting EW grids...")
+        comEW = setup.common_wd + '/output_EWgrid_full.dat'
+        # with open(comEW, 'w') as f:
+
+    # for k in set.jobs.keys():
+        # job = set.jobs[k]
+
     return
 
 

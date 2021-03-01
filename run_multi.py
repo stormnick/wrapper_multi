@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import setup
-from parallel_worker import run_serial_job
+from parallel_worker import run_serial_job, collect_output
 
 
 
@@ -19,3 +19,4 @@ set = setup(file=config_file)
 for k in set.jobs.keys():
     job = set.jobs[k]
     run_serial_job(set, job)
+collect_output(set)
