@@ -68,9 +68,10 @@ def setup_multi_job(setup, job):
     if job.output['write_ts'] == 1:
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
-
         # create a file to dump output from this serial job
-        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':1 } )
+        # a pointer is set to 100
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':len(header)} )
+        print(job.output['pointer'])
         with open(job.output['file_4ts'], 'wb') as f:
             f.write(header)
     elif job.output['write_ts'] == 0:
@@ -140,11 +141,11 @@ def run_multi( job, atom, atmos):
 
             tau500 = np.array(out.tau, dtype='f8')
             fbin.write(tau500.tobytes())
-            job.output['pointer'] = job.output['pointer'] + 4 * 8
+            job.output['pointer'] = job.output['pointer'] + ndep * 8
             # #
             depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
             fbin.write(depart.tobytes())
-            job.output['pointer'] = job.output['pointer'] + 4 * 4 * 8
+            job.output['pointer'] = job.output['pointer'] + ndep * nk * 8
             print(job.output['pointer'])
 
     os.chdir(job.common_wd)
