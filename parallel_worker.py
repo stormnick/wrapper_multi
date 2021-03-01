@@ -178,7 +178,7 @@ def collect_output(setup):
     """ Collect all TS formatted NLTE grids into one """
     if setup.write_ts > 0:
         print("Collecting TS formatted grids...")
-        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.dat' %(today), 'wb')
+        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
         for k in setup.jobs.keys():
