@@ -23,16 +23,16 @@ if __name__ == '__main__':
 
     # """ Start individual jobs """
     workers = []
-    with Pool(processes=set.ncpu) as pool:
-        for k in set.jobs.keys():
-            job = set.jobs[k]
-            # p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
-            pool.apply_async(run_serial_job, (set, job))
-            # print(p, p.is_alive())
-            # workers.append(p)
-        # for p in workers:
-        #     p.start()
-        #     # p.join()
+    for k in set.jobs.keys():
+        job = set.jobs[k]
+        p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
+        print(p, p.is_alive())
+        workers.append(p)
+    for p in workers:
+        p.start()
+    for p in workers:
+        p.join()        
+        # p.join()
 
 # collect_output(set)
 
