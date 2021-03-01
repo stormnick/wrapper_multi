@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import setup
-from parallel_worker import *
+from parallel_worker import run_serial_job, collect_output
 import multiprocessing
 
 
@@ -25,11 +25,11 @@ workers = []
 
 for k in set.jobs.keys():
     job = set.jobs[k]
-    setup_multi_job(set, job)
     p = multiprocessing.Process( target=run_serial_job(set, job) )
     workers.append(p)
 for p in workers:
     p.start()
+    p.loin()
 
 collect_output(set)
 
