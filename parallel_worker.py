@@ -152,11 +152,10 @@ def run_multi( job, atom, atmos):
 
 def collect_output(setup):
     from datetime import date
-    today = date.today()
-    print("%s" %today)
+    today = date.today().strftime("%b-%d-%Y")
     if setup.write_ew > 0:
         print("Collecting EW grids...")
-        comEW = setup.common_wd + '/output_EWgrid_full.dat'
+        comEW = setup.common_wd + '/output_EWgrid_%s.dat' %(today)
         # with open(comEW, 'w') as f:
 
     # for k in set.jobs.keys():
