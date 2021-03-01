@@ -6,31 +6,30 @@ import multiprocessing
 
 
 
-# if __name__ == '__main__':
 if len(sys.argv) > 1:
     config_file = sys.argv[1]
 else:
     config_file = './config.txt'
 
+if __name__ == '__main__':
 
-""" Read config. file and distribute individual jobs """
-set = setup(file=config_file)
-""" Start individual (serial) jobs in parallel """
-# here comes the multiprocessing part
+    """ Read config. file and distribute individual jobs """
+    set = setup(file=config_file)
+    """ Start individual (serial) jobs in parallel """
+    # here comes the multiprocessing part
 
 
     # """ Start individual jobs """
-workers = []
+    workers = []
+    for k in set.jobs.keys():
+        job = set.jobs[k]
+        p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
+        print(p, p.is_alive())
+        workers.append(p)
+    # for p in workers:
+        # p.start()
+        # p.join()
 
+    collect_output(set)
 
-for k in set.jobs.keys():
-    job = set.jobs[k]
-    p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
-    workers.append(p)
-# for p in workers:
-    # p.start()
-    # p.join()
-
-collect_output(set)
-
-exit(0)
+    exit(0)
