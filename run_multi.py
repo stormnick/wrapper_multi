@@ -37,6 +37,6 @@ if __name__ == '__main__':
 
     for k in set.jobs.keys():
         job = set.jobs[k]
-        print(k, set.jobs[k])
+        print(k, set.jobs[k], set.jobs[k].__dict__)
     # collect_output(set)
     exit(0)
