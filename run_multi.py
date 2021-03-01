@@ -25,12 +25,12 @@ workers = []
 
 for k in set.jobs.keys():
     job = set.jobs[k]
-    print('job #', k)
-    p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
+    setup_multi_job(set, job)
+    p = multiprocessing.Process( target=run_serial_job(set, job) )
     workers.append(p)
 for p in workers:
     p.start()
-    
+
 collect_output(set)
 
 exit(0)
