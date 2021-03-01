@@ -71,10 +71,15 @@ def setup_multi_job(setup, job):
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
         # create a file to dump output from this serial job
-        # a pointer is set to 100
-        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':len(header)} )
+        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
+                'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
+                'pointer': 1 + len(header)} )
         with open(job.output['file_4ts'], 'wb') as f:
             f.write(header)
+        with open(job.output['file_4ts_aux'], 'w') as f:
+            ## TODO: write a proper header
+            f.write("# ")
     elif job.output['write_ts'] == 0:
         pass
     else:
@@ -127,27 +132,33 @@ def run_multi( job, atom, atmos):
     """ Read MULTI1D output and save in a common binary file in the format for TS """
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
-        with open(job.output['file_4ts'], 'ab') as fbin:
-            atmosID = str.encode('%500s' %atmos.id)
-            job.output['pointer'] = job.output['pointer'] + 500
-            fbin.write(atmosID)
+        fbin = open(job.output['file_4ts'], 'ab')
+        faux = open(job.output['file_4ts_aux'], 'a')
 
-            ndep = int(out.ndep).to_bytes(4, 'little')
-            job.output['pointer'] = job.output['pointer'] + 4
-            fbin.write(ndep)
+        faux.write("%10.0 \n" %(job.output['pointer']))
 
-            nk = int(out.nk).to_bytes(4, 'little')
-            job.output['pointer'] = job.output['pointer'] + 4
-            fbin.write(nk)
+        atmosID = str.encode('%500s' %atmos.id)
+        job.output['pointer'] = job.output['pointer'] + 500
+        fbin.write(atmosID)
 
-            tau500 = np.array(out.tau, dtype='f8')
-            fbin.write(tau500.tobytes())
-            job.output['pointer'] = job.output['pointer'] + out.ndep * 8
-            # #
-            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
-            fbin.write(depart.tobytes())
-            job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
-            print(job.output['pointer'])
+        ndep = int(out.ndep).to_bytes(4, 'little')
+        job.output['pointer'] = job.output['pointer'] + 4
+        fbin.write(ndep)
+
+        nk = int(out.nk).to_bytes(4, 'little')
+        job.output['pointer'] = job.output['pointer'] + 4
+        fbin.write(nk)
+
+        tau500 = np.array(out.tau, dtype='f8')
+        fbin.write(tau500.tobytes())
+        job.output['pointer'] = job.output['pointer'] + out.ndep * 8
+        # #
+        depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+        fbin.write(depart.tobytes())
+        job.output['pointer'] = job.output['pointer'] + out.ndep * out.nk * 8
+
+        fbin.close()
+        faux.clos()
 
     os.chdir(job.common_wd)
     return
@@ -167,16 +178,14 @@ def collect_output(setup):
     """ Collect all TS formatted NLTE grids into one """
     if setup.write_ts > 0:
         print("Collecting TS formatted grids...")
-        with open(setup.common_wd + '/output_NLTEgrid4TS_%s.dat' %(today), 'wb') as com_f:
+        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.dat' %(today), 'wb')
+        com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
-                with open(job.output['file_4ts']) as f:
+                with open(job.output['file_4ts'], 'rb') as f:
                     com_f.write(f.read())
-                # data = open(job.output['file_ew'], 'r').readlines()
-
-
-
-
+                with open(job.output['file_4ts_aux'], 'r') as f:
+                    com_aux.write(f.read())
 
     return
 
