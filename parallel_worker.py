@@ -142,7 +142,7 @@ def run_multi( job, atom, atmos):
             fbin.write(nk.tobytes())
 
             tau500 = out.tau
-            fbin.write(tau500.tobytes())
+            fbin.write(tau500.tobytes(dtype='f8'))
             # tau500.tofile(fbin, format='f64')
             job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
             #
