@@ -198,6 +198,15 @@ def collect_output(setup):
             # departure coefficients in binary format
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
+            for line in open(job.output['file_4ts_aux'], 'rb').readlines():
+                if not line.startswith('#'):
+                    print(line.split()[0:-2])
+                    rec_len = int(line.split()[-1])
+                    pointer = pointer + rec_len
+                    print(rec_len)
+                    com_aux.write("%10.0f \n" %(pointer))
+
+
             # points to the begining of the record
             # for i in range(len(job.atmos)):
                 # pointer = pointer + job.output['rec_len'][i]
