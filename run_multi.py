@@ -25,6 +25,9 @@ if __name__ == '__main__':
     workers = []
     for k in set.jobs.keys():
         job = set.jobs[k]
+        print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
+        setup_multi_job( setup, job )
+
         p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
         workers.append(p)
     # start every process with a delay of 1 second
@@ -34,8 +37,6 @@ if __name__ == '__main__':
     # wait until all processes are done before proceeding
     for p in workers:
         p.join()
-    for p in workers:
-        res = p.get()
 
     for k in set.jobs.keys():
         job = set.jobs[k]
