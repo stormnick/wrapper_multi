@@ -26,9 +26,9 @@ if __name__ == '__main__':
         p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
         print(p, p.is_alive())
         workers.append(p)
-    # for p in workers:
-        # p.start()
-        # p.join()
+    for p in workers:
+        p.start()
+        p.join()
 
 # collect_output(set)
 
