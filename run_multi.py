@@ -28,7 +28,7 @@ if __name__ == '__main__':
         workers.append(p)
     for p in workers:
         p.start()
-        p.join()
+        # p.join()
 
 # collect_output(set)
 
