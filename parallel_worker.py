@@ -155,14 +155,12 @@ def collect_output(setup):
     today = date.today().strftime("%b-%d-%Y")
     if setup.write_ew > 0:
         print("Collecting EW grids...")
-        comEW = setup.common_wd + '/output_EWgrid_%s.dat' %(today)
         """ Collect all EW grids into one """
-        with open(comEW, 'w') as f:
+        with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as f:
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
-                print(data)
-                np.savetxt(comEW, data)
+                f.writelines()
     return
 
 
