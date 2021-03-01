@@ -134,7 +134,6 @@ class model_atmosphere(object):
         (string) file: file with model atmosphere, default: atmos.sun
         (string) format: m1d, marcs, stagger, see function calls below
         """
-        print(format)
         if format.lower() == 'marcs':
             read_atmos_marcs(self, file)
             print("Setting depth scale to tau500")
