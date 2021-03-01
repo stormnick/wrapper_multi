@@ -199,6 +199,7 @@ def collect_output(setup):
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
             for line in open(job.output['file_4ts_aux'], 'rb').readlines():
+                print(line)
                 if not line.startswith('#'):
                     print(line.split()[0:-2])
                     rec_len = int(line.split()[-1])
