@@ -202,8 +202,8 @@ def collect_output(setup):
                 print(line)
                 if not line.startswith('#'):
                     rec_len = int(line.split()[-1])
-                    com_aux.writelines(line.split()[0:-2])
-                    com_aux.write("  %10.0f \n" %(pointer))
+                    f.write(4*' '.join(line.split()[0:-2]))
+                    com_aux.write("%10.0f \n" %(pointer))
                     pointer = pointer + rec_len
 
 
