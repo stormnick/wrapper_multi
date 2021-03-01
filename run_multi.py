@@ -5,6 +5,7 @@ from parallel_worker import run_serial_job, collect_output
 import multiprocessing
 from multiprocessing import Pool
 import time
+import numpy as np
 
 
 
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     for k in set.jobs.keys():
         args[k] = [set, set.jobs[k]]
     with Pool(processes=set.ncpu) as pool:
-        pool.map( run_serial_job, args )
+        print(pool.map( run_serial_job, args ))
 
 
 
