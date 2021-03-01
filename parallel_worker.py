@@ -193,12 +193,13 @@ def collect_output(setup):
 
         for k in setup.jobs.keys():
             job = setup.jobs[k]
-            # a pointer to the last record
-            print(k, job.output['pointer_end'])#, pointer)
-            # with open(job.output['file_4ts'], 'rb') as f:
-                # com_f.write(f.read())
-            # for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                # if not line.startswith('#'):/
+            # departure coefficients in binary format
+            with open(job.output['file_4ts'], 'rb') as f:
+                com_f.write(f.read())
+            # pointers to the begining of the record
+            for i in range(len(job.atmos)):
+                print(i, job.atmos[i], job.abund[i], p)
+                p = p + job.output['rec_len'][i]
 
         com_f.close()
         com_aux.close()
