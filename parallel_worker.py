@@ -67,16 +67,13 @@ def setup_multi_job(setup, job):
 
     """ Output for TS? """
     if job.output['write_ts'] == 1:
-        # # TODO: write a proper header
-        header = "departure coefficients from serial job # %.0f" %(job.id)
-        header = str.encode('%1000s' %(header) )
         # create a file to dump output from this serial job
         # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
                 'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
-                'pointer': 1 + len(header)} )
+                'pointer': 1 } )
         with open(job.output['file_4ts'], 'wb') as f:
-            f.write(header)
+            pass
         with open(job.output['file_4ts_aux'], 'w') as f:
             ## TODO: write a proper header
             f.write("# \n")
@@ -129,6 +126,7 @@ def run_multi( job, atom, atmos):
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
+
     """ Read MULTI1D output and save in a common binary file in the format for TS """
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
@@ -181,7 +179,12 @@ def collect_output(setup):
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
-        p = 0
+        # # TODO: write a proper header
+        header = "departure coefficients from serial job # %.0f" %(job.id)
+        header = str.encode('%1000s' %(header) )
+        com_f.write(header)
+        p = len(header) 
+
         for k in setup.jobs.keys():
             job = setup.jobs[k]
             with open(job.output['file_4ts'], 'rb') as f:
