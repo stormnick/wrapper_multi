@@ -39,24 +39,34 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
     atmos_list, abund_list= np.meshgrid(atmos_list, abund_list)
     atmos_list = atmos_list.flatten()
     abund_list = abund_list.flatten()
-    # print(atmos_list,abund_list )
+    print(atmos_list,abund_list )
 
 
     if (ncpu > totn_jobs):
         print("Requested more CPUs (%.0f) than model atmospheres provided (%.0f)" %( ncpu, totn_jobs ) )
         exit(1)
 
-    step = totn_jobs//ncpu
     self.jobs = { }
-    for i in range(ncpu-1):
-        job = serial_job(self, i)
-        job.atmos = atmos_list[step*i: step*(i+1)]
-        job.abund = abund_list[step*i: step*(i+1)]
-        self.jobs.update({ i : job })
-    job = serial_job(self, ncpu-1)
-    job.atmos = atmos_list[step*ncpu-1 : ]
-    job.abund = abund_list[step*ncpu-1 : ]
-    self.jobs.update({ ncpu-1 : job })
+    if ncpu > 1:
+        step = totn_jobs//ncpu
+        for i in range(ncpu-1):
+            job = serial_job(self, i)
+            job.atmos = atmos_list[step*i: step*(i+1)]
+            job.abund = abund_list[step*i: step*(i+1)]
+            self.jobs.update({ i : job })
+        job = serial_job(self, ncpu-1)
+        job.atmos = atmos_list[step*ncpu-1 : ]
+        job.abund = abund_list[step*ncpu-1 : ]
+        self.jobs.update({ ncpu-1 : job })
+    elif ncpu == 1:
+        job = serial_job(self, 0)
+        job.atmos = atmos_list
+        job.abund = abund_list
+        self.jobs.update({ 0 : job })
+    else:
+        print("unrecognised ncpu=%.0f. stopped" %ncpu)
+        exit(1)
+
 
     return
 

@@ -129,6 +129,7 @@ def run_multi( job, atom, atmos):
     """ Read MULTI1D output and save in a common binary file in the format for TS """
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
+
         fbin = open(job.output['file_4ts'], 'ab')
         faux = open(job.output['file_4ts_aux'], 'a')
 
