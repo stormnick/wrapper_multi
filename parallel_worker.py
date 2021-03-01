@@ -183,7 +183,7 @@ def collect_output(setup):
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
-        p = len(header) 
+        p = len(header)
 
         for k in setup.jobs.keys():
             job = setup.jobs[k]
@@ -192,7 +192,7 @@ def collect_output(setup):
             for line in open(job.output['file_4ts_aux'], 'r').readlines():
                 if not line.startswith('#'):
                     pointer = p + int(line.strip())
-                    print(line, pointer)
+                    print(k, p, pointer)
             p = pointer
 
         com_f.close()
