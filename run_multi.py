@@ -28,14 +28,13 @@ if __name__ == '__main__':
         p = multiprocessing.Process( target=run_serial_job, args=(set, job) )
         print(p, p.is_alive())
         workers.append(p)
+    # start every process with a delay of 1 second
     for p in workers:
         p.start()
         time.sleep(1)
+    # wait until all processes are done before proceeding
     for p in workers:
         p.join()
-    print("done")
-        # p.join()
 
-# collect_output(set)
-
+    collect_output(set)
     exit(0)
