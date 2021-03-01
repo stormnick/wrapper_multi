@@ -77,10 +77,6 @@ def setup_multi_job(setup, job):
     else:
         print("write_ts flag unrecognised, stoppped")
         exit(1)
-
-    print('AA',job, job.output)
-
-
     return
 
 
