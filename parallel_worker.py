@@ -180,13 +180,16 @@ def collect_output(setup):
         print("Collecting TS formatted grids...")
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.dat' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
-            for k in setup.jobs.keys():
-                job = setup.jobs[k]
-                with open(job.output['file_4ts'], 'rb') as f:
-                    com_f.write(f.read())
-                with open(job.output['file_4ts_aux'], 'r') as f:
-                    com_aux.write(f.read())
 
+        for k in setup.jobs.keys():
+            job = setup.jobs[k]
+            with open(job.output['file_4ts'], 'rb') as f:
+                com_f.write(f.read())
+            with open(job.output['file_4ts_aux'], 'r') as f:
+                com_aux.write(f.read())
+                
+        com_f.close()
+        com_aux.close()
     return
 
 
