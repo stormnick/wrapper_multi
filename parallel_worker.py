@@ -132,7 +132,7 @@ def run_multi( job, atom, atmos):
 
             # ndep = np.array([int(out.ndep)])
             # print(out.ndep, out.nk)
-            job.output['pointer'] = job.output['pointer'] + 8
+            job.output['pointer'] = job.output['pointer'] + 4
             # ndep.tofile(fbin, format='i4')
             fbin.write(int(out.ndep).to_bytes(4, 'big'))
 
@@ -141,14 +141,14 @@ def run_multi( job, atom, atmos):
             # nk.tofile(fbin, format='i4')
             fbin.write(nk.tobytes())
 
-            tau500 = np.array(out.tau, dtype='f8')
-            fbin.write(tau500.tobytes())
-            # tau500.tofile(fbin, format='f64')
-            job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
-            #
-            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
-            depart.tofile(fbin, format='f8')
-            job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
+            # tau500 = np.array(out.tau, dtype='f8')
+            # fbin.write(tau500.tobytes())
+            # # tau500.tofile(fbin, format='f64')
+            # job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
+            # #
+            # depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+            # depart.tofile(fbin, format='f8')
+            # job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
 
     os.chdir(job.common_wd)
     return
