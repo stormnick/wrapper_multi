@@ -70,13 +70,9 @@ def setup_multi_job(setup, job):
         # create a file to dump output from this serial job
         # array rec_len stores a length of the record in bytes
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', \
-                'file_4ts_aux' : job.tmp_wd + '/auxFile_4TS.txt',\
                 'rec_len': np.zeros(len(job.atmos), dtype=int) } )
         with open(job.output['file_4ts'], 'wb') as f:
             pass
-        with open(job.output['file_4ts_aux'], 'w') as f:
-            ## TODO: write a proper header
-            f.write("# \n")
     elif job.output['write_ts'] == 0:
         pass
     else:
@@ -88,21 +84,30 @@ def setup_multi_job(setup, job):
     return
 
 
-def run_multi( job, i, atom, atmos):
+def run_multi( job, i, atom):
     """
-    # TODO update input
     Run MULTI1D
     input:
-    (string) wd: path to a temporary working directory,
-        created in setup_multi_job
+    (object) job:
+    (integer) i: index pointing to the current model atmosphere and abundance
+                 (in job.atmos, job.abund)
+                 this model atmosphere and abund will be used to run M1D
     (object) atom:  object of class model_atom
-    (object) atmos: object of class model_atmosphere
     """
 
-    """ Create ATOM input file for M1D """
+    """
+    Change the abundance of the NLTE element if reqiuested
+    Create ATOM input file for M1D
+    """
+
+    atom.abund  =  job.abund[i]
     write_atom(atom, job.tmp_wd +  '/ATOM' )
 
-    """ Create ATMOS input file for M1D """
+    """
+    Read model atmopshere
+    Create ATMOS input file for M1D
+    """
+    atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
     write_atmos_m1d(atmos, job.tmp_wd +  '/ATMOS' )
     write_dscale_m1d(atmos, job.tmp_wd +  '/DSCALE' )
 
@@ -132,10 +137,7 @@ def run_multi( job, i, atom, atmos):
     if job.output['write_ts'] == 1:
         out = m1d('./IDL1')
         fbin = open(job.output['file_4ts'], 'ab')
-        faux = open(job.output['file_4ts_aux'], 'a')
-
-        # faux.write("%10.0f \n" %(job.output['pointer']))
-
+        # length of the record in the binary file for this model atmosphere and abundance
         record_len = 0
 
         atmosID = str.encode('%500s' %atmos.id)
@@ -153,7 +155,7 @@ def run_multi( job, i, atom, atmos):
         tau500 = np.array(out.tau, dtype='f8')
         fbin.write(tau500.tobytes())
         record_len = record_len + out.ndep * 8
-        # #
+
         depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
         fbin.write(depart.tobytes())
         record_len = record_len + out.ndep * out.nk * 8
@@ -161,10 +163,10 @@ def run_multi( job, i, atom, atmos):
         job.output['rec_len'][i] = record_len
 
         fbin.close()
-        faux.close()
 
     os.chdir(job.common_wd)
     return
+
 
 def collect_output(setup):
     from datetime import date
@@ -185,11 +187,11 @@ def collect_output(setup):
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
         # # TODO: write a proper header
-        header = "departure coefficients from serial job # %.0f" %(job.id)
+        header = "departure coefficients from all serial jobs"
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
         # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
-        p = len(header) + 1
+        pointer = len(header) + 1
 
         for k in setup.jobs.keys():
             job = setup.jobs[k]
@@ -198,8 +200,7 @@ def collect_output(setup):
                 com_f.write(f.read())
             # pointers to the begining of the record
             for i in range(len(job.atmos)):
-                print(i, job.atmos[i], job.abund[i], p, job.output['rec_len'][i],  p + job.output['rec_len'][i])
-                p = p + job.output['rec_len'][i]
+                pointer = pointer + job.output['rec_len'][i]
 
         com_f.close()
         com_aux.close()
@@ -213,9 +214,8 @@ def run_serial_job(setup, job):
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
-            atom.abund  =  job.abund[i]
-            atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
-            run_multi( job, i, atom, atmos)
+
+            run_multi( job, i, atom)
         # shutil.rmtree(job['tmp_wd'])
 
 
