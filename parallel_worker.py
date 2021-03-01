@@ -161,9 +161,7 @@ def collect_output(setup):
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
                 data = open(job.output['file_ew'], 'r').readlines()
-                # skip the comment lines
-                mask = ~np.where(data.startswith('#'))
-                print(mask)
+                print(data)
     return
 
 
