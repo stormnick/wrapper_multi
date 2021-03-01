@@ -68,6 +68,7 @@ def setup_multi_job(setup, job):
     if job.output['write_ts'] == 1:
         header = "departure coefficients from serial job # %.0f" %(job.id)
         header = str.encode('%1000s' %(header) )
+
         # create a file to dump output from this serial job
         job.output.update({'file_4ts' : job.tmp_wd + '/output_4TS.bin', 'pointer':1 } )
         with open(job.output['file_4ts'], 'wb') as f:
@@ -122,29 +123,29 @@ def run_multi( job, atom, atmos):
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
     """ Read MULTI1D output and save in a common binary file in the format for TS """
-    # if job.output['write_ts'] == 1:
-    #     out = m1d('./IDL1')
-    #     with open(job.output['file_4ts'], 'ab') as fbin:
-    #         atmosID = str.encode('%500s' %atmos.id)
-    #         job.output['pointer'] = job.output['pointer'] + 500
-    #         fbin.write(atmosID)
-    #
-    #         ndep = np.array([int(out.ndep)])
-    #         print(out.ndep, out.nk)
-    #         job.output['pointer'] = job.output['pointer'] + 8
-    #         ndep.tofile(fbin, format='i4')
-    #
-    #         nk = np.array([int(out.nk)])
-    #         job.output['pointer'] = job.output['pointer'] + 8
-    #         nk.tofile(fbin, format='i4')
-    #
-    #         tau500 = out.tau
-    #         tau500.tofile(fbin, format='f8')
-    #         job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
-    #         #
-    #         depart = (out.n/out.nstar).reshape(out.ndep, out.nk)
-    #         depart.tofile(fbin, format='f8')
-    #         job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
+    if job.output['write_ts'] == 1:
+        out = m1d('./IDL1')
+        with open(job.output['file_4ts'], 'ab') as fbin:
+            atmosID = str.encode('%500s' %atmos.id)
+            job.output['pointer'] = job.output['pointer'] + 500
+            fbin.write(atmosID)
+
+            ndep = np.array([int(out.ndep)])
+            print(out.ndep, out.nk)
+            job.output['pointer'] = job.output['pointer'] + 8
+            ndep.tofile(fbin, format='i4')
+
+            nk = np.array([int(out.nk)])
+            job.output['pointer'] = job.output['pointer'] + 8
+            nk.tofile(fbin, format='i4')
+
+            tau500 = out.tau
+            tau500.tofile(fbin, format='f8')
+            job.output['pointer'] = job.output['pointer'] + ndep[0] * 8
+            #
+            depart = (out.n/out.nstar).reshape(out.ndep, out.nk)
+            depart.tofile(fbin, format='f8')
+            job.output['pointer'] = job.output['pointer'] + ndep[0] * nk[0] * 8
 
     os.chdir(job.common_wd)
     return
