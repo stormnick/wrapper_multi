@@ -181,12 +181,16 @@ def collect_output(setup):
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
+        p = 0
         for k in setup.jobs.keys():
             job = setup.jobs[k]
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
-            with open(job.output['file_4ts_aux'], 'r') as f:
-                com_aux.write(f.read())
+            for line in open(job.output['file_4ts_aux'], 'r').readlines():
+                pointer = p + int(line.strip())
+                print(line, pointer)
+                
+            p = pointer
 
         com_f.close()
         com_aux.close()
