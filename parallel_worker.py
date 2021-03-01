@@ -79,7 +79,7 @@ def setup_multi_job(setup, job):
             f.write(header)
         with open(job.output['file_4ts_aux'], 'w') as f:
             ## TODO: write a proper header
-            f.write("# ")
+            f.write("# \n")
     elif job.output['write_ts'] == 0:
         pass
     else:
