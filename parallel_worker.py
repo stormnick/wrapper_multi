@@ -1,4 +1,3 @@
-import multiprocessing
 import sys
 import subprocess as sp
 import os
@@ -121,7 +120,6 @@ def run_multi( job, atom, atmos):
 
         with open(job.output['file_ew'], 'a')as f:
 
-            # print(out.nline[mask])
             for kr in mask:
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
@@ -174,7 +172,6 @@ def collect_output(setup):
 
     """ Collect all EW grids into one """
     if setup.write_ew > 0:
-        print("Collecting EW grids...")
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
             for k in setup.jobs.keys():
                 job = setup.jobs[k]
@@ -182,7 +179,6 @@ def collect_output(setup):
                 com_f.writelines(data)
     """ Collect all TS formatted NLTE grids into one """
     if setup.write_ts > 0:
-        print("Collecting TS formatted grids...")
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
@@ -199,7 +195,6 @@ def collect_output(setup):
             with open(job.output['file_4ts'], 'rb') as f:
                 com_f.write(f.read())
             for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                print(line)
                 if not line.startswith('#'):
                     rec_len = int(line.split()[-1])
                     com_aux.write('\t'.join(line.split()[0:-1]))
@@ -221,12 +216,3 @@ def run_serial_job(setup, job):
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
-
-
-
-    # """ Start individual jobs """
-    # workers = []
-    # for k in set.jobs.keys():
-    #     p = multiprocessing.Process( target=run_multi( k, set ) )
-    #     workers.append(p)
-    #     p.start()

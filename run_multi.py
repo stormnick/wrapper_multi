@@ -25,6 +25,7 @@ workers = []
 
 for k in set.jobs.keys():
     job = set.jobs[k]
+    print('job #', k)
     p = multiprocessing.Process( target=run_serial_job(set, job) )
     workers.append(p)
     p.start()
