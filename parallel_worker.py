@@ -134,7 +134,7 @@ def run_multi( job, i, atom, atmos):
         fbin = open(job.output['file_4ts'], 'ab')
         faux = open(job.output['file_4ts_aux'], 'a')
 
-        faux.write("%10.0f \n" %(job.output['pointer']))
+        # faux.write("%10.0f \n" %(job.output['pointer']))
 
         # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
         p = 1
