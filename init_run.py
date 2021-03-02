@@ -34,6 +34,7 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
         exit(1)
 
     totn_jobs = len(atmos_list) * len(abund_list)
+    self.njobs = totn_jobs
 
 
     atmos_list, abund_list= np.meshgrid(atmos_list, abund_list)
@@ -136,7 +137,7 @@ class setup(object):
         and model atom will be written in a temporary M1D formatted input file ATOM
          """
         print("Reading model atom from %s" %self.atom_path)
-        self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id)
+        self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 

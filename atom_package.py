@@ -158,9 +158,18 @@ def write_atom(self, file):
     return
 
 
-class model_atom(object):
-    def __init__(self, file):
+class model_atom(object) :
+    def __init__(self, file, comment=''):
         read_atom(self, file)
+        """
+        A small comment line from the config file.
+        Written to the header of the NLTE binary grid
+        """
+        if len(comment) > 100:
+            print("Please, use a shorter comment for atom_comment. Stopped")
+            exit(1)
+        else:
+            self.info = comment
 
 class bbline():
     def __init__(self, com_line, data_line):
@@ -176,7 +185,7 @@ class bbline():
         self.nq = int(data_line.split()[3])
         self.qmax, self.q0 = np.array(data_line.split()[4:6]).astype(float)
         self.iwide = int(data_line.split()[6])
-        self.ga, self.gvw, self.gs = np.array(data_line.split()[7:-1]).astype(float)
+        self.ga, self.gvw, self.gs = np.array(data_line.split()[7:10]).astype(float)
         if len(data_line.split()) > 10:
             self.profile_type = data_line.split()[-1].strip()
         else:
