@@ -172,7 +172,7 @@ def collect_output(setup, jobs):
             for job in jobs:
                 data = open(job.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
-    """ Dummy checks to raise warnings if there're repeating entrances """
+    """ Checks to raise warnings if there're repeating entrances """
     with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'r') as f:
         data_all = f.readlines()
     params = []
@@ -186,6 +186,8 @@ def collect_output(setup, jobs):
             else:
                 print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s " \
                         %(wave, teff, logg, vmic, feh, abund) )
+
+    """ #TODO sort the grids of EWs """
 
     """ Collect all TS formatted NLTE grids into one """
     print("Collecting TS formatted NLTE grids")
