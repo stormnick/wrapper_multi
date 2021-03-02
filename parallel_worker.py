@@ -182,7 +182,7 @@ def collect_output(setup, jobs):
         if not [teff, logg, vmic, feh, abund]  in params:
             params.append( [teff, logg, vmic, feh, abund] )
         else:
-            print("WARNING: found repeating entrance at \n Teff=%.0f, log(g)=%.2f, Vturb=%.2f, [Fe/H]=%.3f, A(X)=%.3f " \
+            print("WARNING: found repeating entrance at \n Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s " \
                     %(teff, logg, vmic, feh, abund) )
 
     """ Collect all TS formatted NLTE grids into one """
