@@ -54,8 +54,6 @@ def setup_multi_job(setup, job):
         job.output.update({'file_ew' : job.tmp_wd + '/output_EW.dat' } )
         with open(job.output['file_ew'], 'w') as f:
             f.write("# Teff [K], log(g) [cgs], [Fe/H], A(X), stat. weight g_i, energy en_i, wavelength air [AA], osc. strength, EW(NLTE) [AA], EW(LTE) [AA], Vturb [km/s]    \n")
-                %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
-                    line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
 
     elif job.output['write_ew'] == 0:
         pass
