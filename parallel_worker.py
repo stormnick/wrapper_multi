@@ -183,8 +183,8 @@ def collect_output(setup, jobs):
                 "NLTE element: %s \n" %(setup.atom.element) + \
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
-                "Created: %s \nby Ekaterina Semenova (semenova at mpia  de) \n" %(today) + \
-                "Number of records: %10.0f \n" %(setup.njobs)
+                "Number of records: %10.0f \n" %(setup.njobs) + \
+                "Created: %s \nby Ekaterina Semenova (semenova at mpia  de) \n" %(today)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
