@@ -179,6 +179,7 @@ def collect_output(setup, jobs):
     for line in data_all:
         teff, logg, feh, abund = line.split()[0:4]
         vmic = line.split()[-1]
+        print(line.split())
         wave = line.split()[6]
         if not [wave, teff, logg, vmic, feh, abund]  in params:
             params.append( [wave, teff, logg, vmic, feh, abund] )
