@@ -158,8 +158,8 @@ def write_atom(self, file):
     return
 
 
-class model_atom(object, comment=''):
-    def __init__(self, file):
+class model_atom(object) :
+    def __init__(self, file, comment=''):
         read_atom(self, file)
         """
         A small comment line from the config file.
