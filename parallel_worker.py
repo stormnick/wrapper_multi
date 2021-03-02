@@ -179,10 +179,10 @@ def collect_output(setup, jobs):
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
-        header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. Accompanied by an auxilarly file and model atom. \n" + \
+        header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
                 "NLTE element: %s \n" %(setup.atom.element) + \
                 "Model atom: %s"  %(setup.atom_id) + " comments: '%s' \n" %(setup.atom.info) + \
-                "Created: %s \n" %(today) + \
+                "Created: %s by Ekaterina Semenova (semenova at mpia  de) \n" %(today) + \
                 "Number of records: %10.0f \n" %(setup.njobs)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
