@@ -49,23 +49,19 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
     self.jobs = { }
     if ncpu > 1:
         step = totn_jobs//ncpu
-        print('step=', step)
         for i in range(ncpu-1):
             job = serial_job(self, i)
             job.atmos = atmos_list[step*i: step*(i+1)]
             job.abund = abund_list[step*i: step*(i+1)]
             self.jobs.update({ i : job })
-            print(i, step*i, step*(i+1),len(job.atmos)  )
         job = serial_job(self, ncpu-1)
         job.atmos = atmos_list[step*(i+1) : ]
         job.abund = abund_list[step*(i+1) : ]
-        print(ncpu-1, step*(i+1), len(job.atmos)  )
         self.jobs.update({ ncpu-1 : job })
     elif ncpu == 1:
         job = serial_job(self, 0)
         job.atmos = atmos_list
         job.abund = abund_list
-        print(0, len(job.atmos) )
         self.jobs.update({ 0 : job })
     else:
         print("unrecognised ncpu=%.0f. stopped" %ncpu)
