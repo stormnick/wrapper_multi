@@ -35,7 +35,7 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
 
     totn_jobs = len(atmos_list) * len(abund_list)
     self.njobs = totn_jobs
-
+    print('total # jobs', totn_jobs)
 
     atmos_list, abund_list= np.meshgrid(atmos_list, abund_list)
     atmos_list = atmos_list.flatten()
@@ -55,8 +55,8 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
             job.abund = abund_list[step*i: step*(i+1)]
             self.jobs.update({ i : job })
         job = serial_job(self, ncpu-1)
-        job.atmos = atmos_list[step*ncpu-1 : ]
-        job.abund = abund_list[step*ncpu-1 : ]
+        job.atmos = atmos_list[step*(i+1) : ]
+        job.abund = abund_list[step*(i+1) : ]
         self.jobs.update({ ncpu-1 : job })
     elif ncpu == 1:
         job = serial_job(self, 0)
