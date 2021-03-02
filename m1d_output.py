@@ -277,6 +277,5 @@ class m1dline(object):
 
         self.cntm = np.linspace(self.flux[0], self.flux[-1], len(self.flux))
 
-        self.nflux = self.flux/self.cntm
-
-        self.w3 = np.trapz(1-self.nflux, x=self.lam) * 1e3
+        #self.nflux = self.flux/self.cntm
+        #self.w3 = np.trapz(1-self.nflux, x=self.lam) * 1e3
