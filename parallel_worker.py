@@ -115,7 +115,7 @@ def run_multi( job, atom, atmos):
         with open(job.output['file_ew'], 'a')as f:
             for kr in mask:
                 line = out.line[kr]
-                f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
+                f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f\n' \
                     %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
 
