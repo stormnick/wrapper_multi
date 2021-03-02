@@ -187,7 +187,7 @@ class bbline():
         self.iwide = int(data_line.split()[6])
         print(data_line)
         print(data_line.split()[7:-1])
-        self.ga, self.gvw, self.gs = np.array(data_line.split()[7:-1]).astype(float)
+        self.ga, self.gvw, self.gs = np.array(data_line.split()[7:10]).astype(float)
         if len(data_line.split()) > 10:
             self.profile_type = data_line.split()[-1].strip()
         else:
