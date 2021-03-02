@@ -145,9 +145,15 @@ class m1d(object):
         self.xnorm  = f.read_reals(np.float32)
         self.height = f.read_reals(np.float32)
 
-        # print(read_str(f, dtype=None).split())
-        # self.atmosid, self.dpid, self.dptype = read_str(f, dtype=None).split()
-        self.atmosid, self.dpid, = read_str(f, dtype=None).split()
+        spl = read_str(f, dtype=None).split()
+        if len(spl) == 3:
+            self.atmosid, self.dpid, self.dptype = spl
+        elif len(spl) == 2:
+             self.atmosid, self.dpid = spl
+             self.dptype = self.dpid[-1]
+        else:
+             print("Can't recognise model atmosphere name and scale type. Stop")
+             exit(1)
 
         self.vturb = f.read_reals(np.float32)
 
