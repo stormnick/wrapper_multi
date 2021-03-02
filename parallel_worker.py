@@ -144,7 +144,7 @@ def run_multi( job, atom, atmos):
         tau500 = np.array(out.tau, dtype='f8')
         fbin.write(tau500.tobytes())
         record_len = record_len + out.ndep * 8
-        
+
         with np.errstate(divide='ignore'):
             depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
         fbin.write(depart.tobytes())
@@ -179,13 +179,16 @@ def collect_output(setup, jobs):
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
 
-        # # TODO: write a proper header
-        header = "departure coefficients from all serial jobs"
+        header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. Accompanied by an auxilarly file. \n" + \
+                "NLTE element: %s \n" %(setup.atom.element) + "%s \n" %(setup.atom.info) + \
+                "Created: %s \n" %(today) + \
+                "Number of records: %10.0f \n" %(setup.njobs)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
+
         # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
         pointer = len(header) + 1
-    #
+
         for job in jobs:
             # departure coefficients in binary format
             with open(job.output['file_4ts'], 'rb') as f:

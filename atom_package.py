@@ -158,9 +158,18 @@ def write_atom(self, file):
     return
 
 
-class model_atom(object):
+class model_atom(object, comment=''):
     def __init__(self, file):
         read_atom(self, file)
+        """
+        A small comment line from the config file.
+        Written to the header of the NLTE binary grid
+        """
+        if len(commment) > 100:
+            print("Please, use a shorter comment for atom_comment. Stopped")
+            exit(1)
+        else:
+            atom.info = comment
 
 class bbline():
     def __init__(self, com_line, data_line):
