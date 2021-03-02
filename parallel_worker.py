@@ -175,6 +175,7 @@ def collect_output(setup, jobs):
     """ Dummy checks to raise warnings if there're repeating entrances """
     with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'r') as f:
         data_all = f.readlines()
+    params = []
     for line in data_all:
         teff, logg, feh, abund = line.split()[0:4]
         vmic = line.split()[-1]
