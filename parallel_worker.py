@@ -28,6 +28,7 @@ def setup_multi_job(setup, job):
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
+
     """ Make a temporary directory """
     mkdir(job.tmp_wd)
 
@@ -107,16 +108,15 @@ def run_multi( job, atom, atmos):
     if job.output['write_ew'] > 0:
         out = m1d('./IDL1')
         if job.output['write_ew'] == 1:
-            mask = np.arange(out.nline-1)
+            mask = np.arange(out.nline)
         elif job.output['write_ew'] == 2:
             mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
 
         with open(job.output['file_ew'], 'a')as f:
-
             for kr in mask:
                 line = out.line[kr]
                 f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f\n' \
-                    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[kr], out.ev[kr],\
+                    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
                         line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
 
     """ Read MULTI1D output and save in a common binary file in the format for TS """
@@ -144,8 +144,9 @@ def run_multi( job, atom, atmos):
         tau500 = np.array(out.tau, dtype='f8')
         fbin.write(tau500.tobytes())
         record_len = record_len + out.ndep * 8
-
-        depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+        
+        with np.errstate(divide='ignore'):
+            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
         fbin.write(depart.tobytes())
         record_len = record_len + out.ndep * out.nk * 8
 
