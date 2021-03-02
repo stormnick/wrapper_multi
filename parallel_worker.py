@@ -181,7 +181,7 @@ def collect_output(setup, jobs):
 
         header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. Accompanied by an auxilarly file and model atom. \n" + \
                 "NLTE element: %s \n" %(setup.atom.element) + \
-                "Model atom: %s"  %(setup.atom.id) + "%s \n" %(setup.atom.info) + \
+                "Model atom: %s"  %(setup.atom_id) + "%s \n" %(setup.atom.info) + \
                 "Created: %s \n" %(today) + \
                 "Number of records: %10.0f \n" %(setup.njobs)
         header = str.encode('%1000s' %(header) )
