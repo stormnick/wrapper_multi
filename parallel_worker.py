@@ -177,15 +177,15 @@ def collect_output(setup, jobs):
         data_all = f.readlines()
     params = []
     for line in data_all:
-        teff, logg, feh, abund = line.split()[0:4]
-        vmic = line.split()[-1]
-        print(line.split())
-        wave = line.split()[6]
-        if not [wave, teff, logg, vmic, feh, abund]  in params:
-            params.append( [wave, teff, logg, vmic, feh, abund] )
-        else:
-            print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s " \
-                    %(wave, teff, logg, vmic, feh, abund) )
+        if not line.startswith('#'):
+            teff, logg, feh, abund = line.split()[0:4]
+            vmic = line.split()[-1]
+            wave = line.split()[6]
+            if not [wave, teff, logg, vmic, feh, abund]  in params:
+                params.append( [wave, teff, logg, vmic, feh, abund] )
+            else:
+                print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s " \
+                        %(wave, teff, logg, vmic, feh, abund) )
 
     """ Collect all TS formatted NLTE grids into one """
     print("Collecting TS formatted NLTE grids")
