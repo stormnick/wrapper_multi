@@ -169,7 +169,7 @@ class model_atom(object) :
             print("Please, use a shorter comment for atom_comment. Stopped")
             exit(1)
         else:
-            atom.info = comment
+            self.info = comment
 
 class bbline():
     def __init__(self, com_line, data_line):
