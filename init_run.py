@@ -57,9 +57,9 @@ def distribute_jobs(self, atmos_list = None, ncpu=1):
             self.jobs.update({ i : job })
             print(i, step*i, step*(i+1),len(job.atmos)  )
         job = serial_job(self, ncpu-1)
-        job.atmos = atmos_list[step*ncpu-1 : ]
-        job.abund = abund_list[step*ncpu-1 : ]
-        print(ncpu-1, step*ncpu-1, len(job.atmos)  )
+        job.atmos = atmos_list[step*(i+1) : ]
+        job.abund = abund_list[step*(i+1) : ]
+        print(ncpu-1, step*(i+1), len(job.atmos)  )
         self.jobs.update({ ncpu-1 : job })
     elif ncpu == 1:
         job = serial_job(self, 0)
