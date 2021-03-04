@@ -22,6 +22,7 @@ def read_atmos_marcs(self, file):
     self.flux = float(data[2].split()[0])
     self.logg = np.log10( float(data[3].split()[0]) )
     self.vturb = float(data[4].split()[0])
+    self.mass = float(data[5].split()[0])
     self.feh, self.alpha = np.array(data[6].split()[:2]).astype(float)
     self.X, self.Y, self.Z = np.array(data[10].split()[:3]).astype(float)
 
@@ -81,6 +82,7 @@ def read_atmos_m1d(self, file):
     self.X      = np.nan
     self.Y      = np.nan
     self.Z      = np.nan
+    self.mass   = np.nan
     # add comments here
     self.header = 'Read from M1D formatted model atmosphere %s' %( file.split('/')[-1].strip() )
 

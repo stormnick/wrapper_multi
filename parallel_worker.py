@@ -154,8 +154,8 @@ def run_multi( job, atom, atmos):
             record_len = record_len + out.ndep * out.nk * 8
 
 
-            faux.write(" %s %10.4f %10.4f %10.4f  %10.2f %10.4f %10.0f \n" \
-                        %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  np.mean(atmos.vturb), out.abnd, record_len  ) )
+            faux.write(" %s %10.4f %10.4f %10.4f %10.4f %10.2f %10.4f %10.0f \n" \
+                        %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )
 
             fbin.close()
             faux.close()
