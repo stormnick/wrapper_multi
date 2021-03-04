@@ -72,7 +72,7 @@ def setup_multi_job(setup, job):
         with open(job.output['file_4ts'], 'wb') as f:
             pass
         with open(job.output['file_4ts_aux'], 'w') as f:
-            pass
+            f.write("# atmos ID, Teff [K], log(g) [cgs], [Fe/H], [alpha/Fe], mass, Vturb [km/s], A(X), pointer \n")
     elif job.output['write_ts'] == 0:
         pass
     else:
@@ -207,7 +207,7 @@ def collect_output(setup, jobs):
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
                 "Number of records: %10.0f \n" %(setup.njobs) + \
-                "Created: %s \nby Ekaterina Semenova (semenova at mpia  de) \n" %(today)
+                "Created: %s \nby Ekaterina Semenova (semenova at mpia dot de) \n" %(today)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
@@ -224,6 +224,10 @@ def collect_output(setup, jobs):
                     com_aux.write('\t'.join(line.split()[0:-1]))
                     com_aux.write("%10.0f \n" %(pointer))
                     pointer = pointer + rec_len
+                # simply copy comment lines
+                else:
+                    com_aux.write(line)
+
         com_f.close()
         com_aux.close()
     return
