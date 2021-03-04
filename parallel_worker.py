@@ -107,7 +107,7 @@ def run_multi( job, atom, atmos):
 
     process = Popen(['time', './multi1d.exe'], stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
-    print(stdout)
+    print(stdout, stderr)
     # sp.call(['time', './multi1d.exe', '>', './log.txt'] )
 
     """ Read M1D output if M1D run was successful """
