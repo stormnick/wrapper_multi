@@ -105,6 +105,7 @@ def run_multi( job, atom, atmos):
     sp.call(['multi1d.exe'])
 
     """ Read M1D output if M1D run was successful """
+    print('if file?', os.path.isfile('./IDL1'))
     if os.path.isfile('./IDL1'):
         out = m1d('./IDL1')
 
