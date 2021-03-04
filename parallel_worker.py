@@ -6,8 +6,6 @@ import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
 from m1d_output import m1d, m1dline
-from subprocess import Popen, PIPE
-
 
 
 def mkdir(s):
@@ -105,10 +103,7 @@ def run_multi( job, atom, atmos):
     """ Go to directory and run MULTI 1D """
     os.chdir(job.tmp_wd)
 
-    process = Popen(['time', './multi1d.exe'], stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
-    print(stdout, stderr)
-    # sp.call(['time', './multi1d.exe', '>', './log.txt'] )
+    sp.call(['./multi1d.exe'] )
 
     """ Read M1D output if M1D run was successful """
     if os.path.isfile('./IDL1'):
