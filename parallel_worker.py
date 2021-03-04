@@ -104,58 +104,64 @@ def run_multi( job, atom, atmos):
     os.chdir(job.tmp_wd)
     sp.call(['multi1d.exe'])
 
-    """ Read MULTI1D output and print to the common file """
-    if job.output['write_ew'] > 0:
-        out = m1d('./IDL1')
-        if job.output['write_ew'] == 1:
-            mask = np.arange(out.nline)
-        elif job.output['write_ew'] == 2:
-            mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
-
-        with open(job.output['file_ew'], 'a')as f:
-            for kr in mask:
-                line = out.line[kr]
-                f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f\n' \
-                    %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
-                        line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
-
-    """ Read MULTI1D output and save in a common binary file in the format for TS """
-    if job.output['write_ts'] == 1:
+    """ Read M1D output if M1D run was successful """
+    if os.path.isfile('./IDL1'):
         out = m1d('./IDL1')
 
-        fbin = open(job.output['file_4ts'], 'ab')
-        faux = open(job.output['file_4ts_aux'], 'a')
+        """ print MULTI1D output to the temporary grid of EWs """
+        if job.output['write_ew'] > 0:
+            if job.output['write_ew'] == 1:
+                mask = np.arange(out.nline)
+            elif job.output['write_ew'] == 2:
+                mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
 
-        # length of the record in the binary file for this model atmosphere and abundance
-        record_len = 0
+            with open(job.output['file_ew'], 'a')as f:
+                for kr in mask:
+                    line = out.line[kr]
+                    f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f\n' \
+                        %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
+                            line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)) )
 
-        atmosID = str.encode('%500s' %atmos.id)
-        record_len = record_len + 500
-        fbin.write(atmosID)
+        """ save  MULTI1D output in a common binary file in the format for TS """
+        if job.output['write_ts'] == 1:
 
-        ndep = int(out.ndep).to_bytes(4, 'little')
-        record_len = record_len + 4
-        fbin.write(ndep)
+            fbin = open(job.output['file_4ts'], 'ab')
+            faux = open(job.output['file_4ts_aux'], 'a')
 
-        nk = int(out.nk).to_bytes(4, 'little')
-        record_len = record_len + 4
-        fbin.write(nk)
+            # length of the record in the binary file for this model atmosphere and abundance
+            record_len = 0
 
-        tau500 = np.array(out.tau, dtype='f8')
-        fbin.write(tau500.tobytes())
-        record_len = record_len + out.ndep * 8
+            atmosID = str.encode('%500s' %atmos.id)
+            record_len = record_len + 500
+            fbin.write(atmosID)
 
-        with np.errstate(divide='ignore'):
-            depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
-        fbin.write(depart.tobytes())
-        record_len = record_len + out.ndep * out.nk * 8
+            ndep = int(out.ndep).to_bytes(4, 'little')
+            record_len = record_len + 4
+            fbin.write(ndep)
+
+            nk = int(out.nk).to_bytes(4, 'little')
+            record_len = record_len + 4
+            fbin.write(nk)
+
+            tau500 = np.array(out.tau, dtype='f8')
+            fbin.write(tau500.tobytes())
+            record_len = record_len + out.ndep * 8
+
+            with np.errstate(divide='ignore'):
+                depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+            fbin.write(depart.tobytes())
+            record_len = record_len + out.ndep * out.nk * 8
 
 
-        faux.write(" %s %10.4f %10.4f %10.4f  %10.2f %10.4f %10.0f \n" \
-                    %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  np.mean(atmos.vturb), out.abnd, record_len  ) )
+            faux.write(" %s %10.4f %10.4f %10.4f  %10.2f %10.4f %10.0f \n" \
+                        %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  np.mean(atmos.vturb), out.abnd, record_len  ) )
 
-        fbin.close()
-        faux.close()
+            fbin.close()
+            faux.close()
+        os.remove('./IDL1')
+    # no IDL1 file created after the run
+    else:
+        print("IDL1 file not found for %s A(X)=%.2f" %(atmos.id, atom.abund))
 
     os.chdir(job.common_wd)
     return
