@@ -76,7 +76,7 @@ def setup_multi_job(setup, job):
     elif job.output['write_ts'] == 0:
         pass
     else:
-        print("write_ts flag unrecognised, stoppped")
+        print("write_ts flag unrecognised, stopped")
         exit(1)
     return
 
@@ -154,7 +154,7 @@ def run_multi( job, atom, atmos):
             record_len = record_len + out.ndep * out.nk * 8
 
 
-            faux.write(" %s %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
+            faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
                         %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )
 
             fbin.close()
