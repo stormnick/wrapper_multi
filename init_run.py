@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 from atom_package import model_atom
+import shutil
 
 def mkdir(s):
     if os.path.isdir(s):
