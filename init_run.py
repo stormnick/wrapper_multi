@@ -127,7 +127,7 @@ class setup(object):
         if 'save_idl1' not in self.__dict__.keys():
             self.save_idl1 = 0
         if self.save_idl1 == 1:
-            setup.idl1_folder = self.common_wd +  + "/idl1_folder/"
+            setup.idl1_folder = self.common_wd + "/idl1_folder/"
             mkdir(setup.idl1_folder)
 
 
