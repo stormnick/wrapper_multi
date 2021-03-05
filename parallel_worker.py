@@ -79,8 +79,7 @@ def setup_multi_job(setup, job):
         print("write_ts flag unrecognised, stopped")
         exit(1)
     if setup.save_idl1 == 1:
-        mkdir(setup.common_wd + "/idl1_folder/")
-        job.output.update({'save_idl1':setup.save_idl1, 'idl1_folder' : setup.common_wd + "/idl1_folder"})
+        job.output.update({'save_idl1':setup.save_idl1, 'idl1_folder' : setup.idl1_folder})
     return
 
 
