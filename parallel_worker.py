@@ -103,7 +103,7 @@ def run_multi( job, atom, atmos):
     """ Go to directory and run MULTI 1D """
     os.chdir(job.tmp_wd)
 
-    sp.call(['./multi1d.exe'] )
+    os.system('time ./multi1d.exe')
 
     """ Read M1D output if M1D run was successful """
     if os.path.isfile('./IDL1'):
