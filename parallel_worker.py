@@ -107,7 +107,7 @@ def run_multi( job, atom, atmos):
 
     """ Read M1D output if M1D run was successful """
     print('os.path.isfile:', os.path.isfile('./IDL1'))
-    print('os.path.isfile:', os.path.exists('./IDL1'))
+    print('os.path.exists:', os.path.exists('./IDL1'))
     if os.path.isfile('./IDL1'):
         out = m1d('./IDL1')
 
