@@ -164,7 +164,7 @@ def run_multi( job, atom, atmos):
         if job.output['save_idl1'] == 0:
             os.remove('./IDL1')
         elif job.output['save_idl1'] == 1:
-            destin = job.output['idl1_folder'] + "/idl1.%s_%s_A(X)%5.5f" %(atmos.id, atom.element.replace(' ',''), atom.abund)
+            destin = job.output['idl1_folder'] + "/idl1.%s_%s_A(X)_%5.5f" %(atmos.id, atom.element.replace(' ',''), atom.abund)
             shutil.move('./IDL1', destin)
     # no IDL1 file created after the run
     else:
