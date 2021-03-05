@@ -103,6 +103,9 @@ class setup(object):
                         self.__dict__[key] = float(val)
                     else:
                         self.__dict__[key] = int(val)
+        """ What to do with the IDL1 file after the M1D? """
+        if 'save_idl1' not in self.__dict__.keys():
+            self.save_idl1 = 0
 
         """
         Make sure to have an absolute path to the common wd
