@@ -80,7 +80,7 @@ def setup_multi_job(setup, job):
         exit(1)
     if setup.save_idl1 == 1:
         mkdir(setup.common_wd + "/idl1_folder/")
-        job.output.update({'idl1_folder' : setup.common_wd + "/idl1_folder"})
+        job.output.update({'save_idl1':setup.save_idl1, 'idl1_folder' : setup.common_wd + "/idl1_folder"})
     return
 
 
@@ -162,9 +162,9 @@ def run_multi( job, atom, atmos):
 
             fbin.close()
             faux.close()
-        if setup.save_idl1 == 0:
+        if job.save_idl1 == 0:
             os.remove('./IDL1')
-        elif setup.save_idl1 == 1:
+        elif job.save_idl1 == 1:
             destin = job.output[idl1_folder] + "/idl1.%s_%s_A(X)%5.5" %(atmos.id, atom.element, atom.abund)
             shutil.mv('./IDL1', destin)
     # no IDL1 file created after the run
