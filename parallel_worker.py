@@ -193,13 +193,14 @@ def collect_output(setup, jobs):
     for line in data_all:
         if not line.startswith('#'):
             teff, logg, feh, abund = line.split()[0:4]
-            vmic = line.split()[-1]
+            vmic = line.split()[-2]
+            atmosID = line.split()[-1]
             wave = line.split()[6]
             if not [wave, teff, logg, vmic, feh, abund]  in params:
                 params.append( [wave, teff, logg, vmic, feh, abund] )
             else:
-                print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s " \
-                        %(wave, teff, logg, vmic, feh, abund) )
+                print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
+                        %(wave, teff, logg, vmic, feh, abund, atmosID) )
 
     """ #TODO sort the grids of EWs """
 
