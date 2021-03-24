@@ -6,6 +6,7 @@ import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
 from m1d_output import m1d, m1dline
+import multiprocessing
 
 
 def mkdir(s):
@@ -28,6 +29,12 @@ def setup_multi_job(setup, job):
     (integer) k: an ID of an individual job within the run
     (object) setup: object of class setup, regulates a setup for the whole run
     """
+
+    """
+    Make sure that only one process at a time can access input files
+    """
+    lock = multiprocessing.Lock()
+    lock.acquire()
 
     """ Make a temporary directory """
     mkdir(job.tmp_wd)
@@ -81,6 +88,8 @@ def setup_multi_job(setup, job):
     job.output.update({'save_idl1':setup.save_idl1})
     if setup.save_idl1 == 1:
         job.output.update({'idl1_folder' : setup.idl1_folder})
+
+    lock.release()
     return job
 
 
@@ -122,9 +131,9 @@ def run_multi( job, atom, atmos):
             with open(job.output['file_ew'], 'a')as f:
                 for kr in mask:
                     line = out.line[kr]
-                    f.write('%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f * \n' \
+                    f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f # '%s'\n" \
                         %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
-                            line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb)), atmos.id )
+                            line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb), atmos.id ) )
 
         """ save  MULTI1D output in a common binary file in the format for TS """
         if job.output['write_ts'] == 1:
@@ -247,6 +256,7 @@ def run_serial_job(args):
         job = args[1]
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
         job = setup_multi_job( setup, job )
+
         print(job.output)
         for i in range(len(job.atmos)):
             # model atom is only read once

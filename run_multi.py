@@ -27,7 +27,7 @@ if __name__ == '__main__':
     with Pool(processes=set.ncpu) as pool:
         jobs_with_result = pool.map( run_serial_job, args )
     """
-    Read and organise output from each individual serial job 
+    Read and organise output from each individual serial job
     into common output files
     """
     collect_output(set, jobs_with_result)
