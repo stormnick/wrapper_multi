@@ -78,9 +78,10 @@ def setup_multi_job(setup, job):
     else:
         print("write_ts flag unrecognised, stopped")
         exit(1)
+    job.output.update({'save_idl1':setup.save_idl1})
     if setup.save_idl1 == 1:
-        job.output.update({'save_idl1':setup.save_idl1, 'idl1_folder' : setup.idl1_folder})
-    return
+        job.output.update({'idl1_folder' : setup.idl1_folder})
+    return job
 
 
 def run_multi( job, atom, atmos):
@@ -244,7 +245,8 @@ def run_serial_job(args):
         setup = args[0]
         job = args[1]
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
-        setup_multi_job( setup, job )
+        job = setup_multi_job( setup, job )
+        print(job.output)
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
