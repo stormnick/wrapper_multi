@@ -15,6 +15,38 @@ def mkdir(s):
     os.mkdir(s)
     return
 
+def addRec_to_NLTEbin(binFile, atmos, m1dOutput):
+    # writes a record into existing NLTE binary
+    # separate for each paralell job
+    # they will be combined later
+    fbin = open(binFile, 'ab')
+    record_len = 0
+
+    atmosID = str.encode('%500s' %atmos.id)
+    record_len = record_len + 500
+    fbin.write(atmosID)
+
+    ndep = int(m1dOutput.ndep).to_bytes(4, 'little')
+    record_len = record_len + 4
+    fbin.write(ndep)
+
+    nk = int(m1dOutput.nk).to_bytes(4, 'little')
+    record_len = record_len + 4
+    fbin.write(nk)
+
+    tau500 = np.array(m1dOutput.tau, dtype='f8')
+    fbin.write(tau500.tobytes())
+    record_len = record_len + m1dOutput.ndep * 8
+
+    with np.errstate(divide='ignore'):
+        depart = np.array((m1dOutput.n/m1dOutput.nstar).reshape(m1dOutput.ndep, m1dOutput.nk), dtype='f8')
+    fbin.write(depart.tobytes())
+    record_len = record_len + m1dOutput.ndep * m1dOutput.nk * 8
+
+    fbin.close()
+
+    return record_len
+
 def setup_multi_job(setup, job):
     """
     Setting up and running an individual serial job of NLTE calculations
@@ -137,40 +169,15 @@ def run_multi( job, atom, atmos):
 
         """ save  MULTI1D output in a common binary file in the format for TS """
         if job.output['write_ts'] == 1:
-
-            fbin = open(job.output['file_4ts'], 'ab')
             faux = open(job.output['file_4ts_aux'], 'a')
 
-            # length of the record in the binary file for this model atmosphere and abundance
-            record_len = 0
-
-            atmosID = str.encode('%500s' %atmos.id)
-            record_len = record_len + 500
-            fbin.write(atmosID)
-
-            ndep = int(out.ndep).to_bytes(4, 'little')
-            record_len = record_len + 4
-            fbin.write(ndep)
-
-            nk = int(out.nk).to_bytes(4, 'little')
-            record_len = record_len + 4
-            fbin.write(nk)
-
-            tau500 = np.array(out.tau, dtype='f8')
-            fbin.write(tau500.tobytes())
-            record_len = record_len + out.ndep * 8
-
-            with np.errstate(divide='ignore'):
-                depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
-            fbin.write(depart.tobytes())
-            record_len = record_len + out.ndep * out.nk * 8
-
+            # append record to binary grid file
+            record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos, out)
 
             faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
                         %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )
-
-            fbin.close()
             faux.close()
+
         if job.output['save_idl1'] == 0:
             os.remove('./IDL1')
         elif job.output['save_idl1'] == 1:
