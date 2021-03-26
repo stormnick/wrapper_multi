@@ -15,33 +15,28 @@ def mkdir(s):
     os.mkdir(s)
     return
 
-def addRec_to_NLTEbin(binFile, atmos, m1dOutput):
+def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
     # writes a record into existing NLTE binary
     # separate for each paralell job
     # they will be combined later
     fbin = open(binFile, 'ab')
     record_len = 0
 
-    atmosID = str.encode('%500s' %atmos.id)
     record_len = record_len + 500
-    fbin.write(atmosID)
+    fbin.write(str.encode('%500s' %atmosID))
 
-    ndep = int(m1dOutput.ndep).to_bytes(4, 'little')
     record_len = record_len + 4
-    fbin.write(ndep)
+    fbin.write(int(ndep).to_bytes(4, 'little'))
 
-    nk = int(m1dOutput.nk).to_bytes(4, 'little')
     record_len = record_len + 4
-    fbin.write(nk)
+    fbin.write(int(nk).to_bytes(4, 'little'))
 
-    tau500 = np.array(m1dOutput.tau, dtype='f8')
-    fbin.write(tau500.tobytes())
-    record_len = record_len + m1dOutput.ndep * 8
+    fbin.write(np.array(tau, dtype='f8').tobytes())
+    record_len = record_len + ndep * 8
 
-    with np.errstate(divide='ignore'):
-        depart = np.array((m1dOutput.n/m1dOutput.nstar).reshape(m1dOutput.ndep, m1dOutput.nk), dtype='f8')
+
     fbin.write(depart.tobytes())
-    record_len = record_len + m1dOutput.ndep * m1dOutput.nk * 8
+    record_len = record_len + ndep * nk * 8
 
     fbin.close()
 
@@ -170,9 +165,10 @@ def run_multi( job, atom, atmos):
         """ save  MULTI1D output in a common binary file in the format for TS """
         if job.output['write_ts'] == 1:
             faux = open(job.output['file_4ts_aux'], 'a')
-
             # append record to binary grid file
-            record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos, out)
+            with np.errstate(divide='ignore'):
+                depart = np.array((out.n/out.nstar).reshape(out.ndep, out.nk), dtype='f8')
+            record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
             faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
                         %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )

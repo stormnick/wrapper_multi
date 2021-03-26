@@ -2,6 +2,7 @@ import sys
 import os
 import time
 import numpy as np
+from parallel_worker import addRec_to_NLTEbin
 
 
 """
