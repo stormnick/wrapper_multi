@@ -9,12 +9,17 @@ from parallel_worker import addRec_to_NLTEbin
 A script to convert exisiting NLTE grids to a new format
 """
 
-def read_NLTEbin_oldFormat(binFile):
+if __name__ == '__main__':
+    binFile = sys.argv[1]
+    print("Reading binary NLTE grid from %s" %(binFile) )
+
     f = open(binFile, 'rb')
+    header = f.readline(1000).decode('utf-8', 'ignore')
+    print(header)
     for i in range(10**9):
-        atmosID = f.readline().decode('utf-8', 'ignore').split(' ')[0].strip()
+        atmosID = f.readline(500).decode('utf-8', 'ignore')#.split(' ')[0].strip()
+        print(atmosID)
         if len(atmosID) > 0:
-            print(atmosID)
 
             ndep = np.fromfile(f, dtype='i4', count=2)[0]
             nk = np.fromfile(f, dtype='i4', count=2)[0]
@@ -28,11 +33,3 @@ def read_NLTEbin_oldFormat(binFile):
         else:
             f.close()
             break
-
-    return
-
-def write_NLTEbin_newFormat():
-    return
-
-
-if __name__ == '__main__':
