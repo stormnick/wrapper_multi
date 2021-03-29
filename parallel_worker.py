@@ -206,15 +206,14 @@ def collect_output(setup, jobs):
     params = []
     for line in data_all:
         if not line.startswith('#'):
-            teff, logg, feh, abund = line.split()[0:4]
-            vmic = line.split()[10]
+            abund = line.split()[3]
             atmosID = line.split()[-1]
             wave = line.split()[6]
-            if not [wave, teff, logg, vmic, feh, abund]  in params:
-                params.append( [wave, teff, logg, vmic, feh, abund] )
+            if not [wave, abund, atmosID]  in params:
+                params.append( [wave, abund, atmosID] )
             else:
-                print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
-                        %(wave, teff, logg, vmic, feh, abund, atmosID) )
+                print("WARNING: found repeating entrance at \n %s AA  A(X)=%s, atmos: %s " \
+                        %(wave, abund, atmosID) )
     datetime1 = datetime.datetime.now()
     print(datetime1-datetime0)
     print(10*"-")
