@@ -216,7 +216,7 @@ def collect_output(setup, jobs):
                 print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
                         %(wave, teff, logg, vmic, feh, abund, atmosID) )
     datetime1 = datetime.datetime.now()
-    print(datetime.timedelta(datetime1-datetime0))
+    print(datetime1-datetime0)
     """ #TODO sort the grids of EWs """
 
     """ Collect all TS formatted NLTE grids into one """
