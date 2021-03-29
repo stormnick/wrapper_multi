@@ -2,6 +2,13 @@ import sys
 import os
 import numpy as np
 from atom_package import model_atom
+import shutil
+
+def mkdir(s):
+    if os.path.isdir(s):
+        shutil.rmtree(s)
+    os.mkdir(s)
+    return
 
 def distribute_jobs(self, atmos_list = None, ncpu=1):
     """
@@ -115,6 +122,15 @@ class setup(object):
             if self.common_wd == './':
                 self.common_wd = os.getcwd()
             self.common_wd = self.common_wd + '/'
+
+
+        """ What to do with the IDL1 file after the M1D? """
+        if 'save_idl1' not in self.__dict__.keys():
+            self.save_idl1 = 0
+        if self.save_idl1 == 1:
+            setup.idl1_folder = self.common_wd + "/idl1_folder/"
+            mkdir(setup.idl1_folder)
+
 
         """
         Read *a list* of all requested model atmospheres
