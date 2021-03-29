@@ -193,7 +193,7 @@ def collect_output(setup, jobs):
     today = datetime.date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
-    datetime0 = datetime.datetime()
+    datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
@@ -215,7 +215,7 @@ def collect_output(setup, jobs):
             else:
                 print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
                         %(wave, teff, logg, vmic, feh, abund, atmosID) )
-    datetime1 = datetime.datetime()
+    datetime1 = datetime.datetime.now()
     print(datetime.timedelta(datetime1-datetime0))
     """ #TODO sort the grids of EWs """
 
