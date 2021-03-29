@@ -205,7 +205,7 @@ def collect_output(setup, jobs):
     for line in data_all:
         if not line.startswith('#'):
             teff, logg, feh, abund = line.split()[0:4]
-            vmic = line.split()[-2]
+            vmic = line.split()[10]
             atmosID = line.split()[-1]
             wave = line.split()[6]
             if not [wave, teff, logg, vmic, feh, abund]  in params:
@@ -259,8 +259,6 @@ def run_serial_job(args):
         job = args[1]
         print("job # %5.0f: %5.0f M1D runs" %( job.id, len(job.atmos) ) )
         job = setup_multi_job( setup, job )
-
-        print(job.output)
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
