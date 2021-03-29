@@ -193,7 +193,7 @@ def collect_output(setup, jobs):
     today = datetime.date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
-    datetime0 = datetime.datetime()
+    datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
@@ -215,12 +215,14 @@ def collect_output(setup, jobs):
             else:
                 print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
                         %(wave, teff, logg, vmic, feh, abund, atmosID) )
-    datetime1 = datetime.datetime()
-    print(datetime.timedelta(datetime1-datetime0))
+    datetime1 = datetime.datetime.now()
+    print(datetime1-datetime0)
+    print(10*"-")
     """ #TODO sort the grids of EWs """
 
     """ Collect all TS formatted NLTE grids into one """
     print("Collecting TS formatted NLTE grids")
+    datetime0 = datetime.datetime.now()
     if setup.write_ts > 0:
         com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' %(today), 'wb')
         com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' %(today), 'w')
@@ -253,6 +255,9 @@ def collect_output(setup, jobs):
 
         com_f.close()
         com_aux.close()
+        datetime1 = datetime.datetime.now()
+        print(datetime1-datetime0)
+        print(10*"-")
     return
 
 
