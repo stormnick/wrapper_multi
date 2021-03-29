@@ -7,7 +7,7 @@ from atom_package import model_atom, write_atom
 from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
 from m1d_output import m1d, m1dline
 import multiprocessing
-from datetime import date, time, timedelta
+import datetime
 
 
 
@@ -190,10 +190,10 @@ def run_multi( job, atom, atmos):
 
 
 def collect_output(setup, jobs):
-    today = date.today().strftime("%b-%d-%Y")
+    today = datetime.date.today().strftime("%b-%d-%Y")
 
     """ Collect all EW grids into one """
-    datetime0 = datetime()
+    datetime0 = datetime.datetime()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'w') as com_f:
@@ -215,7 +215,7 @@ def collect_output(setup, jobs):
             else:
                 print("WARNING: found repeating entrance at \n %s AA Teff=%s, log(g)=%s, Vturb=%s, [Fe/H]=%s, A(X)=%s, atmos: %s " \
                         %(wave, teff, logg, vmic, feh, abund, atmosID) )
-    datetime1 = datetime()
+    datetime1 = datetime.datetime()
     print(datetime.timedelta(datetime1-datetime0))
     """ #TODO sort the grids of EWs """
 
