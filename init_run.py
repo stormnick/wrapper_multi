@@ -119,14 +119,14 @@ class setup(object):
             print("Setting common working directory to ./")
             self.common_wd = os.getcwd()
         else:
-            if self.common_wd == './':
-                self.common_wd = os.getcwd()
-            self.common_wd = self.common_wd + '/'
-        for d in self.__dict__.keys():
-            if d.startswith('./'):
-                print(d)
-                d = self.common_wd + '/' + d[2:]
-                print(d)
+            if self.common_wd.startswith('./'):
+                self.common_wd = os.getcwd() + '/' + self.common_wd[2:]
+            self.common_wd = self.common_wd + '/' 
+
+        """ Recognise if path starts with './' and replace by absolute path """
+        for k in self.__dict__.keys():
+            if type(self.__dict__[k]) == str and self.__dict__[k].startswith('./'):
+                self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k][2:]
                 
 
         """ What to do with the IDL1 file after the M1D? """
