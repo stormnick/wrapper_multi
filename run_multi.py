@@ -10,13 +10,14 @@ import numpy as np
 
 
 
-if len(sys.argv) > 1:
-    config_file = sys.argv[1]
-else:
-    config_file = './config.txt'
+
 
 if __name__ == '__main__':
-
+    if len(sys.argv) > 1:
+        config_file = sys.argv[1]
+    else:
+        config_file = './config.txt'
+        
     """ Read config. file and distribute individual jobs """
     set = setup(file=config_file)
     """ Start individual (serial) jobs in parallel """
