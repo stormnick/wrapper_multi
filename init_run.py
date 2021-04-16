@@ -88,7 +88,7 @@ class serial_job(object):
 
 # a setup of the run to compute NLTE grid, e.g. Mg over all MARCS grid
 class setup(object):
-    def __init__(self, file='config.txt'):#, lines=None, conts=None, output=True, ratmos=False, rpop=False):
+    def __init__(self, file='config.txt'):
         """
         Reads in specifications for the future parallel jobs from a configuration file
         input:
@@ -122,7 +122,12 @@ class setup(object):
             if self.common_wd == './':
                 self.common_wd = os.getcwd()
             self.common_wd = self.common_wd + '/'
-
+        for d in self.__dict__.keys():
+            if d.startswith('./'):
+                print(d)
+                d = self.common_wd + '/' + d[2:]
+                print(d)
+                
 
         """ What to do with the IDL1 file after the M1D? """
         if 'save_idl1' not in self.__dict__.keys():
