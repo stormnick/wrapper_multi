@@ -127,6 +127,8 @@ class setup(object):
         for k in self.__dict__.keys():
             if type(self.__dict__[k]) == str and self.__dict__[k].startswith('./'):
                 self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k][2:]
+            if type(self.__dict__[k]) == str and self.__dict__[k].startswith('../'):
+                self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k]
                 
 
         """ What to do with the IDL1 file after the M1D? """
@@ -147,7 +149,9 @@ class setup(object):
         atmos_list = np.loadtxt( self.atmos_list, dtype=str, ndmin=1)
         self.atmos = []
         for atm in atmos_list:
-            self.atmos.append( self.atmos_path + './' + atm )
+            if not atm.startswith('atmos.'):
+                atm = 'atmos.' + atm
+            self.atmos.append( self.atmos_path + '/' + atm )
 
         """
         Read model atom
