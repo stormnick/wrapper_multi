@@ -200,24 +200,24 @@ def collect_output(setup, jobs):
             for job in jobs:
                 data = open(job.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
-    """ Checks to raise warnings if there're repeating entrances """
-    with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'r') as f:
-        data_all = f.readlines()
-    params = []
-    for line in data_all:
-        if not line.startswith('#'):
-            abund = line.split()[3]
-            atmosID = line.split()[-1]
-            wave = line.split()[6]
-            if not [wave, abund, atmosID]  in params:
-                params.append( [wave, abund, atmosID] )
-            else:
-                print("WARNING: found repeating entrance at \n %s AA  A(X)=%s, atmos: %s " \
-                        %(wave, abund, atmosID) )
-    datetime1 = datetime.datetime.now()
-    print(datetime1-datetime0)
-    print(10*"-")
-    """ #TODO sort the grids of EWs """
+        """ Checks to raise warnings if there're repeating entrances """
+        with open(setup.common_wd + '/output_EWgrid_%s.dat' %(today), 'r') as f:
+            data_all = f.readlines()
+        params = []
+        for line in data_all:
+            if not line.startswith('#'):
+                abund = line.split()[3]
+                atmosID = line.split()[-1]
+                wave = line.split()[6]
+                if not [wave, abund, atmosID]  in params:
+                    params.append( [wave, abund, atmosID] )
+                else:
+                    print("WARNING: found repeating entrance at \n %s AA  A(X)=%s, atmos: %s " \
+                            %(wave, abund, atmosID) )
+        datetime1 = datetime.datetime.now()
+        print(datetime1-datetime0)
+        print(10*"-")
+        """ #TODO sort the grids of EWs """
 
     """ Collect all TS formatted NLTE grids into one """
     print("Collecting TS formatted NLTE grids")
