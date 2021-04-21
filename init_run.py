@@ -149,8 +149,6 @@ class setup(object):
         atmos_list = np.loadtxt( self.atmos_list, dtype=str, ndmin=1)
         self.atmos = []
         for atm in atmos_list:
-            if not atm.startswith('atmos.'):
-                atm = 'atmos.' + atm
             self.atmos.append( self.atmos_path + '/' + atm )
 
         """
