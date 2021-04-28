@@ -17,7 +17,7 @@ if __name__ == '__main__':
         config_file = sys.argv[1]
     else:
         config_file = './config.txt'
-        
+
     """ Read config. file and distribute individual jobs """
     set = setup(file=config_file)
     """ Start individual (serial) jobs in parallel """

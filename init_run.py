@@ -121,7 +121,7 @@ class setup(object):
         else:
             if self.common_wd.startswith('./'):
                 self.common_wd = os.getcwd() + '/' + self.common_wd[2:]
-            self.common_wd = self.common_wd + '/' 
+            self.common_wd = self.common_wd + '/'
 
         """ Recognise if path starts with './' and replace by absolute path """
         for k in self.__dict__.keys():
@@ -129,7 +129,7 @@ class setup(object):
                 self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k][2:]
             if type(self.__dict__[k]) == str and self.__dict__[k].startswith('../'):
                 self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k]
-                
+
 
         """ What to do with the IDL1 file after the M1D? """
         if 'save_idl1' not in self.__dict__.keys():
