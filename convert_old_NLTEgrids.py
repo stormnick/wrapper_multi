@@ -83,7 +83,7 @@ if __name__ == '__main__':
             nk = np.fromfile(f, dtype='i4', count=2)[0]
             tau = np.fromfile(f, dtype='f8', count=ndep)
             depart = np.fromfile(f, dtype='f8', count=ndep*nk)
-            depart = depart.reshape(nk, ndep)
+            depart = depart.reshape(ndep, nk)
 
             if atmosID != auxData['atmosID'][auxCount]:
                 print("!!! records in the aux file and NLTE grid do not match: %s, %s" %(atmosID, auxData['atmosID'][auxCount]) )

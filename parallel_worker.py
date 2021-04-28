@@ -19,7 +19,6 @@ def mkdir(s):
 
 def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
     # transform to match fortran format
-    depart = depart.T
 
     # writes a record into existing NLTE binary
     # separate for each paralell job
