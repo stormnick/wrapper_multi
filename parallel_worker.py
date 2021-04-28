@@ -275,7 +275,7 @@ def run_serial_job(args):
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
 
             #scale abundance with [Fe/H] of the model atmosphere
-            atom.abund  =  job.abund[i] - atmos.feh
+            atom.abund  =  job.abund[i] + atmos.feh
 
             run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
