@@ -274,6 +274,8 @@ def run_serial_job(args):
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
 
             #scale abundance with [Fe/H] of the model atmosphere
+            if np.isnan(atmos.feh):
+                atmos.feh = 0.0
             atom.abund  =  job.abund[i] + atmos.feh
 
             run_multi( job, atom, atmos)
