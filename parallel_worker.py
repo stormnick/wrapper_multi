@@ -270,6 +270,7 @@ def run_serial_job(args):
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
+            #scale abundance with [Fe/H] of the model atmosphere
             atom.abund  =  job.abund[i] - job.atmos.feh
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
             run_multi( job, atom, atmos)
