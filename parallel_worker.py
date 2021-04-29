@@ -39,7 +39,7 @@ def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
     record_len = record_len + ndep * 8
 
 
-    fbin.write(np.array(depart, dtype='f8', order='F').tobytes())
+    fbin.write(np.array(depart, dtype='f8').tobytes())
     record_len = record_len + ndep * nk * 8
 
     fbin.close()
@@ -172,8 +172,6 @@ def run_multi( job, atom, atmos):
             # append record to binary grid file
             with np.errstate(divide='ignore'):
                 depart = np.array((out.n/out.nstar), dtype='f8')
-                print(depart[:,1])
-                print(np.shape(depart))
             record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
             faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
