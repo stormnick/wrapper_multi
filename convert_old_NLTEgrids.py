@@ -8,6 +8,7 @@ from parallel_worker import addRec_to_NLTEbin
 """
 A script to convert exisiting NLTE grids to a new format
 NOTE: not all grids have header written in them, check with h_old
+NOTE: I AM NOT SURE THIS IS WORKING CORRECTLY
 """
 
 
