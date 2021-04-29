@@ -115,8 +115,8 @@ class m1d(object):
 
         if self.nrad > 0 and iformat == 0: self.bp = f.read_reals(np.float32)
 
-        self.nstar = f.read_reals(np.float32)
-        self.n     = f.read_reals(np.float32)
+        self.nstar = f.read_reals(np.float32).reshape(self.ndep, self.nk)
+        self.n     = f.read_reals(np.float32).reshape(self.ndep, self.nk)
 
         if iformat == 0: self.c = f.read_reals(np.float32)
 
