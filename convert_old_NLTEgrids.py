@@ -44,7 +44,7 @@ if __name__ == '__main__':
     """ Open the input NLTE binary in the old format, read header """
     f = open(binFile, 'rb')
 
-    # h_old = f.readline(1000).decode('utf-8', 'ignore')
+    #h_old = f.readline(1000).decode('utf-8', 'ignore')
 
     """ Read the input aux file in the old format """
     auxData = {'atmosID':[], 'teff':[], 'logg':[], 'feh':[], 'A(X)':[] }
@@ -56,9 +56,14 @@ if __name__ == '__main__':
     if not ma3d:
         auxData.update({ 'alpha/fe':[], 'mass':[], 'vturb':[] })
         for atm in auxData['atmosID']:
-            mass = float(atm.split('_m')[-1].split('_t')[0])
-            alpha = float(atm.split('_a')[-1].split('_c')[0])
-            vturb = float(atm.split('_t')[-1].split('_')[0])
+            try:
+                mass = float(atm.split('_m')[-1].split('_t')[0])
+                alpha = float(atm.split('_a')[-1].split('_c')[0])
+                vturb = float(atm.split('_t')[-1].split('_')[0])
+            except:
+                mass = 0
+                alpha=0
+                vturb=0
 
             auxData['mass'].append(mass)
             auxData['alpha/fe'].append(alpha)
@@ -76,13 +81,16 @@ if __name__ == '__main__':
 
     for i in range(10**12):
         atmosID = f.readline(500).decode('utf-8', 'ignore').strip()
+        print(atmosID)
 
 
         if len(atmosID) > 0:
             ndep = np.fromfile(f, dtype='i4', count=2)[0]
+            print(ndep)
             nk = np.fromfile(f, dtype='i4', count=2)[0]
             tau = np.fromfile(f, dtype='f8', count=ndep)
-            depart = np.fromfile(f, dtype='f8', count=ndep*nk).reshape(nk, ndep)
+            depart = np.fromfile(f, dtype='f8', count=ndep*nk)
+            print(depart)
             if atmosID != auxData['atmosID'][auxCount]:
                 print("!!! records in the aux file and NLTE grid do not match: %s, %s" %(atmosID, auxData['atmosID'][auxCount]) )
             else:
