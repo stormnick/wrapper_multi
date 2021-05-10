@@ -82,16 +82,12 @@ if __name__ == '__main__':
 
     for i in range(10**12):
         atmosID = f.readline(500).decode('utf-8', 'ignore').strip()
-        print(atmosID)
-
 
         if len(atmosID) > 0:
             ndep = np.fromfile(f, dtype='i4', count=2)[0]
-            print(ndep)
             nk = np.fromfile(f, dtype='i4', count=2)[0]
             tau = np.fromfile(f, dtype='f8', count=ndep)
-            depart = np.fromfile(f, dtype='f8', count=ndep*nk)
-            print(depart)
+            depart = np.fromfile(f, dtype='f8', count=ndep*nk).reshape(nk, ndep)
             if atmosID != auxData['atmosID'][auxCount]:
                 print("!!! records in the aux file and NLTE grid do not match: %s, %s" %(atmosID, auxData['atmosID'][auxCount]) )
             else:

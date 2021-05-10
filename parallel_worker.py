@@ -173,6 +173,7 @@ def run_multi( job, atom, atmos):
             with np.errstate(divide='ignore'):
                 depart = np.array((out.n/out.nstar), dtype='f8')
                 # transpose to match Fortran order of things
+                # (nk, ndep)
                 depart = depart.T
             record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
