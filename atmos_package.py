@@ -143,6 +143,15 @@ class model_atmosphere(object):
             self.depth_scale = self.tau500
         elif format.lower() == 'm1d':
             read_atmos_m1d(self, file)
+#            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
+            if 'm' in self.id:
+                feh = float(self.id.split('_')[0].split('m')[-1])
+                alpha = feh
+                self.feh = feh
+                self.alpha = alpha
+ #               print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
+            else:
+                print("WARNING: [Fe/H] and [alpha/Fe] are unknown.")
         else:
             print("Unrecognized format of model atmosphere: %s" %(format) )
             exit(1)
