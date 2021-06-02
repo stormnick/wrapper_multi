@@ -25,102 +25,104 @@ def read_atom(self, file):
                 self.element = li
             elif c_noncom == 2:
                 self.abund, self.atomic_weight = np.array(li.split()).astype(float)
-            elif c_noncom == 3:
-                self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
                 break
+            # elif c_noncom == 3:
+                # self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
+                # break
         else:
             self.header.append(li)
+    self.body = data[c_all:]
 
-    """ Read the energy levels """
-    self.en, self.g, self.label, self.ion = [], [], [], []
-    for li in data[c_all+1 : ]:
-        if c_noncom < 3 + self.nk:
-            c_all += 1
-            if not li.startswith('*') and li != '':
-                lsp = li.split()
-                self.en.append( float( lsp[0] ) )
-                self.g.append( int( float(lsp[1]) ) )
-                self.label.append( li.split("'")[1].strip() )
-                self.ion.append( int( li.split("'")[-1].split()[0] ) )
-                c_noncom += 1
-        else:
-            c_all += 1
-            break
-    """ Read the b-b transitions """
-    self.bb = {}
-    kr = 0
-    for i in range(len(data[ c_all : ])):
-        if c_noncom < 3 + self.nk + self.nline:
-            li = data[ c_all  ]
-            # preceeding line
-            if not li.startswith('*') and li != '':
-                # if no comment line before this b-b, pass empty "comment" line
-                if not data[ c_all - 1 ].startswith('*'):
-                    bb = bbline("* ", li )
-                # else pass preceeding comment line
-                else:
-                    bb = bbline(data[ c_all - 1 ], li)
-                self.bb.update( { kr : bb } )
-                kr += 1
-                c_noncom += 1
-            c_all += 1
-        else:
-            break
-
-    """ Read the b-f transitions """
-    self.bf = {}
-    kr = 0
-    for i in range(len(data[ c_all : ])):
-        li = data[ c_all ]
-        c_all += 1
-        if not li.startswith('*') and li != '':
-            if c_noncom < 3 + self.nk + self.nline + self.ncont:
-                # header line :
-                if  len(li.split()) != 2:
-                    c_noncom += 1
-                    # how many frequency points for this transition?
-                    nq = int(li.split()[3])
-                    self.bf[kr] = bfline(data[ c_all - 1 : c_all+nq ])
-                    kr += 1
-                    c_all = c_all + nq - 1
-            else:
-                break
-    """ Read a name of the collisional routine """
-    # the first not comment line after b-f is the name of the collisional routine
-    for li in data[ c_all : ]:
-        c_all += 1
-        if not li.startswith('*') and li != '':
-            self.col_routine = li.strip()
-            break
-    """ Read number of temperature points and points themselves """
+    # """ Read the energy levels """
+    # self.en, self.g, self.label, self.ion = [], [], [], []
+    # for li in data[c_all+1 : ]:
+    #     if c_noncom < 3 + self.nk:
+    #         c_all += 1
+    #         if not li.startswith('*') and li != '':
+    #             lsp = li.split()
+    #             self.en.append( float( lsp[0] ) )
+    #             self.g.append( int( float(lsp[1]) ) )
+    #             self.label.append( li.split("'")[1].strip() )
+    #             self.ion.append( int( li.split("'")[-1].split()[0] ) )
+    #             c_noncom += 1
+    #     else:
+    #         c_all += 1
+    #         break
+    # """ Read the b-b transitions """
+    # self.bb = {}
+    # kr = 0
+    # for i in range(len(data[ c_all : ])):
+    #     if c_noncom < 3 + self.nk + self.nline:
+    #         li = data[ c_all  ]
+    #         # preceeding line
+    #         if not li.startswith('*') and li != '':
+    #             # if no comment line before this b-b, pass empty "comment" line
+    #             if not data[ c_all - 1 ].startswith('*'):
+    #                 bb = bbline("* ", li )
+    #             # else pass preceeding comment line
+    #             else:
+    #                 bb = bbline(data[ c_all - 1 ], li)
+    #             self.bb.update( { kr : bb } )
+    #             kr += 1
+    #             c_noncom += 1
+    #         c_all += 1
+    #     else:
+    #         break
+    #
+    # """ Read the b-f transitions """
+    # self.bf = {}
+    # kr = 0
+    # for i in range(len(data[ c_all : ])):
+    #     li = data[ c_all ]
+    #     c_all += 1
+    #     if not li.startswith('*') and li != '':
+    #         if c_noncom < 3 + self.nk + self.nline + self.ncont:
+    #             # header line :
+    #             if  len(li.split()) != 2:
+    #                 c_noncom += 1
+    #                 # how many frequency points for this transition?
+    #                 nq = int(li.split()[3])
+    #                 self.bf[kr] = bfline(data[ c_all - 1 : c_all+nq ])
+    #                 kr += 1
+    #                 c_all = c_all + nq - 1
+    #         else:
+    #             break
+    # """ Read a name of the collisional routine """
+    # # the first not comment line after b-f is the name of the collisional routine
     # for li in data[ c_all : ]:
     #     c_all += 1
     #     if not li.startswith('*') and li != '':
-    #         if 'TEMP' in li:
-    #             # atom.temp = []
-    #             atom.n_temp = 0
-    #             break
-    # for li in data[ c_all : ]:
-    #     if not li.startswith('*') and li != '':
-    #         atom.n_temp = int(li.split()[0])
-    #         t_points = np.array(li.split()[1:]).astype(float)
-    #         atom.temp = t_points
-    #         c_all += 1
+    #         self.col_routine = li.strip()
     #         break
-    # for li in data[ c_all + 1 : ]:
-    #     if not li.startswith('*') and li != '':
-    #         if len(atom.temp) < atom.n_temp:
-    #             t_points = np.array(li.split()).astype(float)
-    #             atom.temp = np.hstack((atom.temp, t_points))
-    #             c_all += 1
-    #         else:
-    #             c_all += 1
-    #             break
-    # # self.col = {}
-    # # for now I'll just keep the collisions as a bunch of lines
-    self.col = data[ c_all : -1 ]
-    # print(self.col)
-    # TO BE FINISHED
+    # """ Read number of temperature points and points themselves """
+    # # for li in data[ c_all : ]:
+    # #     c_all += 1
+    # #     if not li.startswith('*') and li != '':
+    # #         if 'TEMP' in li:
+    # #             # atom.temp = []
+    # #             atom.n_temp = 0
+    # #             break
+    # # for li in data[ c_all : ]:
+    # #     if not li.startswith('*') and li != '':
+    # #         atom.n_temp = int(li.split()[0])
+    # #         t_points = np.array(li.split()[1:]).astype(float)
+    # #         atom.temp = t_points
+    # #         c_all += 1
+    # #         break
+    # # for li in data[ c_all + 1 : ]:
+    # #     if not li.startswith('*') and li != '':
+    # #         if len(atom.temp) < atom.n_temp:
+    # #             t_points = np.array(li.split()).astype(float)
+    # #             atom.temp = np.hstack((atom.temp, t_points))
+    # #             c_all += 1
+    # #         else:
+    # #             c_all += 1
+    # #             break
+    # # # self.col = {}
+    # # # for now I'll just keep the collisions as a bunch of lines
+    # self.col = data[ c_all : -1 ]
+    # # print(self.col)
+    # # TO BE FINISHED
     return
 
 def write_atom(self, file):
@@ -129,32 +131,34 @@ def write_atom(self, file):
             f.write(li + '\n')
         f.write("%s \n" %(self.element))
         f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
-        f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
-        # energy system
-        f.write("* Energy, Stat. weight / multiplicity, Label, Ion\n")
-        for i in range(len( self.en )):
-            f.write(" %10.5f %10.2f '%s' %.0f \n" %(self.en[i], self.g[i], self.label[i], self.ion[i]) )
-        # b-b transitions
-        for kr in range(self.nline):
-            bb = self.bb[kr]
-            f.write("%s \n" %bb.comment_line )
-            f.write("%4.0f %4.0f %10.4E %6.0f %6.1f %4.1f %4.0f %10.4E %10.4f %10.4E %s\n" \
-                %(bb.j, bb.i, bb.f_osc, bb.nq, bb.qmax, bb.q0, bb.iwide, bb.ga, bb.gvw, bb.gs, bb.profile_type) )
-        # b-f transitions
-        for kr in range(self.ncont):
-            bf = self.bf[kr]
-            f.write("%4.0f %4.0f %10.4E %5.0f %3.0f %3.0f \n" \
-                %(bf.j, bf.i, bf.x[0], bf.nq, -1.0, 0.0) ) # what's -1.0 and 0.0 ?
-            for i in range(len(bf.x)):
-                f.write(" %10.4f %10.4E \n" %(bf.wave[i], bf.x[i]) )
-        # write collisional data
-        f.write("%s \n" %self.col_routine)
-        # f.write("TEMP \n")
-        # temporary solution for collisional rates
-        for line in self.col:
-            f.write("%s \n" %line)
-        # signal end
-        f.write("END")
+        for l in self.body:
+            f.write(l)
+    #     f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
+    #     # energy system
+    #     f.write("* Energy, Stat. weight / multiplicity, Label, Ion\n")
+    #     for i in range(len( self.en )):
+    #         f.write(" %10.5f %10.2f '%s' %.0f \n" %(self.en[i], self.g[i], self.label[i], self.ion[i]) )
+    #     # b-b transitions
+    #     for kr in range(self.nline):
+    #         bb = self.bb[kr]
+    #         f.write("%s \n" %bb.comment_line )
+    #         f.write("%4.0f %4.0f %10.4E %6.0f %6.1f %4.1f %4.0f %10.4E %10.4f %10.4E %s\n" \
+    #             %(bb.j, bb.i, bb.f_osc, bb.nq, bb.qmax, bb.q0, bb.iwide, bb.ga, bb.gvw, bb.gs, bb.profile_type) )
+    #     # b-f transitions
+    #     for kr in range(self.ncont):
+    #         bf = self.bf[kr]
+    #         f.write("%4.0f %4.0f %10.4E %5.0f %3.0f %3.0f \n" \
+    #             %(bf.j, bf.i, bf.x[0], bf.nq, -1.0, 0.0) ) # what's -1.0 and 0.0 ?
+    #         for i in range(len(bf.x)):
+    #             f.write(" %10.4f %10.4E \n" %(bf.wave[i], bf.x[i]) )
+    #     # write collisional data
+    #     f.write("%s \n" %self.col_routine)
+    #     # f.write("TEMP \n")
+    #     # temporary solution for collisional rates
+    #     for line in self.col:
+    #         f.write("%s \n" %line)
+    #     # signal end
+    #     f.write("END")
     return
 
 
