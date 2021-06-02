@@ -145,11 +145,19 @@ class model_atmosphere(object):
             read_atmos_m1d(self, file)
 #            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             if 'm' in self.id:
-                feh = float(self.id.split('_')[0].split('m')[-1])
+                if '-' not in self.id.split('_')[0].split('m')[-1]:
+                    feh = -1*float(self.id.split('_')[0].split('m')[-1])/10
+                else:
+                    feh = float(self.id.split('_')[0].split('m')[-1])/10
                 alpha = feh
                 self.feh = feh
                 self.alpha = alpha
  #               print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
+            elif 'p'  in self.id:
+                feh = float(self.id.split('_')[0].split('p')[-1])/10
+                alpha = feh
+                self.feh = feh
+                self.alpha = alpha
             else:
                 print("WARNING: [Fe/H] and [alpha/Fe] are unknown.")
         else:
