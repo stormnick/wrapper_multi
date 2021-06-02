@@ -123,7 +123,7 @@ def read_atom(self, file):
     # self.col = data[ c_all : -1 ]
     # # print(self.col)
     # # TO BE FINISHED
-    return
+    return self
 
 def write_atom(self, file):
     with open(file, 'w') as f:
@@ -132,7 +132,7 @@ def write_atom(self, file):
         f.write("%s \n" %(self.element))
         f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
         for l in self.body:
-            f.write(l)
+            f.write(l + '\n')
     #     f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
     #     # energy system
     #     f.write("* Energy, Stat. weight / multiplicity, Label, Ion\n")
@@ -164,7 +164,7 @@ def write_atom(self, file):
 
 class model_atom(object) :
     def __init__(self, file, comment=''):
-        read_atom(self, file)
+        self = read_atom(self, file)
         """
         A small comment line from the config file.
         Written to the header of the NLTE binary grid
