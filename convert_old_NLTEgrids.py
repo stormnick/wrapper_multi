@@ -45,7 +45,7 @@ if __name__ == '__main__':
     """ Open the input NLTE binary in the old format, read header """
     f = open(binFile, 'rb')
 
-    #h_old = f.readline(1000).decode('utf-8', 'ignore')
+    h_old = f.readline(1000).decode('utf-8', 'ignore')
 
     """ Read the input aux file in the old format """
     auxData = {'atmosID':[], 'teff':[], 'logg':[], 'feh':[], 'A(X)':[] }

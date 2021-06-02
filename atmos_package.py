@@ -144,14 +144,21 @@ class model_atmosphere(object):
         elif format.lower() == 'm1d':
             read_atmos_m1d(self, file)
 #            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
-            if 'm' in self.id:
-                feh = float(self.id.split('_')[0].split('m')[-1])
-                alpha = feh
-                self.feh = feh
-                self.alpha = alpha
- #               print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
-            else:
-                print("WARNING: [Fe/H] and [alpha/Fe] are unknown.")
+            try:
+               feh = float(self.id.split('_')[0].split('m')[-1])
+               alpha = feh
+               self.feh = feh
+               self.alpha = alpha
+               #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
+            except:
+               try:
+                   feh = float(self.id.split('_z')[-1].split('_a')[0])
+                   alpha = float(self.id.split('_a')[-1].split('_c')[0])
+                   self.feh = feh
+                   self.alpha = alpha
+                   #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
+               except:
+                   print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
         else:
             print("Unrecognized format of model atmosphere: %s" %(format) )
             exit(1)
