@@ -8,7 +8,7 @@ from parallel_worker import addRec_to_NLTEbin
 """
 A script to convert exisiting NLTE grids to a new format
 NOTE: not all grids have header written in them, check with h_old
-NOTE: I AM NOT SURE THIS IS WORKING CORRECTLY
+
 """
 
 
@@ -69,9 +69,9 @@ if __name__ == '__main__':
             auxData['mass'].append(mass)
             auxData['alpha/fe'].append(alpha)
             auxData['vturb'].append(vturb)
-    else:
+    else: # <3D> STAGGER models
         N = len(auxData['atmosID'])
-        auxData.update({ 'alpha/fe':N*[np.nan], 'mass':N*[np.nan], 'vturb':N*[np.nan] })
+        auxData.update({ 'alpha/fe':auxData['feh'], 'mass':N*[np.nan], 'vturb':N*[np.nan] })
 
 
 
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
 
                 """ Add each record to a binary in new format, accompanied by a record in a new aux file """
-                faux_new.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %10.0f \n" \
+                faux_new.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %30.0f \n" \
                         %( atmosID, auxData['teff'][auxCount], auxData['logg'][auxCount], auxData['feh'][auxCount],  \
                         auxData['alpha/fe'][auxCount], auxData['mass'][auxCount], auxData['vturb'][auxCount], auxData['A(X)'][auxCount], pointer  ) )
 
