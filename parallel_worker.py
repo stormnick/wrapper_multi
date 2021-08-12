@@ -279,7 +279,8 @@ def run_serial_job(args):
             #scale abundance with [Fe/H] of the model atmosphere
             if np.isnan(atmos.feh):
                 atmos.feh = 0.0
-            atom.abund  =  job.abund[i] + atmos.feh
+            if not atom.element.lower() == 'h':
+                atom.abund  =  job.abund[i] + atmos.feh
 
             run_multi( job, atom, atmos)
         # shutil.rmtree(job['tmp_wd'])
