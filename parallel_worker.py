@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 import subprocess as sp
 import os
 import shutil
@@ -275,7 +276,6 @@ def run_serial_job(args):
             # model atom is only read once
             atom = setup.atom
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
-
             #scale abundance with [Fe/H] of the model atmosphere
             if np.isnan(atmos.feh):
                 atmos.feh = 0.0
@@ -283,5 +283,7 @@ def run_serial_job(args):
                 atom.abund  =  job.abund[i] + atmos.feh
 
             run_multi( job, atom, atmos)
+
+
         # shutil.rmtree(job['tmp_wd'])
         return job

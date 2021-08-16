@@ -3,6 +3,8 @@ import os
 import numpy as np
 from atom_package import model_atom
 import shutil
+# local
+from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
 
 def mkdir(s):
     if os.path.isdir(s):
@@ -148,8 +150,38 @@ class setup(object):
         print("Reading a list of model atmospheres from %s" %( self.atmos_list ))
         atmos_list = np.loadtxt( self.atmos_list, dtype=str, ndmin=1)
         self.atmos = []
-        for atm in atmos_list:
-            self.atmos.append( self.atmos_path + '/' + atm )
+        if self.iterate_vmic:
+           if self.atmos_format.lower() == 'marcs':
+               for atm in atmos_list:
+                    atmos = model_atmosphere(file = self.atmos_path +'/' + atm, format = 'marcs')
+                    newPath =  f"{self.atmos_path}/atmos.{atmos.id}"
+                    write_atmos_m1d(atmos,  newPath)
+                    print(f"created {newPath}")
+                  #  write_dscale_m1d(atmos,  f"{self.atmos_path}/dscale.{atmos.id}" )
+                    self.atmos.append( newPath)
+
+                    for vt in self.vturb:
+                       newID = f"{atm.split('_t')[0]}_t{vt:02.0f}{atm.split('_t')[-1][2:]}"
+                       newPath = f"{self.atmos_path}/atmos.{newID.replace('.mod','')}"
+                       if  newID in atmos_list  or newPath in self.atmos:
+                           pass
+                       else:
+                           atmos = model_atmosphere(file = self.atmos_path +'/' + atm, format = 'marcs')
+                           atmos.header = atmos.header + f"  Set vturb={vt:.2f}"
+                           atmos.id = newID.replace(self.atmos_path, '').replace('/', '').replace('.mod', '')
+                           atmos.vturb = np.full(atmos.ndep, vt)
+
+                           write_atmos_m1d(atmos,  newPath )
+                           print(f"created {newPath} with Vturb={vt}, the rest as in {atm}")
+
+                           self.atmos.append( newPath)
+               self.atmos_format = 'm1d'
+               print(f"Changed format of input model atmosphere to {self.atmos_format} following iteration over Vturb")
+           else:
+                raise Warning("only iterate over Vturb for 1D atmosphere in MARCS format/naming")
+        else:
+           for atm in atmos_list:
+               self.atmos.append( self.atmos_path + '/' + atm )
 
         """
         Read model atom

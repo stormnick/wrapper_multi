@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 """
     Read and manipulate model atmospheres
@@ -61,6 +62,8 @@ def read_atmos_m1d(self, file):
     for line in open( file , 'r').readlines():
         if not line.startswith('*'):
             data.append(line.strip())
+        elif 'Teff' in line:
+            self.teff = float(line.split()[-1]) 
     # read header
     self.id = data[0]
     self.depth_scale_type = data[1]
@@ -76,9 +79,8 @@ def read_atmos_m1d(self, file):
         self.vmac.append( spl[3] )
         self.vturb.append( spl[4] )
     # info that's not provided in the model atmosphere file:
-    self.teff   = np.nan
-    self.feh    = np.nan
-    self.alpha  = np.nan
+    if not 'teff' in self.__dict__.keys():
+        self.teff   = np.nan
     self.X      = np.nan
     self.Y      = np.nan
     self.Z      = np.nan
@@ -103,6 +105,7 @@ def write_atmos_m1d(atmos, file):
         f.write("%s \n" %(atmos.id) )
         f.write("* Depth scale: log(tau500nm) (T), log(column mass) (M), height [km] (H)\n %s \n" %(atmos.depth_scale_type) )
         f.write("* log(g) \n %.3f \n" %(atmos.logg) )
+        f.write(f"* Teff = {atmos.teff}\n")
         f.write("* Number of depth points \n %.0f \n" %(atmos.ndep) )
         # write structure
         f.write("* depth scale, temperature, N_e, Vmac, Vturb \n")
@@ -143,26 +146,37 @@ class model_atmosphere(object):
             self.depth_scale = self.tau500
         elif format.lower() == 'm1d':
             read_atmos_m1d(self, file)
-#            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             try:
-               feh = float(self.id.split('_')[0].split('m')[-1])
-               alpha = feh
-               self.feh = feh
-               self.alpha = alpha
-               #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
+                feh = float(self.id.split('_z')[-1].split('_a')[0])
+                alpha = float(self.id.split('_a')[-1].split('_c')[0])
+                self.feh = feh
+                self.alpha = alpha
+                #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
             except:
-               try:
-                   feh = float(self.id.split('_z')[-1].split('_a')[0])
-                   alpha = float(self.id.split('_a')[-1].split('_c')[0])
-                   self.feh = feh
-                   self.alpha = alpha
-                   #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
-               except:
-                   print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
+                print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
+        elif format.lower() == 'stagger':
+#            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
+            read_atmos_m1d(self, file)
+            teff = float(self.id.split('g')[0].replace('t',''))
+            if teff != 5777:
+                teff = teff*1e2
+            
+            feh = float(self.id[-2:]) /10
+            if self.id[-3] == 'm':
+                feh = feh * (-1)
+            elif self.id[-3] == 'p':
+                pass
+            else: 
+                raise Warning("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
+            self.feh = feh
+            self.alpha = self.feh
+            self.teff = teff
+            #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
         else:
-            print("Unrecognized format of model atmosphere: %s" %(format) )
-            exit(1)
+            raise Warning("Unrecognized format of model atmosphere: %s" %(format) )
 
+    def copy(self):
+        return deepcopy(self)
 
 
 if __name__ == '__main__':
