@@ -237,7 +237,7 @@ def collect_output(setup, jobs):
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
                 "Number of records: %10.0f \n" %(setup.njobs) + \
-                "Created: %s \nby Ekaterina Semenova (semenova at mpia dot de) \n" %(today)
+                "Created: %s \nby Ekaterina Magg (emagg at mpia dot de) \n" %(today)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
