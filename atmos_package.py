@@ -63,7 +63,7 @@ def read_atmos_m1d(self, file):
         if not line.startswith('*'):
             data.append(line.strip())
         elif 'Teff' in line:
-            self.teff = float(line.split()[-1]) 
+            self.teff = float(line.split()[-1].split('=')[-1])
     # read header
     self.id = data[0]
     self.depth_scale_type = data[1]
@@ -153,7 +153,12 @@ class model_atmosphere(object):
                 self.alpha = alpha
                 #print(F"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
             except:
-                print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
+                try:
+                    feh = float(self.id.split('m')[-1].split('_')[0])
+                    self.feh = feh
+                    self.alpha = self.feh
+                except:
+                    print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
         elif format.lower() == 'stagger':
 #            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             read_atmos_m1d(self, file)
