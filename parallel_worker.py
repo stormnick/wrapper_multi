@@ -178,7 +178,7 @@ def run_multi( job, atom, atmos):
                 depart = depart.T
             record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
-            faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %30.0f \n" \
+            faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %60.0f \n" \
                         %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )
             faux.close()
 
