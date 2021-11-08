@@ -25,49 +25,48 @@ def read_atom(self, file):
                 self.element = li
             elif c_noncom == 2:
                 self.abund, self.atomic_weight = np.array(li.split()).astype(float)
+            elif c_noncom == 3:
+                self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
                 break
-            # elif c_noncom == 3:
-                # self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
-                # break
         else:
             self.header.append(li)
     self.body = data[c_all:]
 
-    # """ Read the energy levels """
-    # self.en, self.g, self.label, self.ion = [], [], [], []
-    # for li in data[c_all+1 : ]:
-    #     if c_noncom < 3 + self.nk:
-    #         c_all += 1
-    #         if not li.startswith('*') and li != '':
-    #             lsp = li.split()
-    #             self.en.append( float( lsp[0] ) )
-    #             self.g.append( int( float(lsp[1]) ) )
-    #             self.label.append( li.split("'")[1].strip() )
-    #             self.ion.append( int( li.split("'")[-1].split()[0] ) )
-    #             c_noncom += 1
-    #     else:
-    #         c_all += 1
-    #         break
-    # """ Read the b-b transitions """
-    # self.bb = {}
-    # kr = 0
-    # for i in range(len(data[ c_all : ])):
-    #     if c_noncom < 3 + self.nk + self.nline:
-    #         li = data[ c_all  ]
-    #         # preceeding line
-    #         if not li.startswith('*') and li != '':
-    #             # if no comment line before this b-b, pass empty "comment" line
-    #             if not data[ c_all - 1 ].startswith('*'):
-    #                 bb = bbline("* ", li )
-    #             # else pass preceeding comment line
-    #             else:
-    #                 bb = bbline(data[ c_all - 1 ], li)
-    #             self.bb.update( { kr : bb } )
-    #             kr += 1
-    #             c_noncom += 1
-    #         c_all += 1
-    #     else:
-    #         break
+    """ Read the energy levels """
+    self.levels = {'en':[], 'g':[], 'label':[], 'ion':[]}
+    for li in data[c_all+1 : ]:
+        if c_noncom < 3 + self.nk:
+            c_all += 1
+            if not li.startswith('*') and li != '':
+                lsp = li.split()
+                self.levels['en'].append( float( lsp[0] ) )
+                self.levels['g'].append( int( float(lsp[1]) ) )
+                self.levels['label'].append( li.split("'")[1].strip() )
+                self.levels['ion'].append( int( li.split("'")[-1].split()[0] ) )
+                c_noncom += 1
+        else:
+            c_all += 1
+            break
+    """ Read the b-b transitions """
+    self.bb = {}
+    kr = 0
+    for i in range(len(data[ c_all : ])):
+        if c_noncom < 3 + self.nk + self.nline:
+            li = data[ c_all  ]
+            # preceeding line
+            if not li.startswith('*') and li != '':
+                # if no comment line before this b-b, pass empty "comment" line
+                if not data[ c_all - 1 ].startswith('*'):
+                    bb = bbline("* ", li )
+                # else pass preceeding comment line
+                else:
+                    bb = bbline(data[ c_all - 1 ], li)
+                self.bb.update( { kr : bb } )
+                kr += 1
+                c_noncom += 1
+            c_all += 1
+        else:
+            break
     #
     # """ Read the b-f transitions """
     # self.bf = {}
