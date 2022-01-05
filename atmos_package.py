@@ -167,13 +167,13 @@ class model_atmosphere(object):
             teff = float(self.id.split('g')[0].replace('t',''))
             if teff != 5777:
                 teff = teff*1e2
-            
+
             feh = float(self.id[-2:]) /10
             if self.id[-3] == 'm':
                 feh = feh * (-1)
             elif self.id[-3] == 'p':
                 pass
-            else: 
+            else:
                 raise Warning("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
             self.feh = feh
             self.alpha = self.feh
@@ -184,6 +184,12 @@ class model_atmosphere(object):
 
     def copy(self):
         return deepcopy(self)
+        
+    def write(self, format = 'm1d'):
+        if format != 'm1d':
+            raise Warning(f"Format {format} not supported for writing yet.")
+        else:
+            write_atmos_m1d(self)
 
 
 if __name__ == '__main__':
