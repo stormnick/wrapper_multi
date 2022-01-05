@@ -129,7 +129,9 @@ def write_dscale_m1d(atmos, file):
 
 
 class model_atmosphere(object):
-    def __init__(self, file='atmos.sun', format='m1d'):
+    # def __init__():
+        # pass
+    def read(self, file='atmos.sun', format='m1d'):
         """
         Model atmosphere for NLTE calculations
         input:
