@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 import subprocess as sp
 import os
 import shutil
@@ -177,7 +178,7 @@ def run_multi( job, atom, atmos):
                 depart = depart.T
             record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
-            faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %30.0f \n" \
+            faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %60.0f \n" \
                         %( atmos.id, atmos.teff, atmos.logg, atmos.feh,  atmos.alpha, atmos.mass, np.mean(atmos.vturb), out.abnd, record_len  ) )
             faux.close()
 
@@ -236,7 +237,7 @@ def collect_output(setup, jobs):
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
                 "Number of records: %10.0f \n" %(setup.njobs) + \
-                "Created: %s \nby Ekaterina Semenova (semenova at mpia dot de) \n" %(today)
+                "Created: %s \nby Ekaterina Magg (emagg at mpia dot de) \n" %(today)
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
@@ -275,12 +276,14 @@ def run_serial_job(args):
             # model atom is only read once
             atom = setup.atom
             atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
-
             #scale abundance with [Fe/H] of the model atmosphere
             if np.isnan(atmos.feh):
                 atmos.feh = 0.0
-            atom.abund  =  job.abund[i] + atmos.feh
+            if not atom.element.lower() == 'h':
+                atom.abund  =  job.abund[i] + atmos.feh
 
             run_multi( job, atom, atmos)
+
+
         # shutil.rmtree(job['tmp_wd'])
         return job
