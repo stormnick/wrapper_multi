@@ -113,6 +113,27 @@ def write_atmos_m1d(atmos, file):
             f.write("%15.5E %15.5f %15.5E %10.3f %10.3f\n" \
                 %( atmos.depth_scale[i], atmos.temp[i], atmos.ne[i], atmos.vmac[i], atmos.vturb[i] ) )
 
+def write_atmos_m1d_forTS(atmos, file):
+    """
+    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
+    that can be read by TS
+    input:
+    (object of class model_atmosphere): atmos
+    (string) file: path to output file
+    """
+    with open(file, 'w') as f:
+        # write header with comments
+        # write formatted header
+        f.write("%s \n" %(atmos.id) )
+        f.write( f"{atmos.depth_scale_type}\n" )
+        f.write( f"* LOG(G) \n {atmos.logg:.3f}\n")
+        f.write( f"* NDEP \n {atmos.ndep:.0f}\n" )
+        # write structure
+        f.write("* depth scale, temperature, N_e, Vmac, Vturb \n")
+        for i in range(len(atmos.depth_scale)):
+            f.write("%15.5E %15.5f %15.5E %10.3f %10.3f\n" \
+                %( atmos.depth_scale[i], atmos.temp[i], atmos.ne[i], atmos.vmac[i], atmos.vturb[i] ) )
+
 def write_dscale_m1d(atmos, file):
     """
     Write MULTI1D DSCALE input file with depth scale to be used for NLTE computations
@@ -184,12 +205,17 @@ class model_atmosphere(object):
 
     def copy(self):
         return deepcopy(self)
-        
-    def write(self, format = 'm1d'):
-        if format != 'm1d':
+
+    def write(self, path, format = 'm1d'):
+        if format not in  ['m1d', 'ts']:
             raise Warning(f"Format {format} not supported for writing yet.")
-        else:
-            write_atmos_m1d(self)
+
+        if format == 'm1d':
+            write_atmos_m1d(self, path)
+        elif format == 'ts':
+            write_atmos_m1d_forTS(self, path)
+
+
 
 
 if __name__ == '__main__':
