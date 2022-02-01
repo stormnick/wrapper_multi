@@ -2,6 +2,9 @@ import sys
 import os
 import numpy as np
 
+def cm2ev(x):
+    return x / 8065.54429
+
 
 """
 Only for model atoms in MULTI format
