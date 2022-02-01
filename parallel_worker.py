@@ -158,7 +158,7 @@ def run_multi( job, atom, atmos):
             if job.output['write_ew'] == 1:
                 mask = np.arange(out.nline)
             elif job.output['write_ew'] == 2:
-                mask = np.where(out.nq[:out.nline] > min(out.nq[:out.nline]))[0]
+                mask = np.where(out.nq[:out.nline] == max(out.nq[:out.nline]))[0]
 
             with open(job.output['file_ew'], 'a')as f:
                 for kr in mask:
