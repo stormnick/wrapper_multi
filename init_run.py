@@ -139,6 +139,11 @@ class setup(object):
         if self.save_idl1 == 1:
             setup.idl1_folder = self.common_wd + "/idl1_folder/"
             mkdir(setup.idl1_folder)
+        if 'iterate_vmic' not in self.__dict__.keys():
+            self.iterate_vmic = 0
+        if self.iterate_vmic == 1:
+            self.iterate_vmic  = True
+        else: self.iterate_vmic = False
 
 
         """
