@@ -5,7 +5,7 @@ import os
 import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
-from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
+from atmos_package import *
 from m1d_output import m1d, m1dline
 import multiprocessing
 import datetime
@@ -163,7 +163,7 @@ def run_multi( job, atom, atmos):
             with open(job.output['file_ew'], 'a')as f:
                 for kr in mask:
                     line = out.line[kr]
-                    f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %10.4f # '%s'\n" \
+                    f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %20.4f # '%s'\n" \
                         %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
                             line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb), atmos.id ) )
 
@@ -275,7 +275,8 @@ def run_serial_job(args):
         for i in range(len(job.atmos)):
             # model atom is only read once
             atom = setup.atom
-            atmos = model_atmosphere(file = job.atmos[i], format = setup.atmos_format)
+            atmos = model_atmosphere()
+            atmos.read(file = job.atmos[i], format = setup.atmos_format)
             #scale abundance with [Fe/H] of the model atmosphere
             if np.isnan(atmos.feh):
                 atmos.feh = 0.0

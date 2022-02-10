@@ -108,6 +108,18 @@ def write_atmos_m1d(atmos, file):
     (object of class model_atmosphere): atmos
     (string) file: path to output file
     """
+    if 'logg' not in atmos.__dict__.keys():
+        atmos.logg  = np.nan
+    if 'teff' not in atmos.__dict__.keys():
+        atmos.teff  = np.nan
+    if 'header' not in atmos.__dict__.keys():
+        atmos.header  = ''
+    if 'ndep' not in atmos.__dict__.keys():
+        atmos.ndep = len(atmos.depth_scale)
+    if 'vmqc' not in atmos.__dict__.keys():
+        atmos.vmac = np.zeros( len(atmos.depth_scale ))
+
+    
     with open(file, 'w') as f:
         # write header with comments
         f.write("* %s \n" %(atmos.header) )
