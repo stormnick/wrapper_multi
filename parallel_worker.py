@@ -241,7 +241,7 @@ def collect_output(setup, jobs):
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
-        # a pointer starts with 1, because Fortran starts with 1 while Python starts with 0
+        # Fortran starts with 1 while Python starts with 0
         pointer = len(header) + 1
 
         for job in jobs:
