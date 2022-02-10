@@ -11,7 +11,6 @@ NOTE: not all grids have header written in them, check with h_old
 
 """
 
-
 if __name__ == '__main__':
     today = date.today().strftime("%b-%d-%Y")
 
