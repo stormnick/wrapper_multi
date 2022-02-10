@@ -130,6 +130,8 @@ def write_atom(self, file):
             f.write(li + '\n')
         f.write("%s \n" %(self.element))
         f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
+        f.write(f"{self.nk:.0f} {self.nline:.0f} {self.ncont:.0f} {self.nrfix:.0f}")
+
         for l in self.body:
             f.write(l + '\n')
     #     f.write("%.0f %.0f %.0f %.0f \n" %(self.nk, self.nline, self.ncont, self.nrfix) )
