@@ -108,18 +108,7 @@ def write_atmos_m1d(atmos, file):
     (object of class model_atmosphere): atmos
     (string) file: path to output file
     """
-    if 'logg' not in atmos.__dict__.keys():
-        atmos.logg  = np.nan
-    if 'teff' not in atmos.__dict__.keys():
-        atmos.teff  = np.nan
-    if 'header' not in atmos.__dict__.keys():
-        atmos.header  = ''
-    if 'ndep' not in atmos.__dict__.keys():
-        atmos.ndep = len(atmos.depth_scale)
-    if 'vmqc' not in atmos.__dict__.keys():
-        atmos.vmac = np.zeros( len(atmos.depth_scale ))
 
-    
     with open(file, 'w') as f:
         # write header with comments
         f.write("* %s \n" %(atmos.header) )
@@ -134,6 +123,26 @@ def write_atmos_m1d(atmos, file):
         for i in range(len(atmos.depth_scale)):
             f.write("%15.5E %15.5f %15.5E %10.3f %10.3f\n" \
                 %( atmos.depth_scale[i], atmos.temp[i], atmos.ne[i], atmos.vmac[i], atmos.vturb[i] ) )
+
+def write_atmos_m1d4TS(atmos, file):
+    """
+    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
+    input:
+    (object of class model_atmosphere): atmos
+    (string) file: path to output file
+    """
+
+    with open(file, 'w') as f:
+        f.write(f"{atmos.id}\n" )
+        f.write("f{atmos.depth_scale_type}\n" )
+        f.write(f"* LOG (G) \n {atmos.logg} \n")
+        f.write("* NDEP \n {atmos.ndep} \n" )
+        # write structure
+        f.write("* depth scale, temperature, N_e, Vmac, Vturb \n")
+        for i in range(len(atmos.depth_scale)):
+            f.write("%15.5E %15.5f %15.5E %10.3f %10.3f\n" \
+                %( atmos.depth_scale[i], atmos.temp[i], atmos.ne[i], atmos.vmac[i], atmos.vturb[i] ) )
+
 
 def write_dscale_m1d(atmos, file):
     """
@@ -204,14 +213,29 @@ class model_atmosphere(object):
         else:
             raise Warning("Unrecognized format of model atmosphere: %s" %(format) )
 
+        if 'logg' not in self.__dict__.keys():
+            self.logg  = np.nan
+        if 'teff' not in self.__dict__.keys():
+            self.teff  = np.nan
+        if 'header' not in self.__dict__.keys():
+            self.header  = ''
+        if 'ndep' not in self.__dict__.keys():
+            self.ndep = len(self.depth_scale)
+        if 'vmac' not in self.__dict__.keys():
+        self.vmac = np.zeros( len(self.depth_scale ))
+
+
     def copy(self):
         return deepcopy(self)
 
     def write(self, path, format = 'm1d'):
-        if format != 'm1d':
-            raise Warning(f"Format {format} not supported for writing yet.")
-        else:
+        if format == 'm1d':
             write_atmos_m1d(self, path)
+        elif format == 'ts':
+            write_atmos_m1d4TS(self, path)
+        else:
+            raise Warning(f"Format {format} not supported for writing yet.")
+
 
 
 if __name__ == '__main__':
