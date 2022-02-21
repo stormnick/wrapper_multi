@@ -134,13 +134,13 @@ def write_atmos_m1d4TS(atmos, file):
 
     with open(file, 'w') as f:
         f.write(f"{atmos.id}\n" )
-        f.write("f{atmos.depth_scale_type}\n" )
+        f.write(f"{atmos.depth_scale_type}\n" )
         f.write(f"* LOG (G) \n {atmos.logg} \n")
-        f.write("* NDEP \n {atmos.ndep} \n" )
+        f.write(f"* NDEP \n {atmos.ndep} \n" )
         # write structure
         f.write("* depth scale, temperature, N_e, Vmac, Vturb \n")
         for i in range(len(atmos.depth_scale)):
-            f.write("%15.5E %15.5f %15.5E %10.3f %10.3f\n" \
+            f.write("%15.8E %15.5f %15.5E %10.3f %10.3f\n" \
                 %( atmos.depth_scale[i], atmos.temp[i], atmos.ne[i], atmos.vmac[i], atmos.vturb[i] ) )
 
 
@@ -213,6 +213,7 @@ class model_atmosphere(object):
         else:
             raise Warning("Unrecognized format of model atmosphere: %s" %(format) )
 
+    def FillIn(self):
         if 'logg' not in self.__dict__.keys():
             self.logg  = np.nan
         if 'teff' not in self.__dict__.keys():
@@ -222,13 +223,14 @@ class model_atmosphere(object):
         if 'ndep' not in self.__dict__.keys():
             self.ndep = len(self.depth_scale)
         if 'vmac' not in self.__dict__.keys():
-        self.vmac = np.zeros( len(self.depth_scale ))
+            self.vmac = np.zeros( len(self.depth_scale ))
 
 
     def copy(self):
         return deepcopy(self)
 
     def write(self, path, format = 'm1d'):
+        self.FillIn()
         if format == 'm1d':
             write_atmos_m1d(self, path)
         elif format == 'ts':

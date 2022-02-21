@@ -18,6 +18,10 @@ if __name__ ==  '__main__':
     if len(auxFiles) != len(binFiles):
         print(f"# of auxilarly file does not equal # of grids found in {path}")
         exit()
+    else:
+        print(f"Found {'  '.join( str(x)  for x in auxFiles)}")
+        print(f"and {'  '.join( str(x) for x in binFiles)}")
+
 
     today = datetime.date.today().strftime("%b-%d-%Y")
     commonBinary = open('./output_NLTEgrid4TS_%s_combined.bin' %(today), 'wb')
@@ -45,7 +49,9 @@ if __name__ ==  '__main__':
                     line = line.split('#')[0].replace('\n','')
                     pointer = int(line.split()[-1]) + pointer_last
                     commonAux.write(f" {'    '.join(line.split()[0:-1]) } {pointer:.0f}\n")
-            pointer_last = pointer
+            
+            pointer_last = pointer - 1
     
-        commonBinary.close()
-        commonAux.close()
+    commonBinary.close()
+    commonAux.close()
+    print(f"Saved to {commonBinary} and {commonAux.close}")
