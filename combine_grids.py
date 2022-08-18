@@ -23,7 +23,6 @@ def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
 
     fbin.write(np.array(tau, dtype='f8').tobytes())
     record_len = record_len + ndep * 8
-
     fbin.write(np.array(depart, dtype='f8').tobytes())
     record_len = record_len + ndep * nk * 8
 
@@ -31,7 +30,7 @@ def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
 
     return record_len
 
-def addDeparturesToNLTEbinGrid(binFilePath, auxFilePath, NLTEdata):
+def addDeparturesToExistingGrid(binFilePath, auxFilePath, NLTEdata):
     """
     Append departure coefficients and complimenting data
     to the existing binary NLTE grid and auxilarly file
@@ -39,15 +38,15 @@ def addDeparturesToNLTEbinGrid(binFilePath, auxFilePath, NLTEdata):
     Input:
 
     """
-    atmosID, ndep, nk, tau, depart = NLTEdata # add Teff, logg, feh, etc..
-    recond_len = addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart)
+    atmosID, ndep, nk, tau, depart = NLTEdata
+    record_len = addRec_to_NLTEbin(binFilePath, atmosID, ndep, nk, tau, depart)
 
     auxData = open(auxFilePath).readlines()
-    pointer_last = auxData[-1].split()[-1]
+    pointer_last = int(auxData[-1].split()[-1])
 
     teff, logg, feh, alpha, mass, vturb, abund = np.random.random(7)
-    with open(auxData, 'aw') as auxF:
-        auxF.write(f" '{atmos.id}'  {teff:10.4f} {logg:10.4f} {feh:10.4f}\
+    with open(auxFilePath, 'a') as auxF:
+        auxF.write(f" '{atmosID}'  {teff:10.4f} {logg:10.4f} {feh:10.4f}\
                         {alpha:10.4f} {mass:10.4f} {vturb:10.4f} {abund:10.4f} \
                         {pointer_last + record_len:60.0f} \n")
 
@@ -87,7 +86,7 @@ def combineOutput_multipleJobs(path):
                 else:
                     line = line.split('#')[0].replace('\n','')
                     pointer = int(line.split()[-1]) + pointer_last
-                    commonAux.write(f" {'    '.join(line.split()[0:-1]) }     {pointer:35.0f}\n")
+                    commonAux.write(f" {'    '.join(line.split()[0:-1]) }     {pointer:60.0f}\n")
             pointer_last = pointer - 1
     commonBinary.close()
     commonAux.close()
