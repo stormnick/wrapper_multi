@@ -1,8 +1,5 @@
 from sys import argv, exit
 import os
-from init_run import setup, serial_job
-from parallel_worker import run_serial_job, collect_output
-from multiprocessing import Pool
 import time
 import numpy as np
 import glob
@@ -43,17 +40,17 @@ def combineOutput_multipleJobs(path):
                 else:
                     line = line.split('#')[0].replace('\n','')
                     pointer = int(line.split()[-1]) + pointer_last
-                    commonAux.write(f" {'    '.join(line.split()[0:-1]) } {pointer:.0f}\n")
+                    commonAux.write(f" {'    '.join(line.split()[0:-1]) }     {pointer:35.0f}\n")
             pointer_last = pointer - 1
     commonBinary.close()
     commonAux.close()
-    print(f"Saved to {commonBinary} and {commonAux.close}")
+    print(f"Saved to {./output_NLTEgrid4TS_%s_combined.bin} and {commonAux.close}")
 
 def combineParallelGrids_timeout(path, description):
     """ In case 99% of the computations are done but output was not organised """
     today = datetime.date.today().strftime("%b-%d-%Y")
-    com_f = open(path + f"/output_NLTEgrid4TS_{today}.bin", 'wb')
-    com_aux = open(path + f"/auxData_NLTEgrid4TS_{today}.dat", 'w')
+    com_f = open( f"./output_NLTEgrid4TS_{today}.bin", 'wb')
+    com_aux = open(f"./auxData_NLTEgrid4TS_{today}.dat", 'w')
 
     header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
             f"{description} \n" + \
@@ -74,8 +71,7 @@ def combineParallelGrids_timeout(path, description):
         for line in open(auxFiles[i], 'r').readlines():
             if not line.startswith('#'):
                 rec_len = int(line.split()[-1])
-                com_aux.write('\t'.join(line.split()[0:-1]))
-                com_aux.write("%10.0f \n" %(pointer))
+                com_aux.write(f"{'  '.join(line.split()[0:-1])}   {pointer:35.0f} \n")
                 pointer = pointer + rec_len
             # simply copy comment lines
             else:
@@ -83,7 +79,7 @@ def combineParallelGrids_timeout(path, description):
 
     com_f.close()
     com_aux.close()
-    datetime1 = datetime.datetime.now()
+    print(f"saved in ./output_NLTEgrid4TS_{today}.bin and ./auxData_NLTEgrid4TS_{today}.dat")
 
 if __name__ ==  '__main__':
     """
