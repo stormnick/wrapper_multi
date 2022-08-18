@@ -46,7 +46,7 @@ def addDeparturesToNLTEbinGrid(binFilePath, auxFilePath, NLTEdata):
     pointer_last = auxData[-1].split()[-1]
 
     teff, logg, feh, alpha, mass, vturb, abund = np.random.random(7)
-    with open(auxData, 'a') as auxF:
+    with open(auxData, 'aw') as auxF:
         auxF.write(f" '{atmos.id}'  {teff:10.4f} {logg:10.4f} {feh:10.4f}\
                         {alpha:10.4f} {mass:10.4f} {vturb:10.4f} {abund:10.4f} \
                         {pointer_last + record_len:60.0f} \n")
@@ -91,7 +91,7 @@ def combineOutput_multipleJobs(path):
             pointer_last = pointer - 1
     commonBinary.close()
     commonAux.close()
-    print(f"Saved to {./output_NLTEgrid4TS_%s_combined.bin} and {commonAux.close}")
+    print(f"Saved to output_NLTEgrid4TS_{today}_combined.bin and ./auxData_NLTEgrid4TS_{today}_combined.dat")
 
 def combineParallelGrids_timeout(path, description):
     """ In case 99% of the computations are done but output was not organised """
