@@ -191,6 +191,8 @@ class model_atmosphere(object):
                     self.feh = feh
                     self.alpha = self.feh
                 except:
+                    self.feh = np.nan
+                    self.alpha=np.nan
                     print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
         elif format.lower() == 'stagger':
 #            print(F"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
@@ -205,7 +207,7 @@ class model_atmosphere(object):
             elif self.id[-3] == 'p':
                 pass
             else:
-                raise Warning("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
+                print("WARNING: [Fe/H] and [alpha/Fe] are unknown. Stopped")
             self.feh = feh
             self.alpha = self.feh
             self.teff = teff
