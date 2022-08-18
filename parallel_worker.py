@@ -251,8 +251,8 @@ def collect_output(setup, jobs):
             for line in open(job.output['file_4ts_aux'], 'r').readlines():
                 if not line.startswith('#'):
                     rec_len = int(line.split()[-1])
-                    com_aux.write('\t'.join(line.split()[0:-1]))
-                    com_aux.write("%10.0f \n" %(pointer))
+                    com_aux.write('    '.join(line.split()[0:-1]))
+                    com_aux.write("%20.0f \n" %(pointer))
                     pointer = pointer + rec_len
                 # simply copy comment lines
                 else:
