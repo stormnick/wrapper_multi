@@ -6,6 +6,7 @@ import shutil
 import numpy as np
 from atom_package import model_atom, write_atom
 from atmos_package import *
+from combine_grids import addRec_to_NLTEbin
 from m1d_output import m1d, m1dline
 import multiprocessing
 import datetime
@@ -18,34 +19,7 @@ def mkdir(s):
     os.mkdir(s)
     return
 
-def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
-    # transform to match fortran format
 
-    # writes a record into existing NLTE binary
-    # separate for each paralell job
-    # they will be combined later
-    fbin = open(binFile, 'ab')
-    record_len = 0
-
-    record_len = record_len + 500
-    fbin.write(str.encode('%500s' %atmosID))
-
-    record_len = record_len + 4
-    fbin.write(int(ndep).to_bytes(4, 'little'))
-
-    record_len = record_len + 4
-    fbin.write(int(nk).to_bytes(4, 'little'))
-
-    fbin.write(np.array(tau, dtype='f8').tobytes())
-    record_len = record_len + ndep * 8
-
-
-    fbin.write(np.array(depart, dtype='f8').tobytes())
-    record_len = record_len + ndep * nk * 8
-
-    fbin.close()
-
-    return record_len
 
 def setup_multi_job(setup, job):
     """

@@ -5,12 +5,59 @@ import numpy as np
 import glob
 import datetime
 
+def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
+    # transform to match fortran format
+
+    # writes a record into existing NLTE binary
+    fbin = open(binFile, 'ab')
+    record_len = 0
+
+    record_len = record_len + 500
+    fbin.write(str.encode('%500s' %atmosID))
+
+    record_len = record_len + 4
+    fbin.write(int(ndep).to_bytes(4, 'little'))
+
+    record_len = record_len + 4
+    fbin.write(int(nk).to_bytes(4, 'little'))
+
+    fbin.write(np.array(tau, dtype='f8').tobytes())
+    record_len = record_len + ndep * 8
+
+    fbin.write(np.array(depart, dtype='f8').tobytes())
+    record_len = record_len + ndep * nk * 8
+
+    fbin.close()
+
+    return record_len
+
+def addDeparturesToNLTEbinGrid(binFilePath, auxFilePath, NLTEdata):
+    """
+    Append departure coefficients and complimenting data
+    to the existing binary NLTE grid and auxilarly file
+
+    Input:
+
+    """
+    atmosID, ndep, nk, tau, depart = NLTEdata # add Teff, logg, feh, etc..
+    recond_len = addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart)
+
+    auxData = open(auxFilePath).readlines()
+    pointer_last = auxData[-1].split()[-1]
+
+    teff, logg, feh, alpha, mass, vturb, abund = np.random.random(7)
+    with open(auxData, 'a') as auxF:
+        auxF.write(f" '{atmos.id}'  {teff:10.4f} {logg:10.4f} {feh:10.4f}\
+                        {alpha:10.4f} {mass:10.4f} {vturb:10.4f} {abund:10.4f} \
+                        {pointer_last + record_len:60.0f} \n")
+
+
 
 def combineOutput_multipleJobs(path):
     auxFiles = glob.glob(path + '/auxData_*.dat')
     binFiles = glob.glob(path + '/output_*.bin')
     if len(auxFiles) != len(binFiles):
-        print(f"# of auxilarly file does not equal # of grids found in {path}")
+        print(f"# of auxilarly files does not equal # of grids found in {path}")
         exit()
     else:
         print(f"Found {'  '.join( str(x)  for x in auxFiles)}")
