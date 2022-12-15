@@ -1,0 +1,58 @@
+# Input file 
+# Sets up parallel jobs 
+
+# common working directory
+# where to compute, to save all output, etc
+# not the same as input directory or path to input files
+common_wd = './..'
+
+# file listing model atmospheres
+atmos_list = 'MARCS_all.in'
+
+# format of the model atmospheres 
+atmos_format = 'marcs'
+#atmos_format = 'stagger_avg'
+#atmos_format = 'm1d'
+
+# path to model atmospheres 
+# leave empty if absolute path is provided in the input file
+atmos_path = '/home/user/MARCS/'
+
+# path to model atom and input file
+atom_path = './'
+# atom ID
+atom_id = 'ni538qm'
+atom_comment = 'Ni with new QM collisional data. Created by MB, 2021, see Bergemann, Hoppe+2021.'
+
+# path to MULTI1D input files, other than model atmosphere or model atom (e.g. absmet, abslin)
+m1d_input = '/home/mul23/input/'
+
+# path to Multi 1D executable
+# make sure it's always compiled to match the node you're using
+m1d_exe = './mul23lus.x'
+
+# number of CPUs to use
+ncpu = 60
+
+# use abundance different from that in the model atom?
+# 0/1/2
+# 0 -- keep abundance from the model atom
+# 1 -- use new_abund
+# 2 -- use a range of abundances from start_abund to end_abund, with step_abund
+use_abund = 2
+
+# if use_abund == 1:
+new_abund = 6.5
+
+# if use_abund == 2:
+# starting abundance
+start_abund = 5.2
+end_abund = 6.7
+step_abund = 0.1
+
+# saving EW of lines: 0 -- none, 1 -- all, 2 -- high sampling lines only (recommended)
+write_ew = 2
+# make binary departure grids for use with TurboSpectrum? 0 -- no, 1 -- yes
+write_ts = 0
+# keep idl1.* save files? 0 -- no, 1 -- yes (note, might take a lot of space for large jobs)
+save_idl1 = 0
