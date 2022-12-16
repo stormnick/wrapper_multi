@@ -100,7 +100,7 @@ def combineParallelGrids_timeout(path, description):
 
     header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
             f"{description} \n" + \
-            "Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), \n" %(today)
+            f"Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), {today} \n"
     header = str.encode('%1000s' %(header) )
     com_f.write(header)
     # Fortran starts with 1 while Python starts with 0

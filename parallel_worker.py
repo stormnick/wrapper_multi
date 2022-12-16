@@ -211,7 +211,7 @@ def collect_output(setup, jobs):
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
                 "Number of records: %10.0f \n" %(setup.njobs) + \
-                "Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), \n" %(today)
+                f"Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), {today} \n"
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
