@@ -4,7 +4,7 @@ import subprocess as sp
 import os
 import shutil
 import numpy as np
-from atom_package import model_atom, write_atom
+from atom_package import model_atom, write_atom_noReFormatting
 from atmos_package import *
 from combine_grids import addRec_to_NLTEbin
 from m1d_output import m1d, m1dline
@@ -112,7 +112,7 @@ def run_multi( job, atom, atmos):
     """
 
     """ Create ATOM input file for M1D """
-    write_atom(atom, job.tmp_wd +  '/ATOM' )
+    write_atom_noReFormatting(atom, job.tmp_wd +  '/ATOM' )
 
     """ Create ATMOS input file for M1D """
     write_atmos_m1d(atmos, job.tmp_wd +  '/ATMOS' )
