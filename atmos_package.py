@@ -177,8 +177,8 @@ class model_atmosphere(object):
                     print("WARNING: [Fe/H] and [alpha/Fe] are unknown from the model atmosphere")
                     exit()
         elif format.lower() == 'stagger':
-            print(f"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             read_atmos_m1d(self, file)
+            print(f"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             teff = float(self.id.split('g')[0].replace('t',''))
             if teff != 5777:
                 teff = teff*1e2
@@ -195,7 +195,7 @@ class model_atmosphere(object):
             self.teff = teff
             print(f"Guessed [Fe/H]={self.feh}, [alpha/Fe]={self.alpha}")
         else:
-            raise Warning("Unrecognized format of model atmosphere: {format}. Supported formats: marcs (*.mod), m1d (atmos.*), stagger average 3D formatted for MULTI1D.)")
+            raise Warning("Unrecognized format of model atmosphere: {format}. Supported formats: 'marcs' (*.mod), 'm1d' (atmos.*), or 'stagger' for stagger average 3D formatted for MULTI1D.)")
 
     def FillIn(self):
         for k in ['logg', 'teff', 'ndep']:
