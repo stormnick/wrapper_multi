@@ -13,6 +13,10 @@ def mkdir(directory: str):
         shutil.rmtree(directory)
     os.mkdir(directory)
 
+def load_aux_data(file):
+    atmos, abunds = np.loadtxt(file, comments="#", usecols=(0, 7), unpack=True)
+    return atmos, abunds
+
 def setup_temp_dirs(setup, temporary_directory):
     """
     Setting up and running an individual serial job of NLTE calculations
@@ -90,7 +94,8 @@ def setup_temp_dirs(setup, temporary_directory):
     # lock.release()
     #return job
 
-def assign_temporary_directory(setup, temporary_directory):
+def assign_temporary_directory(args):
+    setup, temporary_directory = args[0], args[1]
     worker = get_worker()
     worker.temporary_directory = temporary_directory
     setup_temp_dirs(setup, temporary_directory)
@@ -100,6 +105,12 @@ def assign_temporary_directory(setup, temporary_directory):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         config_file = sys.argv[1]
+        if len(sys.argv) > 2:
+            aux_done_file = sys.argv[2]
+            check_done_aux_files = True
+        else:
+            check_done_aux_files = False
+            skip_fit = False
     else:
         config_file = './config.txt'
 
@@ -143,20 +154,33 @@ if __name__ == '__main__':
 
     futures_test = []
     for temp_dir in all_temporary_directories:
-        future_test = client.submit(assign_temporary_directory, setup, temp_dir)
+        big_future = client.scatter((setup, temp_dir))
+        future_test = client.submit(assign_temporary_directory, big_future)
         futures_test.append(future_test)
     futures_test = client.gather(futures_test)
 
     #for temp_dir in all_temporary_directories:
     #    setup_temp_dirs(setup, temp_dir)
 
+    if check_done_aux_files:
+        done_atmos, done_abunds = load_aux_data(aux_done_file)
+        done_atmo_abund = zip(done_atmos, done_abunds)
+
     print("Starting jobs")
 
     futures = []
     for one_job in setup.jobs:
         #big_future = client.scatter(args[i])  # good
-        future = client.submit(run_serial_job, setup, setup.jobs[one_job])
-        futures.append(future)  # prepares to get values
+        if check_done_aux_files:
+            abund, atmo = setup.jobs[one_job].abunds, setup.jobs[one_job].atmos
+            if (abund, atmo) in done_atmo_abund:
+                skip_fit = True
+            else:
+                skip_fit = False
+
+        if not skip_fit:
+            future = client.submit(run_serial_job, setup, setup.jobs[one_job])
+            futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
     futures = client.gather(futures)  # starts the calculations (takes a long time here)

@@ -27,7 +27,7 @@ def read_str(f, dtype='a20'):
             return str(data).split("'")[1].rstrip()
 
 
-class m1d(object):
+class m1d:
     def __init__(self, file, lines=None, readny=False):
         f = FortranFile(file, 'r')
 
