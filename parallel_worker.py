@@ -197,6 +197,7 @@ def collect_output(setup, jobs):
                 else:
                     if not written_comment_aux:
                         com_aux.write(line)
+                        written_comment_aux = True
                     else:
                         pass
 
