@@ -4,7 +4,7 @@ import subprocess as sp
 import os
 import shutil
 import numpy as np
-from atom_package import model_atom, write_atom
+from atom_package import model_atom, write_atom_noReFormatting
 from atmos_package import *
 from combine_grids import addRec_to_NLTEbin
 from m1d_output import m1d, m1dline
@@ -112,7 +112,7 @@ def run_multi( job, atom, atmos):
     """
 
     """ Create ATOM input file for M1D """
-    write_atom(atom, job.tmp_wd +  '/ATOM' )
+    write_atom_noReFormatting(atom, job.tmp_wd +  '/ATOM' )
 
     """ Create ATMOS input file for M1D """
     write_atmos_m1d(atmos, job.tmp_wd +  '/ATMOS' )
@@ -137,7 +137,7 @@ def run_multi( job, atom, atmos):
             with open(job.output['file_ew'], 'a')as f:
                 for kr in mask:
                     line = out.line[kr]
-                    f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.6f %10.6f %20.4f # '%s'\n" \
+                    f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %20.10f %20.10f %20.4f # '%s'\n" \
                         %(atmos.teff, atmos.logg, atmos.feh, out.abnd, out.g[out.irad[kr]], out.ev[out.irad[kr]],\
                             line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb), atmos.id ) )
 
@@ -211,7 +211,7 @@ def collect_output(setup, jobs):
                 "Model atom: %s \n"  %(setup.atom_id) + \
                 "Comments: '%s' \n" %(setup.atom.info) + \
                 "Number of records: %10.0f \n" %(setup.njobs) + \
-                "Created: %s \nby Ekaterina Magg (emagg at mpia dot de) \n" %(today)
+                f"Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), {today} \n"
         header = str.encode('%1000s' %(header) )
         com_f.write(header)
 
