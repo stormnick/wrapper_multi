@@ -36,7 +36,7 @@ def setup_multi_job(setup, job, temporary_directory):
     #lock = multiprocessing.Lock()
     #lock.acquire()
 
-    mkdir(temporary_directory)
+    #mkdir(temporary_directory)
 
     job.output.update({'write_ew': setup.write_ew, 'write_ts': setup.write_ts})
     """ Save EWs """
