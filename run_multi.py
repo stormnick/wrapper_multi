@@ -92,7 +92,7 @@ def setup_temp_dirs(setup, temporary_directory):
 
 def assign_temporary_directory(setup, temporary_directory):
     worker = get_worker()
-    worker.tmp_dir = temporary_directory
+    worker.temporary_directory = temporary_directory
     setup_temp_dirs(setup, temporary_directory)
 
     return 0
