@@ -39,13 +39,13 @@ def setup_temp_dirs(setup, temporary_directory):
 
     """ Link input files to a temporary directory """
     for file in ['absmet', 'abslin', 'abund', 'absdat']:
-        os.symlink(setup.m1d_input + '/' + file, temporary_directory + file.upper())
+        os.symlink(os.path.join(setup.m1d_input, file), os.path.join(temporary_directory, file.upper()))
 
     """ Link INPUT file (M1D input file complimenting the model atom) """
-    os.symlink(setup.m1d_input_file, temporary_directory + '/INPUT')
+    os.symlink(setup.m1d_input_file,  os.path.join(temporary_directory, 'INPUT'))
 
     """ Link executable """
-    os.symlink(setup.m1d_exe, temporary_directory + 'multi1d.exe')
+    os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'multi1d.exe'))
 
     """
     What kind of output from M1D should be saved?
@@ -56,7 +56,7 @@ def setup_temp_dirs(setup, temporary_directory):
     if setup.write_ew == 1 or setup.write_ew == 2:
         # create file to dump output
         #job.output.update({'file_ew': temporary_directory + '/output_EW.dat'})
-        with open(temporary_directory + '/output_EW.dat', 'w') as f:
+        with open(os.path.join(temporary_directory, 'output_EW.dat'), 'w') as f:
             f.write(
                 "# Teff [K], log(g) [cgs], [Fe/H], A(X), stat. weight g_i, energy en_i, wavelength air [AA], osc. strength, EW(NLTE) [AA], EW(LTE) [AA], Vturb [km/s]    \n")
 
@@ -74,9 +74,9 @@ def setup_temp_dirs(setup, temporary_directory):
         #                   'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
         #                   'rec_len': np.zeros(len(job.atmos), dtype=int)})
         # create the files
-        with open(temporary_directory + '/output_4TS.bin', 'wb') as f:
+        with open(os.path.join(temporary_directory, '/output_4TS.bin'), 'wb') as f:
             pass
-        with open(temporary_directory + '/auxdata_4TS.txt', 'w') as f:
+        with open(os.path.join(temporary_directory, '/auxdata_4TS.txt'), 'w') as f:
             f.write("# atmos ID, Teff [K], log(g) [cgs], [Fe/H], [alpha/Fe], mass, Vturb [km/s], A(X), pointer \n")
     elif setup.write_ts == 0:
         pass
