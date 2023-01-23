@@ -199,5 +199,6 @@ class Setup:
 
         for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
             self.jobs[i] = job
+            self.jobs[i].id = i
             self.jobs[i].atmos = one_atmo
             self.jobs[i].abund = one_abund

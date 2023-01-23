@@ -148,7 +148,7 @@ if __name__ == '__main__':
     futures = []
     for one_job in setup.jobs:
         #big_future = client.scatter(args[i])  # good
-        future = client.submit(run_serial_job, setup, one_job)
+        future = client.submit(run_serial_job, setup, setup.jobs[one_job])
         futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
