@@ -72,8 +72,8 @@ class Setup:
             self.common_wd = os.getcwd()
         else:
             if self.common_wd.startswith('./'):
-                self.common_wd = os.getcwd() + '/' + self.common_wd[2:]
-            self.common_wd = self.common_wd + '/'
+                self.common_wd = os.path.join(os.getcwd(), self.common_wd[2:])
+            self.common_wd = os.path.join(self.common_wd, '')
 
         """ Recognise if path starts with './' and replace by absolute path """
         for k in self.__dict__.keys():

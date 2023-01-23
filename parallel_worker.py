@@ -36,6 +36,8 @@ def setup_multi_job(setup, job, temporary_directory):
     #lock = multiprocessing.Lock()
     #lock.acquire()
 
+    mkdir(temporary_directory)
+
     job.output.update({'write_ew': setup.write_ew, 'write_ts': setup.write_ts})
     """ Save EWs """
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
@@ -136,12 +138,12 @@ def collect_output(setup, jobs):
     datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
-        with open(setup.common_wd + '/output_EWgrid_%s.dat' % (today), 'w') as com_f:
+        with open(os.path.join(setup.common_wd, '/output_EWgrid_%s.dat' % (today)), 'w') as com_f:
             for job in jobs:
                 data = open(job.output['file_ew'], 'r').readlines()
                 com_f.writelines(data)
         """ Checks to raise warnings if there're repeating entrances """
-        with open(setup.common_wd + '/output_EWgrid_%s.dat' % (today), 'r') as f:
+        with open(os.path.join(setup.common_wd + '/output_EWgrid_%s.dat' % (today)), 'r') as f:
             data_all = f.readlines()
         params = []
         for line in data_all:
@@ -163,8 +165,8 @@ def collect_output(setup, jobs):
     print("Collecting TS formatted NLTE grids")
     datetime0 = datetime.datetime.now()
     if setup.write_ts > 0:
-        com_f = open(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' % (today), 'wb')
-        com_aux = open(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' % (today), 'w')
+        com_f = open(os.path.join(setup.common_wd + '/output_NLTEgrid4TS_%s.bin' % (today)), 'wb')
+        com_aux = open(os.path.join(setup.common_wd + '/auxData_NLTEgrid4TS_%s.dat' % (today)), 'w')
 
         header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
                  "NLTE element: %s \n" % (setup.atom.element) + \
