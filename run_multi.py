@@ -42,7 +42,7 @@ def setup_temp_dirs(setup, temporary_directory):
         os.symlink(os.path.join(setup.m1d_input, file), os.path.join(temporary_directory, file.upper()))
 
     """ Link INPUT file (M1D input file complimenting the model atom) """
-    os.symlink(setup.m1d_input_file,  os.path.join(temporary_directory, 'INPUT'))
+    os.symlink(setup.m1d_input_file, os.path.join(temporary_directory, 'INPUT'))
 
     """ Link executable """
     os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'multi1d.exe'))
