@@ -321,6 +321,45 @@ class m1dline:
 
         return integrate.simps(1 - yy, x=xx) * 1e3
 
+    def crop(self, qmax, ang=None, norm=True, renorm=True):
+        """
+        Returns wavelenghts and intensity/flux cropped to given qmax setting.
+        The line profile is normalised to the continuum if norm is True.
+        If the normalisation happens before or after cropping is set by renorm.
+        """
+
+        if qmax is not None:
+            qmask = np.abs(self.q) < qmax
+            qmask = qmask[::-1]
+        else:
+            qmask = slice(None)
+
+        xx = self.lam[qmask]
+
+        if ang is None:
+            if norm:
+                if renorm:
+                    yy = self.flux[qmask]
+                    yy = yy / continuum(xx, yy)
+                else:
+                    yy = self.nflux[qmask]
+            else:
+                yy = self.flux[qmask]
+
+        else:
+            if norm:
+                if renorm:
+                    yy = self.i3[qmask, ang]
+                    yy = yy / continuum(xx, yy)
+                else:
+                    yy = self.i3[:, ang]
+                    yy = yy / continuum(self.lam, yy)
+                    yy = yy[qmask]
+            else:
+                yy = self.i3[qmask, ang]
+
+        return xx, yy
+
     def calc_wi3(self, qmax=None, norm=True, reduce=False, use_mask=False):
         """
         Calculates the equivalent width at all angles using the method calc_weq above.
