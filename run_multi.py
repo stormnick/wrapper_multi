@@ -133,6 +133,10 @@ if __name__ == '__main__':
     # print(logger.info(f"ssh -N -L {port}:{host}:{port} {login_node_address}"))
     print(f"ssh -N -L {port}:{host}:{port} {login_node_address}")
 
+    print("Worker preparation complete")
+
+    print("Creating temporary directories")
+
     all_temporary_directories = []
     for i in range(setup.ncpu):
         all_temporary_directories.append(setup.common_wd + '/job_%03d/' % i)
@@ -146,7 +150,7 @@ if __name__ == '__main__':
     #for temp_dir in all_temporary_directories:
     #    setup_temp_dirs(setup, temp_dir)
 
-    print("Worker preparation complete")
+    print("Starting jobs")
 
     futures = []
     for one_job in setup.jobs:
