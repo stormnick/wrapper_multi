@@ -9,31 +9,7 @@ def cm2ev(x):
 """
 Only for model atoms in MULTI format
 """
-def read_atom(self, file):
-    data = []
-    for line in open(file, 'r'):
-        line=line.strip()
-        data.append(line)
 
-    """ Read the header """
-    c_noncom = 0 # a counter for non-commented lines
-    c_all = 0 # a count for all lines, including commented lines
-    self.header = []
-    for li in data:
-        c_all += 1
-        if not li.startswith('*') and li != '':
-            c_noncom += 1
-            if c_noncom == 1:
-                self.element = li
-            elif c_noncom == 2:
-                self.abund, self.atomic_weight = np.array(li.split()).astype(float)
-            elif c_noncom == 3:
-                self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
-                break
-        else:
-            self.header.append(li)
-    self.body = data[c_all:]
-    return self
 
 #    """ Read the energy levels """
 #    self.levels = {'en':[], 'g':[], 'label':[], 'ion':[]}
@@ -178,7 +154,8 @@ def write_atom_noReFormatting(self, file):
 
 class model_atom(object) :
     def __init__(self, file, comment=''):
-        self = read_atom(self, file)
+        self.abund = None
+        self.read_atom(file)
         """
         A small comment line from the config file.
         Written to the header of the NLTE binary grid
@@ -188,6 +165,31 @@ class model_atom(object) :
             exit(1)
         else:
             self.info = comment
+
+    def read_atom(self, file):
+        data = []
+        for line in open(file, 'r'):
+            line = line.strip()
+            data.append(line)
+
+        """ Read the header """
+        c_noncom = 0  # a counter for non-commented lines
+        c_all = 0  # a count for all lines, including commented lines
+        self.header = []
+        for li in data:
+            c_all += 1
+            if not li.startswith('*') and li != '':
+                c_noncom += 1
+                if c_noncom == 1:
+                    self.element = li
+                elif c_noncom == 2:
+                    self.abund, self.atomic_weight = np.array(li.split()).astype(float)
+                elif c_noncom == 3:
+                    self.nk, self.nline, self.ncont, self.nrfix = np.array(li.split()).astype(int)
+                    break
+            else:
+                self.header.append(li)
+        self.body = data[c_all:]
 
 class bbline():
     def __init__(self, com_line, data_line):
@@ -236,7 +238,7 @@ if __name__ == '__main__':
     atom = model_atom('/Users/Semenova/phd/nlte/ca/atom.ca6')
     # one can change basically anything in the model atom at this point
     atom.abund = 10.0
-    write_atom(atom, './test_atom.dat')
+    #write_atom(atom, './test_atom.dat')
 
 
     # change_abund('/Users/Semenova/phd/nlte/ca/atom.ca6', './test.atom', 5)

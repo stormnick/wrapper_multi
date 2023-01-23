@@ -4,114 +4,64 @@ import numpy as np
 from atom_package import model_atom
 import shutil
 # local
-from atmos_package import model_atmosphere, write_atmos_m1d, write_dscale_m1d
-
-def mkdir(s):
-    if os.path.isdir(s):
-        shutil.rmtree(s)
-    os.mkdir(s)
-    return
-
-def distribute_jobs(self, atmos_list = None, ncpu=1):
-    """
-    Distributing model atmospheres over a number of processes
-    input:
-    (array) atmos_list: contains all model atmospheres requested for the run
-    (integer) ncpu: number of CPUs to use
-    """
-
-    atmos_list = self.atmos
-    ncpu = self.ncpu
-
-    """
-    abundance dimension:
-    every NLTE run with M1D has unique model atmospehere,
-            model atom and abundance of the NLTE element
-    assuming one run is set up for one NLTE element,
-    one needs to iterate over model atmospheres and abundances
-    """
-    if self.use_abund == 0:
-        abund_list = [self.atom.abund]
-    elif self.use_abund == 1:
-        abund_list = [self.new_abund]
-    elif self.use_abund == 2:
-        abund_list = np.arange(self.start_abund, self.end_abund, self.step_abund)
-        # [start, end) --> [start, end]
-        abund_list = np.hstack((abund_list,  self.end_abund ))
-    else:
-        print("Unrecognized use_abund=%.f" %(self.use_abund))
-        exit(1)
-
-    totn_jobs = len(atmos_list) * len(abund_list)
-    self.njobs = totn_jobs
-    print('total # jobs', totn_jobs)
-
-    atmos_list, abund_list= np.meshgrid(atmos_list, abund_list)
-    atmos_list = atmos_list.flatten()
-    abund_list = abund_list.flatten()
+from atmos_package import ModelAtmosphere, write_atmos_m1d, write_dscale_m1d
 
 
-    if (ncpu > totn_jobs):
-        print("Requested more CPUs (%.0f) than model atmospheres provided (%.0f)" %( ncpu, totn_jobs ) )
-        exit(1)
-
-    self.jobs = { }
-    if ncpu > 1:
-        step = totn_jobs//ncpu
-        for i in range(ncpu-1):
-            job = serial_job(self, i)
-            job.atmos = atmos_list[step*i: step*(i+1)]
-            job.abund = abund_list[step*i: step*(i+1)]
-            self.jobs.update({ i : job })
-        job = serial_job(self, ncpu-1)
-        job.atmos = atmos_list[step*(i+1) : ]
-        job.abund = abund_list[step*(i+1) : ]
-        self.jobs.update({ ncpu-1 : job })
-    elif ncpu == 1:
-        job = serial_job(self, 0)
-        job.atmos = atmos_list
-        job.abund = abund_list
-        self.jobs.update({ 0 : job })
-    else:
-        print("unrecognised ncpu=%.0f. stopped" %ncpu)
-        exit(1)
+def mkdir(directory: str):
+    if os.path.isdir(directory):
+        shutil.rmtree(directory)
+    os.mkdir(directory)
 
 
-    return
-
-class serial_job(object):
-    def __init__(self, parent, i):
+class SerialJob:
+    def __init__(self, parent, i: int):
         self.id = i
         self.common_wd = parent.common_wd
-        self.tmp_wd = parent.common_wd + '/job_%03d/' %(self.id)
-        self.atmos = []
-        self.abund = []
+        #self.tmp_wd = parent.common_wd + '/job_%03d/' % self.id
+        self.atmos: str = None
+        self.abund: float = None
         self.output = {}
 
+
 # a setup of the run to compute NLTE grid, e.g. Mg over all MARCS grid
-class setup(object):
+class Setup:
     def __init__(self, file='config.txt'):
         """
         Reads in specifications for the future parallel jobs from a configuration file
         input:
         (string) file: filename for the config file  (default: 'config.txt')
         """
+        self.jobs: dict = None
+        self.njobs: int = None
+        self.atom_comment: str = None
+        self.step_abund: float = None
+        self.end_abund: float = None
+        self.start_abund: float = None
+        self.new_abund: float = None
+        self.use_abund = None
+        self.ncpu: int = None
+        self.atom_id = None
+        self.atom_path = None
+        self.vturb = None
+        self.atmos_path: str = None
+        self.atmos_list: str = None
+        self.atmos_format: str = None
 
-        print('Reading configuration file %s' %(file ) )
+        print(f'Reading configuration file {file}')
         for line in open(file, 'r'):
-            line=line.strip()
+            line = line.strip()
             if not line.startswith("#") and line != '':
 
-                    key, val = line.split('=')
-                    key, val = key.strip(), val.strip()
-                    if val.startswith("'") or val.startswith('"'):
-                        self.__dict__[key] = val[1:-1]
-                    elif val.startswith("["):
-                        self.__dict__[key] = eval('np.array(' + val + ')')
-                    elif '.' in val:
-                        self.__dict__[key] = float(val)
-                    else:
-                        self.__dict__[key] = int(val)
+                key, val = line.split('=')
+                key, val = key.strip(), val.strip()
+                if val.startswith("'") or val.startswith('"'):
+                    self.__dict__[key] = val[1:-1]
+                elif val.startswith("["):
+                    self.__dict__[key] = eval('np.array(' + val + ')')
+                elif '.' in val:
+                    self.__dict__[key] = float(val)
+                else:
+                    self.__dict__[key] = int(val)
 
         """
         Make sure to have an absolute path to the common wd
@@ -132,19 +82,18 @@ class setup(object):
             if type(self.__dict__[k]) == str and self.__dict__[k].startswith('../'):
                 self.__dict__[k] = os.getcwd() + '/' + self.__dict__[k]
 
-
         """ What to do with the IDL1 file after the M1D? """
         if 'save_idl1' not in self.__dict__.keys():
             self.save_idl1 = 0
         if self.save_idl1 == 1:
-            setup.idl1_folder = self.common_wd + "/idl1_folder/"
-            mkdir(setup.idl1_folder)
+            Setup.idl1_folder = self.common_wd + "/idl1_folder/"
+            mkdir(Setup.idl1_folder)
         if 'iterate_vmic' not in self.__dict__.keys():
             self.iterate_vmic = 0
         if self.iterate_vmic == 1:
-            self.iterate_vmic  = True
-        else: self.iterate_vmic = False
-
+            self.iterate_vmic = True
+        else:
+            self.iterate_vmic = False
 
         """
         Read *a list* of all requested model atmospheres
@@ -152,41 +101,41 @@ class setup(object):
         Model atmospheres themselves are not read here,
         as the parallel worker will iterate over them
         """
-        print("Reading a list of model atmospheres from %s" %( self.atmos_list ))
-        atmos_list = np.loadtxt( self.atmos_list, dtype=str, ndmin=1)
+        print(f"Reading a list of model atmospheres from {self.atmos_list}")
+        atmos_list = np.loadtxt(self.atmos_list, dtype=str, ndmin=1)
         self.atmos = []
         if self.iterate_vmic:
-           if self.atmos_format.lower() == 'marcs':
-               for atm in atmos_list:
-                    atmos = model_atmosphere(file = self.atmos_path +'/' + atm, format = 'marcs')
-                    newPath =  f"{self.atmos_path}/atmos.{atmos.id}"
-                    write_atmos_m1d(atmos,  newPath)
-                    print(f"created {newPath}")
-                  #  write_dscale_m1d(atmos,  f"{self.atmos_path}/dscale.{atmos.id}" )
-                    self.atmos.append( newPath)
+            if self.atmos_format.lower() == 'marcs':
+                for atm in atmos_list:
+                    atmos = ModelAtmosphere(file=self.atmos_path + '/' + atm, format='marcs')
+                    new_path = f"{self.atmos_path}/atmos.{atmos.id}"
+                    write_atmos_m1d(atmos, new_path)
+                    print(f"created {new_path}")
+                    #  write_dscale_m1d(atmos,  f"{self.atmos_path}/dscale.{atmos.id}" )
+                    self.atmos.append(new_path)
 
                     for vt in self.vturb:
-                       newID = f"{atm.split('_t')[0]}_t{vt:02.0f}{atm.split('_t')[-1][2:]}"
-                       newPath = f"{self.atmos_path}/atmos.{newID.replace('.mod','')}"
-                       if  newID in atmos_list  or newPath in self.atmos:
-                           pass
-                       else:
-                           atmos = model_atmosphere(file = self.atmos_path +'/' + atm, format = 'marcs')
-                           atmos.header = atmos.header + f"  Set vturb={vt:.2f}"
-                           atmos.id = newID.replace(self.atmos_path, '').replace('/', '').replace('.mod', '')
-                           atmos.vturb = np.full(atmos.ndep, vt)
+                        newID = f"{atm.split('_t')[0]}_t{vt:02.0f}{atm.split('_t')[-1][2:]}"
+                        new_path = f"{self.atmos_path}/atmos.{newID.replace('.mod', '')}"
+                        if newID in atmos_list or new_path in self.atmos:
+                            pass
+                        else:
+                            atmos = ModelAtmosphere(file=self.atmos_path + '/' + atm, format='marcs')
+                            atmos.header = atmos.header + f"  Set vturb={vt:.2f}"
+                            atmos.id = newID.replace(self.atmos_path, '').replace('/', '').replace('.mod', '')
+                            atmos.vturb = np.full(atmos.ndep, vt)
 
-                           write_atmos_m1d(atmos,  newPath )
-                           print(f"created {newPath} with Vturb={vt}, the rest as in {atm}")
+                            write_atmos_m1d(atmos, new_path)
+                            print(f"created {new_path} with Vturb={vt}, the rest as in {atm}")
 
-                           self.atmos.append( newPath)
-               self.atmos_format = 'm1d'
-               print(f"Changed format of input model atmosphere to {self.atmos_format} following iteration over Vturb")
-           else:
+                            self.atmos.append(new_path)
+                self.atmos_format = 'm1d'
+                print(f"Changed format of input model atmosphere to {self.atmos_format} following iteration over Vturb")
+            else:
                 raise Warning("only iterate over Vturb for 1D atmosphere in MARCS format/naming")
         else:
-           for atm in atmos_list:
-               self.atmos.append( self.atmos_path + '/' + atm )
+            for atm in atmos_list:
+                self.atmos.append(self.atmos_path + '/' + atm)
 
         """
         Read model atom
@@ -196,11 +145,59 @@ class setup(object):
         where abundance will be modififed if needed
         and model atom will be written in a temporary M1D formatted input file ATOM
          """
-        print("Reading model atom from %s" %self.atom_path)
+        print("Reading model atom from %s" % self.atom_path)
         self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 
-        print(50*"-")
-        print("Distributing model atmospheres over %.0f CPUs" %(self.ncpu) )
-        distribute_jobs(self, self.atmos, ncpu=self.ncpu)
+        print(50 * "-")
+        print(f"Distributing model atmospheres over {self.ncpu} CPUs")
+        self.distribute_jobs()
+
+    def distribute_jobs(self):
+        """
+        Distributing model atmospheres over a number of processes
+        input:
+        (array) atmos_list: contains all model atmospheres requested for the run
+        (integer) ncpu: number of CPUs to use
+        """
+
+        atmos_list = self.atmos
+
+        """
+        abundance dimension:
+        every NLTE run with M1D has unique model atmospehere,
+                model atom and abundance of the NLTE element
+        assuming one run is set up for one NLTE element,
+        one needs to iterate over model atmospheres and abundances
+        """
+        if self.use_abund == 0:
+            abund_list = [self.atom.abund]
+        elif self.use_abund == 1:
+            abund_list = [self.new_abund]
+        elif self.use_abund == 2:
+            abund_list = np.arange(self.start_abund, self.end_abund, self.step_abund)
+            # [start, end) --> [start, end]
+            abund_list = np.hstack((abund_list, self.end_abund))
+        else:
+            print(f"Unrecognized use_abund={self.use_abund}")
+            exit(1)
+
+        totn_jobs = len(atmos_list) * len(abund_list)
+        self.njobs = totn_jobs
+        print('total # jobs', totn_jobs)
+
+        atmos_list, abund_list = np.meshgrid(atmos_list, abund_list)
+        atmos_list = atmos_list.flatten()
+        abund_list = abund_list.flatten()
+
+        self.jobs = {}
+
+        job = SerialJob(self, 0)
+        #job.atmos = atmos_list
+        #job.abund = abund_list
+
+        for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
+            self.jobs[i] = job
+            self.jobs[i].atmos = one_atmo
+            self.jobs[i].abund = one_abund

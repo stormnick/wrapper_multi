@@ -145,7 +145,13 @@ def write_dscale_m1d(atmos, file):
             f.write(f"{atmos.depth_scale[i]:15.5e}\n" )
 
 
-class model_atmosphere(object):
+class ModelAtmosphere:
+    def __init__(self, file='atmos.sun', format='m1d'):
+        self.ndep = None
+        self.file: str = file
+        self.format: str = format
+
+
     def read(self, file='atmos.sun', format='m1d'):
         """
         Model atmosphere for NLTE calculations
