@@ -134,6 +134,9 @@ def run_multi(job, atom, atmos, temporary_directory):
 def collect_output(setup, jobs):
     today = datetime.date.today().strftime("%b-%d-%Y")
 
+    written_comment_ew = False
+    written_comment_aux = False
+
     """ Collect all EW grids into one """
     datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
@@ -192,7 +195,10 @@ def collect_output(setup, jobs):
                     pointer = pointer + rec_len
                 # simply copy comment lines
                 else:
-                    com_aux.write(line)
+                    if not written_comment_aux:
+                        com_aux.write(line)
+                    else:
+                        pass
 
         com_f.close()
         com_aux.close()
