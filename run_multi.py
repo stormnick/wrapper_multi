@@ -74,9 +74,9 @@ def setup_temp_dirs(setup, temporary_directory):
         #                   'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
         #                   'rec_len': np.zeros(len(job.atmos), dtype=int)})
         # create the files
-        with open(os.path.join(temporary_directory, '/output_4TS.bin'), 'wb') as f:
+        with open(os.path.join(temporary_directory, 'output_4TS.bin'), 'wb') as f:
             pass
-        with open(os.path.join(temporary_directory, '/auxdata_4TS.txt'), 'w') as f:
+        with open(os.path.join(temporary_directory, 'auxdata_4TS.txt'), 'w') as f:
             f.write("# atmos ID, Teff [K], log(g) [cgs], [Fe/H], [alpha/Fe], mass, Vturb [km/s], A(X), pointer \n")
     elif setup.write_ts == 0:
         pass
