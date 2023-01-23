@@ -93,7 +93,7 @@ def setup_temp_dirs(setup, temporary_directory):
 def assign_temporary_directory(setup, temporary_directory):
     worker = get_worker()
     worker.temporary_directory = temporary_directory
-    setup_temp_dirs(setup, temporary_directory)
+    #setup_temp_dirs(setup, temporary_directory)
 
     return 0
 
@@ -142,6 +142,9 @@ if __name__ == '__main__':
         future_test = client.submit(assign_temporary_directory, setup, temp_dir)
         futures_test.append(future_test)
     futures_test = client.gather(futures_test)
+
+    for temp_dir in all_temporary_directories:
+        setup_temp_dirs(setup, temp_dir)
 
     print("Worker preparation complete")
 
