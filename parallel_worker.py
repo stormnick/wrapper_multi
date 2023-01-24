@@ -137,14 +137,20 @@ def collect_output(setup, jobs):
     written_comment_ew = False
     written_comment_aux = False
 
+    done_ew_file_names = set()
+    done_ts_file_names = set()
+
     """ Collect all EW grids into one """
     datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(os.path.join(setup.common_wd, 'output_EWgrid_%s.dat' % (today)), 'w') as com_f:
             for job in jobs:
-                data = open(job.output['file_ew'], 'r').readlines()
-                com_f.writelines(data)
+                ew_file = job.output['file_ew']
+                if ew_file not in done_ew_file_names:
+                    data = open(job.output['file_ew'], 'r').readlines()
+                    com_f.writelines(data)
+                    done_ew_file_names.add(ew_file)
         """ Checks to raise warnings if there're repeating entrances """
         with open(os.path.join(setup.common_wd, 'output_EWgrid_%s.dat' % (today)), 'r') as f:
             data_all = f.readlines()
@@ -184,22 +190,25 @@ def collect_output(setup, jobs):
         pointer = len(header) + 1
 
         for job in jobs:
-            # departure coefficients in binary format
-            with open(job.output['file_4ts'], 'rb') as f:
-                com_f.write(f.read())
-            for line in open(job.output['file_4ts_aux'], 'r').readlines():
-                if not line.startswith('#'):
-                    rec_len = int(line.split()[-1])
-                    com_aux.write('    '.join(line.split()[0:-1]))
-                    com_aux.write("%20.0f \n" % (pointer))
-                    pointer = pointer + rec_len
-                # simply copy comment lines
-                else:
-                    if not written_comment_aux:
-                        com_aux.write(line)
-                        written_comment_aux = True
+            ts_bin_file = job.output['file_4ts']
+            if ts_bin_file not in done_ts_file_names:
+                # departure coefficients in binary format
+                done_ts_file_names.add(ts_bin_file)
+                with open(job.output['file_4ts'], 'rb') as f:
+                    com_f.write(f.read())
+                for line in open(job.output['file_4ts_aux'], 'r').readlines():
+                    if not line.startswith('#'):
+                        rec_len = int(line.split()[-1])
+                        com_aux.write('    '.join(line.split()[0:-1]))
+                        com_aux.write("%20.0f \n" % (pointer))
+                        pointer = pointer + rec_len
+                    # simply copy comment lines
                     else:
-                        pass
+                        if not written_comment_aux:
+                            com_aux.write(line)
+                            written_comment_aux = True
+                        else:
+                            pass
 
         com_f.close()
         com_aux.close()
