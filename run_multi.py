@@ -14,7 +14,8 @@ def mkdir(directory: str):
     os.mkdir(directory)
 
 def load_aux_data(file):
-    atmos, abunds = np.loadtxt(file, comments="#", usecols=(0, 7), unpack=True)
+    atmos, abunds = np.loadtxt(file, comments="#", usecols=(0, 7), unpack=True, dtype=str)
+    abunds = abunds.astype(float)
     return atmos, abunds
 
 
