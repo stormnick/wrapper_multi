@@ -139,6 +139,7 @@ if __name__ == '__main__':
             skip_fit = False
     else:
         config_file = './config.txt'
+        check_done_aux_files = False
 
     """ Read config. file and distribute individual jobs """
     setup = Setup(file=config_file)
