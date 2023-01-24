@@ -35,6 +35,8 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1, elem2_floa
     loc1 = np.where(array1 == elem1)[0]
     loc2_closest_index = find_nearest_index(array2, elem2_float)
 
+    print(array1, array2, elem1, elem2_float)
+
     if np.size(loc1) == 0 or np.abs(array2[loc2_closest_index] - elem2_float) >= tolerance_closest_abund:
         return False
 
@@ -198,10 +200,7 @@ if __name__ == '__main__':
         #big_future = client.scatter(args[i])  # good
         if check_done_aux_files:
             abund, atmo = setup.jobs[one_job].abund, setup.jobs[one_job].atmos
-            if check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund):
-                skip_fit = True
-            else:
-                skip_fit = False
+            skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund)
 
         if not skip_fit:
             big_future = client.scatter([setup, setup.jobs[one_job]])
