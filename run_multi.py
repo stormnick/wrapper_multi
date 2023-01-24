@@ -29,19 +29,19 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
     Checks whether elem1 array1 is located in the same location as elem2 in array2. If not or if not located there at
     all, returns False.
     """
-    tolerance_closest_abund = 0.001
+    tolerance_closest_abund = 0.001  # tolerance to consider abundances the same
 
     array1 = np.asarray(array1)
     array2 = np.asarray(array2_float)
     loc1 = np.where(array1 == f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '')}'")[0]
-    loc2_closest_index = find_nearest_index(array2, elem2_float)
+    #loc2_closest_index = find_nearest_index(array2, elem2_float)
 
-    print(array1, array2, elem1, elem2_float, f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '')}'")
+    #print(array1, array2, elem1, elem2_float, f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '')}'")
 
-    if np.size(loc1) == 0 or np.abs(array2[loc2_closest_index] - elem2_float) >= tolerance_closest_abund:
+    if np.size(loc1) == 0:
         return False
 
-    if loc1[0] == loc2_closest_index:
+    if np.abs(array2[loc1[0]] - elem2_float) < tolerance_closest_abund:
         return True
     else:
         return False
@@ -198,6 +198,8 @@ if __name__ == '__main__':
 
     print("Starting jobs")
 
+    jobs_amount: int = 0
+
     futures = []
     for one_job in setup.jobs:
         #big_future = client.scatter(args[i])  # good
@@ -206,6 +208,7 @@ if __name__ == '__main__':
             skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
 
         if not skip_fit:
+            jobs_amount += 1
             big_future = client.scatter([setup, setup.jobs[one_job]])
             future = client.submit(run_serial_job, big_future)
             futures.append(future)  # prepares to get values
@@ -213,5 +216,7 @@ if __name__ == '__main__':
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
     futures = client.gather(futures)  # starts the calculations (takes a long time here)
     print("Worker calculation done")  # when done, save values
+
+    setup.njobs = jobs_amount
 
     collect_output(setup, futures)
