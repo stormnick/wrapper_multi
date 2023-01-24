@@ -14,9 +14,10 @@ def mkdir(directory: str):
     os.mkdir(directory)
 
 def load_aux_data(file):
-    atmos, abunds = np.loadtxt(file, comments="#", usecols=(0, 7), unpack=True, dtype=str)
+    atmos, feh, abunds = np.loadtxt(file, comments="#", usecols=(0, 3, 7), unpack=True, dtype=str)
     abunds = abunds.astype(float)
-    return atmos, abunds
+    feh = feh.astype(float)
+    return atmos, feh, abunds
 
 def find_nearest_index(array, value):
     array = np.asarray(array)
@@ -192,7 +193,8 @@ if __name__ == '__main__':
     #    setup_temp_dirs(setup, temp_dir)
 
     if check_done_aux_files:
-        done_atmos, done_abunds = load_aux_data(aux_done_file)
+        done_atmos, feh, done_abunds = load_aux_data(aux_done_file)
+        done_abunds = done_abunds - feh
 
     print("Starting jobs")
 
