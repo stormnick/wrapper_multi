@@ -191,7 +191,7 @@ if __name__ == '__main__':
     for one_job in setup.jobs:
         #big_future = client.scatter(args[i])  # good
         if check_done_aux_files:
-            abund, atmo = setup.jobs[one_job].abunds, setup.jobs[one_job].atmos
+            abund, atmo = setup.jobs[one_job].abund, setup.jobs[one_job].atmos
             if check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund):
                 skip_fit = True
             else:
