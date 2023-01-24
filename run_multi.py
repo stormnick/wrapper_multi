@@ -41,10 +41,11 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
     if np.size(loc1) == 0:
         return False
 
-    if np.abs(array2[loc1[0]] - elem2_float) < tolerance_closest_abund:
-        return True
-    else:
-        return False
+    for index_to_check in loc1:
+        #np.abs(array2[loc1[0]] - elem2_float) < tolerance_closest_abund
+        if np.abs(array2[index_to_check] - elem2_float) < tolerance_closest_abund:
+            return True
+    return False
 
 def setup_temp_dirs(setup, temporary_directory):
     """
