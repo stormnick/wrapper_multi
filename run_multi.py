@@ -17,6 +17,25 @@ def load_aux_data(file):
     atmos, abunds = np.loadtxt(file, comments="#", usecols=(0, 7), unpack=True)
     return atmos, abunds
 
+
+def check_same_element_loc_in_two_arrays(array1, array2, elem1, elem2):
+    """
+    Checks whether elem1 array1 is located in the same location as elem2 in array2. If not or if not located there at
+    all, returns False.
+    """
+    array1 = np.asarray(array1)
+    array2 = np.asarray(array2)
+    loc1 = np.where(array1 == elem1)[0]
+    loc2 = np.where(array2 == elem2)[0]
+
+    if np.size(loc1) == 0 or np.size(loc2) == 0:
+        return False
+
+    if loc1[0] == loc2[0]:
+        return True
+    else:
+        return False
+
 def setup_temp_dirs(setup, temporary_directory):
     """
     Setting up and running an individual serial job of NLTE calculations
@@ -154,7 +173,7 @@ if __name__ == '__main__':
 
     futures_test = []
     for temp_dir in all_temporary_directories:
-        big_future = client.scatter((setup, temp_dir))
+        big_future = client.scatter([setup, temp_dir])
         future_test = client.submit(assign_temporary_directory, big_future)
         futures_test.append(future_test)
     futures_test = client.gather(futures_test)
@@ -164,7 +183,6 @@ if __name__ == '__main__':
 
     if check_done_aux_files:
         done_atmos, done_abunds = load_aux_data(aux_done_file)
-        done_atmo_abund = zip(done_atmos, done_abunds)
 
     print("Starting jobs")
 
@@ -173,13 +191,14 @@ if __name__ == '__main__':
         #big_future = client.scatter(args[i])  # good
         if check_done_aux_files:
             abund, atmo = setup.jobs[one_job].abunds, setup.jobs[one_job].atmos
-            if (abund, atmo) in done_atmo_abund:
+            if check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund):
                 skip_fit = True
             else:
                 skip_fit = False
 
         if not skip_fit:
-            future = client.submit(run_serial_job, setup, setup.jobs[one_job])
+            big_future = client.scatter([setup, setup.jobs[one_job]])
+            future = client.submit(run_serial_job, big_future)
             futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
@@ -187,5 +206,3 @@ if __name__ == '__main__':
     print("Worker calculation done")  # when done, save values
 
     collect_output(setup, futures)
-
-    exit(0)

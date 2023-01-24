@@ -208,8 +208,9 @@ def collect_output(setup, jobs):
         print(10 * "-")
 
 
-def run_serial_job(setup, job):
-    print(f"job # {job.id}: {len(job.atmos)} M1D runs")
+def run_serial_job(args):
+    setup, job = args[0], args[1]
+    #print(f"job # {job.id}: {len(job.atmos)} M1D runs")
     worker = get_worker()
     temporary_directory: str = worker.temporary_directory
 
