@@ -32,7 +32,7 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
 
     array1 = np.asarray(array1)
     array2 = np.asarray(array2_float)
-    loc1 = np.where(array1 == elem1.replace(str_to_add_array1, ""))[0]
+    loc1 = np.where(array1 == elem1.replace(str_to_add_array1, "")[1:])[0]
     loc2_closest_index = find_nearest_index(array2, elem2_float)
 
     if np.size(loc1) == 0 or np.abs(array2[loc2_closest_index] - elem2_float) >= tolerance_closest_abund:
