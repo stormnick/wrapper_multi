@@ -18,21 +18,27 @@ def load_aux_data(file):
     abunds = abunds.astype(float)
     return atmos, abunds
 
+def find_nearest_index(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
 
-def check_same_element_loc_in_two_arrays(array1, array2, elem1, elem2):
+def check_same_element_loc_in_two_arrays(array1, array2_float, elem1, elem2_float):
     """
     Checks whether elem1 array1 is located in the same location as elem2 in array2. If not or if not located there at
     all, returns False.
     """
-    array1 = np.asarray(array1)
-    array2 = np.asarray(array2)
-    loc1 = np.where(array1 == elem1)[0]
-    loc2 = np.where(array2 == elem2)[0]
+    tolerance_closest_abund = 0.001
 
-    if np.size(loc1) == 0 or np.size(loc2) == 0:
+    array1 = np.asarray(array1)
+    array2 = np.asarray(array2_float)
+    loc1 = np.where(array1 == elem1)[0]
+    loc2_closest_index = find_nearest_index(array2, elem2_float)
+
+    if np.size(loc1) == 0 or np.abs(array2[loc2_closest_index] - elem2_float) >= tolerance_closest_abund:
         return False
 
-    if loc1[0] == loc2[0]:
+    if loc1[0] == loc2_closest_index:
         return True
     else:
         return False
