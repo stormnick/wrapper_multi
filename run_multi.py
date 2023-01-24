@@ -23,7 +23,7 @@ def find_nearest_index(array, value):
     idx = (np.abs(array - value)).argmin()
     return idx
 
-def check_same_element_loc_in_two_arrays(array1, array2_float, elem1, elem2_float):
+def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2_float, str_to_add_array1):
     """
     Checks whether elem1 array1 is located in the same location as elem2 in array2. If not or if not located there at
     all, returns False.
@@ -32,10 +32,8 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1, elem2_floa
 
     array1 = np.asarray(array1)
     array2 = np.asarray(array2_float)
-    loc1 = np.where(array1 == elem1)[0]
+    loc1 = np.where(array1 == elem1.replace(str_to_add_array1, ""))[0]
     loc2_closest_index = find_nearest_index(array2, elem2_float)
-
-    print(array1, array2, elem1, elem2_float)
 
     if np.size(loc1) == 0 or np.abs(array2[loc2_closest_index] - elem2_float) >= tolerance_closest_abund:
         return False
@@ -200,7 +198,7 @@ if __name__ == '__main__':
         #big_future = client.scatter(args[i])  # good
         if check_done_aux_files:
             abund, atmo = setup.jobs[one_job].abund, setup.jobs[one_job].atmos
-            skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund)
+            skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
 
         if not skip_fit:
             big_future = client.scatter([setup, setup.jobs[one_job]])
