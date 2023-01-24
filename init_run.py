@@ -107,8 +107,8 @@ class Setup:
         if self.iterate_vmic:
             if self.atmos_format.lower() == 'marcs':
                 for atm in atmos_list:
-                    atmos = ModelAtmosphere(file=self.atmos_path + '/' + atm, format='marcs')
-                    new_path = f"{self.atmos_path}/atmos.{atmos.id}"
+                    atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), format='marcs')
+                    new_path = os.path.join(self.atmos_path, f"atmos.{atmos.id}")
                     write_atmos_m1d(atmos, new_path)
                     print(f"created {new_path}")
                     #  write_dscale_m1d(atmos,  f"{self.atmos_path}/dscale.{atmos.id}" )
@@ -116,11 +116,11 @@ class Setup:
 
                     for vt in self.vturb:
                         newID = f"{atm.split('_t')[0]}_t{vt:02.0f}{atm.split('_t')[-1][2:]}"
-                        new_path = f"{self.atmos_path}/atmos.{newID.replace('.mod', '')}"
+                        new_path = os.path.join(self.atmos_path, f"atmos.{newID.replace('.mod', '')}")
                         if newID in atmos_list or new_path in self.atmos:
                             pass
                         else:
-                            atmos = ModelAtmosphere(file=self.atmos_path + '/' + atm, format='marcs')
+                            atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), format='marcs')
                             atmos.header = atmos.header + f"  Set vturb={vt:.2f}"
                             atmos.id = newID.replace(self.atmos_path, '').replace('/', '').replace('.mod', '')
                             atmos.vturb = np.full(atmos.ndep, vt)
@@ -135,7 +135,7 @@ class Setup:
                 raise Warning("only iterate over Vturb for 1D atmosphere in MARCS format/naming")
         else:
             for atm in atmos_list:
-                self.atmos.append(self.atmos_path + '/' + atm)
+                self.atmos.append(os.path.join(self.atmos_path, atm))
 
         """
         Read model atom
