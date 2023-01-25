@@ -106,8 +106,8 @@ def combineOutput_multipleJobs(path):
 def combineParallelGrids_timeout(path, description, file_name_extra=""):
     """ In case 99% of the computations are done but output was not organised """
     today = datetime.date.today().strftime("%b-%d-%Y")
-    com_f = open(f"./output_NLTEgrid4TS_{today}{file_name_extra}.bin", 'wb')
-    com_aux = open(f"./auxData_NLTEgrid4TS_{today}{file_name_extra}.dat", 'w')
+    com_f = open(f"{path}/../output_NLTEgrid4TS_{today}{file_name_extra}.bin", 'wb')
+    com_aux = open(f"{path}/../auxData_NLTEgrid4TS_{today}{file_name_extra}.dat", 'w')
 
     header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
              f"{description} \n" + \
