@@ -1,9 +1,9 @@
 from sys import argv, exit
 import os
-import time
 import numpy as np
 import glob
 import datetime
+from pathlib import Path
 
 
 def addRec_to_NLTEbin(binFile, atmosID, ndep, nk, tau, depart):
@@ -103,11 +103,11 @@ def combineOutput_multipleJobs(path):
     print(f"Saved to output_NLTEgrid4TS_{today}_combined.bin and ./auxData_NLTEgrid4TS_{today}_combined.dat")
 
 
-def combineParallelGrids_timeout(path, description):
+def combineParallelGrids_timeout(path, description, file_name_extra=""):
     """ In case 99% of the computations are done but output was not organised """
     today = datetime.date.today().strftime("%b-%d-%Y")
-    com_f = open(f"./output_NLTEgrid4TS_{today}.bin", 'wb')
-    com_aux = open(f"./auxData_NLTEgrid4TS_{today}.dat", 'w')
+    com_f = open(f"./output_NLTEgrid4TS_{today}{file_name_extra}.bin", 'wb')
+    com_aux = open(f"./auxData_NLTEgrid4TS_{today}{file_name_extra}.dat", 'w')
 
     header = "NLTE grid (grid of departure coefficients) in TurboSpectrum format. \nAccompanied by an auxilarly file and model atom. \n" + \
              f"{description} \n" + \
@@ -137,6 +137,16 @@ def combineParallelGrids_timeout(path, description):
     com_f.close()
     com_aux.close()
     print(f"saved in ./output_NLTEgrid4TS_{today}.bin and ./auxData_NLTEgrid4TS_{today}.dat")
+
+
+def combine_several_unfinished_grids_together(main_path, description):
+    p = Path(main_path)
+    subdirectories = [x for x in p.iterdir() if x.is_dir()]
+
+    for i, subdirectory in enumerate(subdirectories):
+        combineParallelGrids_timeout(os.path.join(main_path, subdirectory, ""), description, file_name_extra=f"_{i}")
+
+    combineOutput_multipleJobs(main_path)
 
 
 if __name__ == '__main__':
