@@ -47,90 +47,8 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
             return True
     return False
 
-def setup_temp_dirs(setup, temporary_directory):
-    """
-    Setting up and running an individual serial job of NLTE calculations
-    for a set of model atmospheres (stored in setup.jobs[k]['atmos'])
-    Several indidvidual jobs can be run in parallel, set ncpu in the config. file
-    to the desired number of processes
-    Note: Multi 1D expects all input files to be named only in upper case
 
-    input:
-    # TODO:
-    (string) directory: common working directory, default: "./"
-    (integer) k: an ID of an individual job within the run
-    (object) setup: object of class setup, regulates a setup for the whole run
-    """
 
-    """
-    Make sure that only one process at a time can access input files
-    """
-    # lock = multiprocessing.Lock()
-    # lock.acquire()
-
-    """ Make a temporary directory """
-    mkdir(temporary_directory)
-
-    """ Link input files to a temporary directory """
-    for file in ['absmet', 'abslin', 'abund', 'absdat']:
-        os.symlink(os.path.join(setup.m1d_input, file), os.path.join(temporary_directory, file.upper()))
-
-    """ Link INPUT file (M1D input file complimenting the model atom) """
-    os.symlink(setup.m1d_input_file, os.path.join(temporary_directory, 'INPUT'))
-
-    """ Link executable """
-    os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'multi1d.exe'))
-
-    """
-    What kind of output from M1D should be saved?
-    Read from the config file, passed here through the object setup
-    """
-    #job.output.update({'write_ew': setup.write_ew, 'write_ts': setup.write_ts})
-    """ Save EWs """
-    if setup.write_ew == 1 or setup.write_ew == 2:
-        # create file to dump output
-        #job.output.update({'file_ew': temporary_directory + '/output_EW.dat'})
-        with open(os.path.join(temporary_directory, 'output_EW.dat'), 'w') as f:
-            f.write(
-                "# Teff [K], log(g) [cgs], [Fe/H], A(X), stat. weight g_i, energy en_i, wavelength air [AA], osc. strength, EW(NLTE) [AA], EW(LTE) [AA], Vturb [km/s]    \n")
-
-    elif setup.write_ew == 0:
-        pass
-    else:
-        print("write_ew flag unrecognised, stoppped")
-        exit(1)
-
-    """ Output for TS? """
-    if setup.write_ts == 1:
-        # create a file to dump output from this serial job
-        # array rec_len stores a length of the record in bytes
-        #job.output.update({'file_4ts': temporary_directory + '/output_4TS.bin', \
-        #                   'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
-        #                   'rec_len': np.zeros(len(job.atmos), dtype=int)})
-        # create the files
-        with open(os.path.join(temporary_directory, 'output_4TS.bin'), 'wb') as f:
-            pass
-        with open(os.path.join(temporary_directory, 'auxdata_4TS.txt'), 'w') as f:
-            f.write("# atmos ID, Teff [K], log(g) [cgs], [Fe/H], [alpha/Fe], mass, Vturb [km/s], A(X), pointer \n")
-    elif setup.write_ts == 0:
-        pass
-    else:
-        print("write_ts flag unrecognised, stopped")
-        exit(1)
-    #job.output.update({'save_idl1': setup.save_idl1})
-    #if setup.save_idl1 == 1:
-    #    job.output.update({'idl1_folder': setup.idl1_folder})
-
-    # lock.release()
-    #return job
-
-def assign_temporary_directory(args):
-    setup, temporary_directory = args[0], args[1]
-    worker = get_worker()
-    worker.temporary_directory = temporary_directory
-    setup_temp_dirs(setup, temporary_directory)
-
-    return 0
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -144,6 +62,7 @@ if __name__ == '__main__':
     else:
         config_file = './config.txt'
         check_done_aux_files = False
+        skip_fit = False
 
     """ Read config. file and distribute individual jobs """
     setup = Setup(file=config_file)
@@ -177,9 +96,9 @@ if __name__ == '__main__':
 
     print("Worker preparation complete")
 
-    print("Creating temporary directories")
+    #print("Creating temporary directories")
 
-    all_temporary_directories = []
+    """all_temporary_directories = []
     for i in range(setup.ncpu):
         all_temporary_directories.append(setup.common_wd + '/job_%03d/' % i)
 
@@ -188,7 +107,7 @@ if __name__ == '__main__':
         big_future = client.scatter([setup, temp_dir])
         future_test = client.submit(assign_temporary_directory, big_future)
         futures_test.append(future_test)
-    futures_test = client.gather(futures_test)
+    futures_test = client.gather(futures_test)"""
 
     #for temp_dir in all_temporary_directories:
     #    setup_temp_dirs(setup, temp_dir)

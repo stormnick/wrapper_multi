@@ -15,6 +15,93 @@ def mkdir(s):
     os.mkdir(s)
 
 
+
+def assign_temporary_directory(setup):
+    worker = get_worker()
+    try:
+        _ = worker.temporary_directory
+    except AttributeError:
+        worker.temporary_directory = f"{setup.common_wd}/job_{np.random.random()}/"
+        setup_temp_dirs(setup, worker.temporary_directory)
+
+
+def setup_temp_dirs(setup, temporary_directory):
+    """
+    Setting up and running an individual serial job of NLTE calculations
+    for a set of model atmospheres (stored in setup.jobs[k]['atmos'])
+    Several indidvidual jobs can be run in parallel, set ncpu in the config. file
+    to the desired number of processes
+    Note: Multi 1D expects all input files to be named only in upper case
+
+    input:
+    # TODO:
+    (string) directory: common working directory, default: "./"
+    (integer) k: an ID of an individual job within the run
+    (object) setup: object of class setup, regulates a setup for the whole run
+    """
+
+    """
+    Make sure that only one process at a time can access input files
+    """
+    # lock = multiprocessing.Lock()
+    # lock.acquire()
+
+    """ Make a temporary directory """
+    mkdir(temporary_directory)
+
+    """ Link input files to a temporary directory """
+    for file in ['absmet', 'abslin', 'abund', 'absdat']:
+        os.symlink(os.path.join(setup.m1d_input, file), os.path.join(temporary_directory, file.upper()))
+
+    """ Link INPUT file (M1D input file complimenting the model atom) """
+    os.symlink(setup.m1d_input_file, os.path.join(temporary_directory, 'INPUT'))
+
+    """ Link executable """
+    os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'multi1d.exe'))
+
+    """
+    What kind of output from M1D should be saved?
+    Read from the config file, passed here through the object setup
+    """
+    #job.output.update({'write_ew': setup.write_ew, 'write_ts': setup.write_ts})
+    """ Save EWs """
+    if setup.write_ew == 1 or setup.write_ew == 2:
+        # create file to dump output
+        #job.output.update({'file_ew': temporary_directory + '/output_EW.dat'})
+        with open(os.path.join(temporary_directory, 'output_EW.dat'), 'w') as f:
+            f.write(
+                "# Teff [K], log(g) [cgs], [Fe/H], A(X), stat. weight g_i, energy en_i, wavelength air [AA], osc. strength, EW(NLTE) [AA], EW(LTE) [AA], Vturb [km/s]    \n")
+
+    elif setup.write_ew == 0:
+        pass
+    else:
+        print("write_ew flag unrecognised, stoppped")
+        exit(1)
+
+    """ Output for TS? """
+    if setup.write_ts == 1:
+        # create a file to dump output from this serial job
+        # array rec_len stores a length of the record in bytes
+        #job.output.update({'file_4ts': temporary_directory + '/output_4TS.bin', \
+        #                   'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
+        #                   'rec_len': np.zeros(len(job.atmos), dtype=int)})
+        # create the files
+        with open(os.path.join(temporary_directory, 'output_4TS.bin'), 'wb') as f:
+            pass
+        with open(os.path.join(temporary_directory, 'auxdata_4TS.txt'), 'w') as f:
+            f.write("# atmos ID, Teff [K], log(g) [cgs], [Fe/H], [alpha/Fe], mass, Vturb [km/s], A(X), pointer \n")
+    elif setup.write_ts == 0:
+        pass
+    else:
+        print("write_ts flag unrecognised, stopped")
+        exit(1)
+    #job.output.update({'save_idl1': setup.save_idl1})
+    #if setup.save_idl1 == 1:
+    #    job.output.update({'idl1_folder': setup.idl1_folder})
+
+    # lock.release()
+    #return job
+
 def setup_multi_job(setup, job, temporary_directory):
     """
     Setting up and running an individual serial job of NLTE calculations
@@ -221,6 +308,7 @@ def run_serial_job(args):
     setup, job = args[0], args[1]
     #print(f"job # {job.id}: {len(job.atmos)} M1D runs")
     worker = get_worker()
+    assign_temporary_directory(setup)
     temporary_directory: str = worker.temporary_directory
 
     job = setup_multi_job(setup, job, temporary_directory)
