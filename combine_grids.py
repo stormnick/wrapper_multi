@@ -71,9 +71,10 @@ def combineOutput_multipleJobs(path):
 
     for i in range(len(auxFiles)):
         if 'combined' not in auxFiles[i]:
-            print(f"Reading from {auxFiles[i]} and {binFiles[i]}")
+            binfile = auxFiles[i].replace("auxData", "output").replace("dat", "bin")
+            print(f"Reading from {auxFiles[i]} and {binfile}")
 
-            with open(binFiles[i], 'rb') as f:
+            with open(binfile, 'rb') as f:
                 if i != 0:  # reads the header for other ones, to skip writing it into the combined one
                     f.read(1000)
                 commonBinary.write(f.read())
@@ -136,7 +137,7 @@ def combineParallelGrids_timeout(path, description, file_name_extra=""):
 
     com_f.close()
     com_aux.close()
-    print(f"saved in ./output_NLTEgrid4TS_{today}.bin and ./auxData_NLTEgrid4TS_{today}.dat")
+    print(f"saved in ./output_NLTEgrid4TS_{today}{file_name_extra}.bin and ./auxData_NLTEgrid4TS_{today}{file_name_extra}.dat")
 
 
 def combine_several_unfinished_grids_together(main_path, description):
