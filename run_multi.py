@@ -130,8 +130,9 @@ if __name__ == '__main__':
 
         if not skip_fit:
             jobs_amount += 1
-            big_future = client.scatter([jobs[one_job]])
-            future = client.submit(run_serial_job, setup, big_future)
+            big_future = client.scatter(jobs[one_job])
+            big_future_setup = client.scatter(setup)
+            future = client.submit(run_serial_job, big_future_setup, big_future)
             futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different

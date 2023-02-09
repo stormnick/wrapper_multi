@@ -288,11 +288,11 @@ class m1dline:
         self.lam = vacuum2obs(self.laa)[::-1]
         self.lam0 = vacuum2obs(self.lambda0)
 
-        self.cntm = continuum(self.lam, self.flux)
-        self.nflux = self.flux / self.cntm
+        #self.cntm = continuum(self.lam, self.flux)
+        #self.nflux = self.flux / self.cntm
 
-        self.weq = self.calc_weq()
-        self.wi3 = self.calc_wi3()
+        #self.weq = self.calc_weq()
+        #self.wi3 = self.calc_wi3()
 
         if readny:
             self.nyrd()
