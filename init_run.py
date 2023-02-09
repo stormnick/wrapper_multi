@@ -18,7 +18,7 @@ class SerialJob:
         self.id = i
         self.common_wd = parent.common_wd
         #self.tmp_wd = parent.common_wd + '/job_%03d/' % self.id
-        self.atmos: str = None
+        self.atmo: str = None
         self.abund: float = None
         self.output = {}
 
@@ -208,7 +208,7 @@ class Setup:
         for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
             jobs[i] = SerialJob(self, i)
             #self.jobs[i].id = i
-            jobs[i].atmos = one_atmo
+            jobs[i].atmo = one_atmo
             jobs[i].abund = one_abund
 
         return jobs

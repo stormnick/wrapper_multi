@@ -137,7 +137,7 @@ def setup_multi_job(setup, job, temporary_directory):
         # array rec_len stores a length of the record in bytes
         job.output.update({'file_4ts': temporary_directory + '/output_4TS.bin', \
                            'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
-                           'rec_len': np.zeros(len(job.atmos), dtype=int)})
+                           'rec_len': np.zeros(len(job.atmo), dtype=int)})
 
     job.output.update({'save_idl1': setup.save_idl1})
     if setup.save_idl1 == 1:
@@ -343,7 +343,7 @@ def run_serial_job(setup, job):
     # model atom is only read once
     atom = setup.atom
     atmos = ModelAtmosphere()
-    atmos.read(file=job.atmos, file_format=setup.atmos_format)
+    atmos.read(file=job.atmo, file_format=setup.atmos_format)
     # scale abundance with [Fe/H] of the model atmosphere
     if np.isnan(atmos.feh):
         atmos.feh = 0.0
