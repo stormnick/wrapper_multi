@@ -151,6 +151,8 @@ class Setup:
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 
+        self.read_abund_file()
+
     def read_abund_file(self):
         elemental_abundance_m1d = {}
         with open(os.path.join(self.m1d_input, 'abund'), "r") as m1d_abund_file:

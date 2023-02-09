@@ -99,7 +99,7 @@ class ModelAtmosphere:
         """
         if file_format.lower() == 'marcs':
             self.read_atmos_marcs(file)
-            print(f"Setting depth scale to tau500 from the model {file}")
+            #print(f"Setting depth scale to tau500 from the model {file}")
             self.depth_scale_type = 'TAU500'
             self.depth_scale = self.tau500
         elif file_format.lower() == 'm1d':
