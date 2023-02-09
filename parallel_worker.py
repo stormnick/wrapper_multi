@@ -317,13 +317,13 @@ def write_atmo_abundance(atmo: ModelAtmosphere, m1d_abund_file_location: str, ne
     with open(new_abund_file_locaiton, "w") as new_file_to_write:
         for element in elemental_abundance_m1d:
             if atmo.atmospheric_abundance is not None:
-                new_file_to_write.write(f"{element.upper()} {atmo.atmospheric_abundance[element.upper()]}\n")
+                new_file_to_write.write(f"{element.upper():<4}{atmo.atmospheric_abundance[element.upper()]}\n")
             else:
                 element_name = element.upper()
                 elemental_abundance = elemental_abundance_m1d[element]
                 if element_name != "H" and element_name != "HE":
                     elemental_abundance += atmo.feh
-                new_file_to_write.write(f"{element_name:<4} {elemental_abundance}\n")
+                new_file_to_write.write(f"{element_name:<4}{elemental_abundance}\n")
 
 
 def run_serial_job(args):
