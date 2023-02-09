@@ -333,7 +333,7 @@ def run_serial_job(args):
     assign_temporary_directory(setup)
     temporary_directory: str = worker.temporary_directory
 
-    job = setup_multi_job(setup, job, temporary_directory)
+    job = setup_multi_job(setup, job, temporary_directory) 
 
 
     # model atom is only read once
