@@ -215,6 +215,7 @@ def run_multi(job, atom, atmos, temporary_directory):
     else:
         print("IDL1 file not found for %s A(X)=%.2f" % (atmos.id, atom.abund))
 
+    out = None
     os.chdir(job.common_wd)
 
 
@@ -353,6 +354,6 @@ def run_serial_job(setup, job):
     run_multi(job, atom, atmos, temporary_directory)
 
     job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
-
+    job = None
     # shutil.rmtree(job['tmp_wd'])
     return job_return_info
