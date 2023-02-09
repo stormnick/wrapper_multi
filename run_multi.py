@@ -66,6 +66,7 @@ if __name__ == '__main__':
 
     """ Read config. file and distribute individual jobs """
     setup = Setup(file=config_file)
+    jobs = setup.distribute_jobs()
     """ Start individual (serial) jobs in parallel """
 
     login_node_address = "gemini-login.mpia.de"
@@ -121,22 +122,22 @@ if __name__ == '__main__':
     jobs_amount: int = 0
 
     futures = []
-    for one_job in setup.jobs:
+    for one_job in jobs:
         #big_future = client.scatter(args[i])  # good
         if check_done_aux_files:
-            abund, atmo = setup.jobs[one_job].abund, setup.jobs[one_job].atmos
+            abund, atmo = jobs[one_job].abund, jobs[one_job].atmos
             skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
 
         if not skip_fit:
             jobs_amount += 1
-            big_future = client.scatter([setup, setup.jobs[one_job]])
-            future = client.submit(run_serial_job, big_future)
+            big_future = client.scatter([jobs[one_job]])
+            future = client.submit(run_serial_job, setup, big_future)
             futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
     futures = client.gather(futures)  # starts the calculations (takes a long time here)
     print("Worker calculation done")  # when done, save values
 
-    setup.njobs = jobs_amount
+    #setup.njobs = jobs_amount
 
-    collect_output(setup, futures)
+    collect_output(setup, futures, jobs_amount)

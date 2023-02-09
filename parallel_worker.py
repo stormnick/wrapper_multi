@@ -218,7 +218,7 @@ def run_multi(job, atom, atmos, temporary_directory):
     os.chdir(job.common_wd)
 
 
-def collect_output(setup, jobs):
+def collect_output(setup, jobs, jobs_amount):
     today = datetime.date.today().strftime("%b-%d-%Y")
 
     written_comment_ew = False
@@ -227,15 +227,18 @@ def collect_output(setup, jobs):
     done_ew_file_names = set()
     done_ts_file_names = set()
 
+    # order of the job:
+    # job = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]
+
     """ Collect all EW grids into one """
     datetime0 = datetime.datetime.now()
     print("Collecting grids of EWs")
     if setup.write_ew > 0:
         with open(os.path.join(setup.common_wd, 'output_EWgrid_%s.dat' % (today)), 'w') as com_f:
             for job in jobs:
-                ew_file = job.output['file_ew']
+                ew_file = job[0]
                 if ew_file not in done_ew_file_names:
-                    data = open(job.output['file_ew'], 'r').readlines()
+                    data = open(ew_file, 'r').readlines()
                     com_f.writelines(data)
                     done_ew_file_names.add(ew_file)
         """ Checks to raise warnings if there're repeating entrances """
@@ -268,7 +271,7 @@ def collect_output(setup, jobs):
                  "NLTE element: %s \n" % (setup.atom.element) + \
                  "Model atom: %s \n" % (setup.atom_id) + \
                  "Comments: '%s' \n" % (setup.atom.info) + \
-                 "Number of records: %10.0f \n" % (setup.njobs) + \
+                 "Number of records: %10.0f \n" % (jobs_amount) + \
                  f"Computed with MULTI 1D (using EkaterinaSe/wrapper_multi (github)), {today} \n"
         header = str.encode('%1000s' % (header))
         com_f.write(header)
@@ -277,13 +280,13 @@ def collect_output(setup, jobs):
         pointer = len(header) + 1
 
         for job in jobs:
-            ts_bin_file = job.output['file_4ts']
+            ts_bin_file = job[1]
             if ts_bin_file not in done_ts_file_names:
                 # departure coefficients in binary format
                 done_ts_file_names.add(ts_bin_file)
-                with open(job.output['file_4ts'], 'rb') as f:
+                with open(ts_bin_file, 'rb') as f:
                     com_f.write(f.read())
-                for line in open(job.output['file_4ts_aux'], 'r').readlines():
+                for line in open(job[2], 'r').readlines():
                     if not line.startswith('#'):
                         rec_len = int(line.split()[-1])
                         com_aux.write('    '.join(line.split()[0:-1]))
@@ -304,16 +307,11 @@ def collect_output(setup, jobs):
         print(10 * "-")
 
 
-def write_atmo_abundance(atmo: ModelAtmosphere, m1d_abund_file_location: str, new_abund_file_locaiton: str):
+def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, new_abund_file_locaiton: str):
     """
     Scales abundance according to the atmosphere. Either takes already atmospheric abundance or scaled the one in M1D
     according to metallicity (except H and He). Uses only elements that were already written in the M1D ABUND file
     """
-    elemental_abundance_m1d = {}
-    with open(m1d_abund_file_location, "r") as m1d_abund_file:
-        for line in m1d_abund_file.readlines():
-            line_split = line.split()
-            elemental_abundance_m1d[line_split[0]] = float(line_split[1])
     with open(new_abund_file_locaiton, "w") as new_file_to_write:
         for element in elemental_abundance_m1d:
             if atmo.atmospheric_abundance is not None:
@@ -327,8 +325,8 @@ def write_atmo_abundance(atmo: ModelAtmosphere, m1d_abund_file_location: str, ne
             new_file_to_write.write(f"{element_name:<4}{elemental_abundance:5,.2f}\n")
 
 
-def run_serial_job(args):
-    setup, job = args[0], args[1]
+def run_serial_job(setup, job):
+    #setup, job = args[0], args[1]
     #print(f"job # {job.id}: {len(job.atmos)} M1D runs")
     worker = get_worker()
     assign_temporary_directory(setup)
@@ -347,8 +345,10 @@ def run_serial_job(args):
     if not atom.element.lower() == 'h':
         atom.abund = job.abund + atmos.feh
 
-    write_atmo_abundance(atmos, os.path.join(setup.m1d_input, 'abund'), os.path.join(temporary_directory, "ABUND"))
+    write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"))
     run_multi(job, atom, atmos, temporary_directory)
 
+    job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
+
     # shutil.rmtree(job['tmp_wd'])
-    return job
+    return job_return_info

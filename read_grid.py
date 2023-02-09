@@ -53,4 +53,4 @@ def read_grid(aux_file, bin_file):
 
 
 if __name__ == '__main__':
-    read_grid("auxData_NLTEgrid4TS_Jan-11-2023_combined.dat", "output_NLTEgrid4TS_Jan-11-2023_combined.bin")
+    read_grid("/Users/storm/Downloads/auxData_MN_MARCS_Jun-27-2022.dat", "/Users/storm/Downloads/NLTEgrid4TS_MN_MARCS_Jun-27-2022.bin")
