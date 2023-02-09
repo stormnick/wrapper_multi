@@ -6,80 +6,17 @@ from astropy import constants as const
     Read and manipulate model atmospheres
 """
 
-def read_atmos_marcs(self, file):
-    """
-    Read model atmosphere in standart MARCS format i.e. *.mod
-    input:
-    (string) file: path to model atmosphere
-    """
-    # Boltzmann constant
 
-    data = [ l.strip() for l in open(file, 'r').readlines() if not l.startswith('*') or l == ''  ]
-    # MARCS model atmospheres are by default strictly formatted
-    self.id = data[0]
-    if self.id.startswith('p'):
-        self.pp = True
-        self.spherical = False
-    elif self.id.startswith('s'):
-        self.spherical = True
-        self.pp = False
-    else:
-        print(f"Could not understand model atmosphere geometry (spherical/plane-parallel) for {file}")
-    self.teff = float(data[1].split()[0])
-    self.flux = float(data[2].split()[0])
-    self.logg = np.log10( float(data[3].split()[0]) )
-    self.vturb = float(data[4].split()[0])
-    self.mass = float(data[5].split()[0])
-    self.feh, self.alpha = np.array(data[6].split()[:2]).astype(float)
-    self.X, self.Y, self.Z = np.array(data[10].split()[:3]).astype(float)
+periodic_table_element_names = [
+    "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne",
+    "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar",
+    "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr",
+    "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe",
+    "Cs", "Ba", "La",
+    "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn",
+    "Fr", "Ra", "Ac", "Th", "Pa", "U"]
 
-    # read structure
-    for line in data:
-        if 'Number of depth points' in line:
-            self.ndep = int(line.split()[0])
-    for key in ['k', 'tau500', 'height', 'temp', 'pe', 'ne']:
-        self.__dict__[key] = np.full( self.ndep, np.nan )
-    self.k, self.tau500, self.height, self.temp, self.pe = np.loadtxt(  data[25:25+self.ndep], unpack=True, usecols=( 0, 2, 3, 4, 5 ))
-    self.ne =  self.pe / self.temp  /  const.k_B.cgs.value
-    self.vturb = np.full(self.ndep, self.vturb )
-    self.vmac = np.zeros(self.ndep)
-    # add comments
-    self.header = f"Converted from MARCS formatted model atmosphere {self.id}"
-
-    return
-
-def read_atmos_m1d(self, file):
-    """
-    Read model atmosphere in MULTI 1D input format, i.e. atmos.*
-    M1D input model atmosphere is strictly formatted
-    input:
-    (string) file: path to model atmosphere file
-    """
-    data = [ l.strip() for l in open(file, 'r').readlines() if not l.startswith('*') or l == ''  ]
-    for l in data:
-        if 'Teff' in l:
-            self.teff = float(l.split()[-1].split('=')[-1])
-            break
-    # read header
-    self.id = data[0]
-    self.depth_scale_type = data[1]
-    self.logg = float(data[2])
-    self.ndep = int(data[3])
-    # read structure 
-    for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb']:
-        self.__dict__[k] = np.full(self.ndep, np.nan)
-    self.depth_scale, self.temp, self.ne, self.vmac, self.vturb = np.loadtxt( data[ 4 : ], unpack=True  ) 
-
-    # info that's not provided in the model atmosphere file:
-    if not 'teff' in self.__dict__.keys():
-        self.teff   = np.nan
-    self.X      = np.nan
-    self.Y      = np.nan
-    self.Z      = np.nan
-    self.mass   = np.nan
-    # add comments here
-    self.header = "Read from M1D formatted model atmosphere {self.id}"
-    return
 
 
 def write_atmos_m1d(atmos, file):
@@ -146,26 +83,27 @@ def write_dscale_m1d(atmos, file):
 
 
 class ModelAtmosphere:
-    def __init__(self, file='atmos.sun', format='m1d'):
+    def __init__(self, file=None, file_format=None):
+        self.atmospheric_abundance: dict = None
         self.ndep = None
         self.file: str = file
-        self.format: str = format
+        self.file_format: str = file_format
 
 
-    def read(self, file='atmos.sun', format='m1d'):
+    def read(self, file, file_format):
         """
         Model atmosphere for NLTE calculations
         input:
         (string) file: file with model atmosphere, default: atmos.sun
         (string) format: m1d, marcs, stagger, see function calls below
         """
-        if format.lower() == 'marcs':
-            read_atmos_marcs(self, file)
+        if file_format.lower() == 'marcs':
+            self.read_atmos_marcs(file)
             print(f"Setting depth scale to tau500 from the model {file}")
             self.depth_scale_type = 'TAU500'
             self.depth_scale = self.tau500
-        elif format.lower() == 'm1d':
-            read_atmos_m1d(self, file)
+        elif file_format.lower() == 'm1d':
+            self.read_atmos_m1d(file)
             try:
                 feh = float(self.id.split('_z')[-1].split('_a')[0])
                 alpha = float(self.id.split('_a')[-1].split('_c')[0])
@@ -182,8 +120,8 @@ class ModelAtmosphere:
                     self.alpha=np.nan
                     print("WARNING: [Fe/H] and [alpha/Fe] are unknown from the model atmosphere")
                     exit()
-        elif format.lower() == 'stagger':
-            read_atmos_m1d(self, file)
+        elif file_format.lower() == 'stagger':
+            self.read_atmos_m1d(file)
             print(f"Guessing [Fe/H] and [alpha/Fe] from the file name {self.id}..")
             teff = float(self.id.split('g')[0].replace('t',''))
             if teff != 5777:
@@ -224,4 +162,87 @@ class ModelAtmosphere:
             write_atmos_m1d4TS(self, path)
         else:
             raise Warning(f"Format {format} not supported for writing yet.")
+
+    def read_atmos_marcs(self, file):
+        """
+        Read model atmosphere in standart MARCS format i.e. *.mod
+        input:
+        (string) file: path to model atmosphere
+        """
+        # Boltzmann constant
+
+        data = [l.strip() for l in open(file, 'r').readlines() if not l.startswith('*') or l == '']
+        # MARCS model atmospheres are by default strictly formatted
+        self.id = data[0]
+        if self.id.startswith('p'):
+            self.pp = True
+            self.spherical = False
+        elif self.id.startswith('s'):
+            self.spherical = True
+            self.pp = False
+        else:
+            print(f"Could not understand model atmosphere geometry (spherical/plane-parallel) for {file}")
+        self.teff = float(data[1].split()[0])
+        self.flux = float(data[2].split()[0])
+        self.logg = np.log10(float(data[3].split()[0]))
+        self.vturb = float(data[4].split()[0])
+        self.mass = float(data[5].split()[0])
+        self.feh, self.alpha = np.array(data[6].split()[:2]).astype(float)
+        self.X, self.Y, self.Z = np.array(data[10].split()[:3]).astype(float)
+
+        atmospheric_abundance = {}
+        elemental_number = 0
+
+        for line in data[12:22]:
+            for elemental_abundance in np.array(line.split()).astype(float):
+                atmospheric_abundance[periodic_table_element_names[elemental_number].upper()] = elemental_abundance
+                elemental_number += 1
+        self.atmospheric_abundance = atmospheric_abundance
+
+        # read structure
+        for line in data:
+            if 'Number of depth points' in line:
+                self.ndep = int(line.split()[0])
+        for key in ['k', 'tau500', 'height', 'temp', 'pe', 'ne']:
+            self.__dict__[key] = np.full(self.ndep, np.nan)
+        self.k, self.tau500, self.height, self.temp, self.pe = np.loadtxt(data[25:25 + self.ndep], unpack=True,
+                                                                          usecols=(0, 2, 3, 4, 5))
+        self.ne = self.pe / self.temp / const.k_B.cgs.value
+        self.vturb = np.full(self.ndep, self.vturb)
+        self.vmac = np.zeros(self.ndep)
+        # add comments
+        self.header = f"Converted from MARCS formatted model atmosphere {self.id}"
+
+    def read_atmos_m1d(self, file):
+        """
+        Read model atmosphere in MULTI 1D input format, i.e. atmos.*
+        M1D input model atmosphere is strictly formatted
+        input:
+        (string) file: path to model atmosphere file
+        """
+        data = [l.strip() for l in open(file, 'r').readlines() if not l.startswith('*') or l == '']
+        for l in data:
+            if 'Teff' in l:
+                self.teff = float(l.split()[-1].split('=')[-1])
+                break
+        # read header
+        self.id = data[0]
+        self.depth_scale_type = data[1]
+        self.logg = float(data[2])
+        self.ndep = int(data[3])
+        # read structure
+        for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb']:
+            self.__dict__[k] = np.full(self.ndep, np.nan)
+        self.depth_scale, self.temp, self.ne, self.vmac, self.vturb = np.loadtxt(data[4:], unpack=True)
+
+        # info that's not provided in the model atmosphere file:
+        if not 'teff' in self.__dict__.keys():
+            self.teff = np.nan
+        self.X = np.nan
+        self.Y = np.nan
+        self.Z = np.nan
+        self.mass = np.nan
+        # add comments here
+        self.header = "Read from M1D formatted model atmosphere {self.id}"
+        return
 

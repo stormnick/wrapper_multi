@@ -107,7 +107,7 @@ class Setup:
         if self.iterate_vmic:
             if self.atmos_format.lower() == 'marcs':
                 for atm in atmos_list:
-                    atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), format='marcs')
+                    atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), file_format='marcs')
                     new_path = os.path.join(self.atmos_path, f"atmos.{atmos.id}")
                     write_atmos_m1d(atmos, new_path)
                     print(f"created {new_path}")
@@ -120,7 +120,7 @@ class Setup:
                         if newID in atmos_list or new_path in self.atmos:
                             pass
                         else:
-                            atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), format='marcs')
+                            atmos = ModelAtmosphere(file=os.path.join(self.atmos_path, atm), file_format='marcs')
                             atmos.header = atmos.header + f"  Set vturb={vt:.2f}"
                             atmos.id = newID.replace(self.atmos_path, '').replace('/', '').replace('.mod', '')
                             atmos.vturb = np.full(atmos.ndep, vt)

@@ -50,7 +50,7 @@ def setup_temp_dirs(setup, temporary_directory):
     mkdir(temporary_directory)
 
     """ Link input files to a temporary directory """
-    for file in ['absmet', 'abslin', 'abund', 'absdat']:
+    for file in ['absmet', 'abslin', 'absdat']:
         os.symlink(os.path.join(setup.m1d_input, file), os.path.join(temporary_directory, file.upper()))
 
     """ Link INPUT file (M1D input file complimenting the model atom) """
@@ -304,6 +304,28 @@ def collect_output(setup, jobs):
         print(10 * "-")
 
 
+def write_atmo_abundance(atmo: ModelAtmosphere, m1d_abund_file_location: str, new_abund_file_locaiton: str):
+    """
+    Scales abundance according to the atmosphere. Either takes already atmospheric abundance or scaled the one in M1D
+    according to metallicity (except H and He). Uses only elements that were already written in the M1D ABUND file
+    """
+    elemental_abundance_m1d = {}
+    with open(m1d_abund_file_location, "r") as m1d_abund_file:
+        for line in m1d_abund_file.readlines():
+            line_split = line.split()
+            elemental_abundance_m1d[line_split[0]] = float(line_split[1])
+    with open(new_abund_file_locaiton, "w") as new_file_to_write:
+        for element in elemental_abundance_m1d:
+            if atmo.atmospheric_abundance is not None:
+                new_file_to_write.write(f"{element.upper()} {atmo.atmospheric_abundance[element.upper()]}")
+            else:
+                element_name = element.upper()
+                elemental_abundance = elemental_abundance_m1d[element]
+                if element_name != "H" and element_name != "HE":
+                    elemental_abundance += atmo.feh
+                new_file_to_write.write(f"{element_name} {elemental_abundance}")
+
+
 def run_serial_job(args):
     setup, job = args[0], args[1]
     #print(f"job # {job.id}: {len(job.atmos)} M1D runs")
@@ -313,16 +335,18 @@ def run_serial_job(args):
 
     job = setup_multi_job(setup, job, temporary_directory)
 
+
     # model atom is only read once
     atom = setup.atom
     atmos = ModelAtmosphere()
-    atmos.read(file=job.atmos, format=setup.atmos_format)
+    atmos.read(file=job.atmos, file_format=setup.atmos_format)
     # scale abundance with [Fe/H] of the model atmosphere
     if np.isnan(atmos.feh):
         atmos.feh = 0.0
     if not atom.element.lower() == 'h':
         atom.abund = job.abund + atmos.feh
 
+    write_atmo_abundance(atmos, os.path.join(setup.m1d_input, 'abund'), os.path.join(temporary_directory, "ABUND"))
     run_multi(job, atom, atmos, temporary_directory)
 
     # shutil.rmtree(job['tmp_wd'])
