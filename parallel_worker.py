@@ -169,7 +169,7 @@ def run_multi(job, atom, atmos, temporary_directory):
     """ Go to directory and run MULTI 1D """
     os.chdir(temporary_directory)
 
-    os.system('time ./multi1d.exe')
+    run_multi_exe()
 
     """ Read M1D output if M1D run was successful """
     if os.path.isfile('./IDL1'):
@@ -216,6 +216,10 @@ def run_multi(job, atom, atmos, temporary_directory):
         print("IDL1 file not found for %s A(X)=%.2f" % (atmos.id, atom.abund))
 
     os.chdir(job.common_wd)
+
+
+def run_multi_exe():
+    os.system('time ./multi1d.exe')
 
 
 def collect_output(setup, jobs, jobs_amount):
