@@ -31,8 +31,9 @@ class Setup:
         input:
         (string) file: filename for the config file  (default: 'config.txt')
         """
-        self.jobs: dict = None
-        self.njobs: int = None
+        #self.jobs: dict = None
+        #self.njobs: int = None
+        self.elemental_abundance_m1d: dict = None
         self.atom_comment: str = None
         self.step_abund: float = None
         self.end_abund: float = None
@@ -150,9 +151,13 @@ class Setup:
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 
-        print(50 * "-")
-        print(f"Distributing model atmospheres over {self.ncpu} CPUs")
-        self.distribute_jobs()
+    def read_abund_file(self):
+        elemental_abundance_m1d = {}
+        with open(os.path.join(self.m1d_input, 'abund'), "r") as m1d_abund_file:
+            for line in m1d_abund_file.readlines():
+                line_split = line.split()
+                elemental_abundance_m1d[line_split[0]] = float(line_split[1])
+        self.elemental_abundance_m1d = elemental_abundance_m1d
 
     def distribute_jobs(self):
         """
@@ -161,6 +166,8 @@ class Setup:
         (array) atmos_list: contains all model atmospheres requested for the run
         (integer) ncpu: number of CPUs to use
         """
+        print(50 * "-")
+        print(f"Distributing model atmospheres over {self.ncpu} CPUs")
 
         atmos_list = self.atmos
 
@@ -184,20 +191,22 @@ class Setup:
             exit(1)
 
         totn_jobs = len(atmos_list) * len(abund_list)
-        self.njobs = totn_jobs
+        #self.njobs = totn_jobs
         print('total # jobs', totn_jobs)
 
         atmos_list, abund_list = np.meshgrid(atmos_list, abund_list)
         atmos_list = atmos_list.flatten()
         abund_list = abund_list.flatten()
 
-        self.jobs = {}
+        jobs = {}
 
         #job.atmos = atmos_list
         #job.abund = abund_list
 
         for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
-            self.jobs[i] = SerialJob(self, i)
+            jobs[i] = SerialJob(self, i)
             #self.jobs[i].id = i
-            self.jobs[i].atmos = one_atmo
-            self.jobs[i].abund = one_abund
+            jobs[i].atmos = one_atmo
+            jobs[i].abund = one_abund
+
+        return jobs
