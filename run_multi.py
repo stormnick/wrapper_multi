@@ -132,13 +132,14 @@ if __name__ == '__main__':
         if not skip_fit:
             jobs_amount += 1
             big_future = client.scatter(jobs[one_job])
-            big_future_setup = client.scatter(setup, broadcast=True)
+            #big_future_setup = client.scatter(setup, broadcast=True)
+            [big_future_setup] = client.scatter([setup], broadcast=True)
 
             #[fut_dict] = client.scatter([setup], broadcast=True)
             #score_guide = lambda row: expensive_computation(fut_dict, row)
 
-            future = client.submit(run_serial_job, big_future_setup, big_future)
-            futures.append(future)  # prepares to get values
+            futures = [client.submit(run_serial_job, big_future_setup, big_future)]
+            #futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
     futures = client.gather(futures)  # starts the calculations (takes a long time here)
