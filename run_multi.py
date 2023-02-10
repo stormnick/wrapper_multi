@@ -139,9 +139,11 @@ if __name__ == '__main__':
 
     #jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
+    MAX_TASKS_PER_CPU_AT_A_TIME = 16
+
     all_futures_combined = []
 
-    for one_jobs_split in chunks(jobs, 1000):
+    for one_jobs_split in chunks(jobs, setup.ncpu * MAX_TASKS_PER_CPU_AT_A_TIME):
         futures = []
         for one_job in jobs:
             #big_future = client.scatter(args[i])  # good
