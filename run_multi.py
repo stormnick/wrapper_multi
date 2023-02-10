@@ -124,29 +124,35 @@ if __name__ == '__main__':
 
     jobs_amount: int = 0
 
-    futures = []
-    for one_job in jobs:
-        #big_future = client.scatter(args[i])  # good
-        if check_done_aux_files:
-            abund, atmo = jobs[one_job].abund, jobs[one_job].atmo
-            skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
+    jobs_split = np.split(jobs, round(np.size(jobs) / 1000))
 
-        if not skip_fit:
-            jobs_amount += 1
-            big_future = client.scatter(jobs[one_job])
-            #big_future_setup = client.scatter(setup, broadcast=True)
-            #[big_future_setup] = client.scatter([setup], broadcast=True)
+    all_futures_combined = []
 
-            #[fut_dict] = client.scatter([setup], broadcast=True)
-            #score_guide = lambda row: expensive_computation(fut_dict, row)
+    for one_jobs_split in jobs_split:
+        futures = []
+        for one_job in jobs:
+            #big_future = client.scatter(args[i])  # good
+            if check_done_aux_files:
+                abund, atmo = jobs[one_job].abund, jobs[one_job].atmo
+                skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
 
-            future = client.submit(launch_job, big_future)
-            futures.append(future)  # prepares to get values
+            if not skip_fit:
+                jobs_amount += 1
+                big_future = client.scatter(jobs[one_job])
+                #big_future_setup = client.scatter(setup, broadcast=True)
+                #[big_future_setup] = client.scatter([setup], broadcast=True)
 
-    print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
-    futures = client.gather(futures)  # starts the calculations (takes a long time here)
-    print("Worker calculation done")  # when done, save values
+                #[fut_dict] = client.scatter([setup], broadcast=True)
+                #score_guide = lambda row: expensive_computation(fut_dict, row)
+
+                future = client.submit(launch_job, big_future)
+                futures.append(future)  # prepares to get values
+
+        print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
+        futures = client.gather(futures)  # starts the calculations (takes a long time here)
+        print("Worker calculation done")  # when done, save values
+        all_futures_combined += futures
 
     #setup.njobs = jobs_amount
 
-    collect_output(setup, futures, jobs_amount)
+    collect_output(setup, all_futures_combined, jobs_amount)
