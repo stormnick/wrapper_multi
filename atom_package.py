@@ -14,9 +14,6 @@ def write_atom_noReFormatting(atom_data, file):
 
 def get_atom_inf(file, comment='') -> dict:
     atom_data = read_atom(file)
-    atom_data["abund"] = None
-    atom_data["body"]: list = None
-
     """
     A small comment line from the config file.
     Written to the header of the NLTE binary grid
