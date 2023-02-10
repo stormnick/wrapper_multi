@@ -146,7 +146,7 @@ class Setup:
         where abundance will be modififed if needed
         and model atom will be written in a temporary M1D formatted input file ATOM
          """
-        print("Reading model atom from %s" % self.atom_path)
+        #print("Reading model atom from %s" % self.atom_path)
         #self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
 
         # M1D input file that comes with model atom

@@ -1,7 +1,7 @@
 import sys
 import os
 from init_run import Setup, SerialJob
-from atom_package import read_atom
+from atom_package import get_atom_inf
 from parallel_worker import run_serial_job, collect_output
 import time
 import numpy as np
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     setup = Setup(file=config_file)
 
     print("Reading model atom from %s" % setup.atom_path)
-    atom_data = read_atom(setup.atom_path + '/atom.' + setup.atom_id, setup.atom_comment)
+    atom_data = get_atom_inf(setup.atom_path + '/atom.' + setup.atom_id, setup.atom_comment)
 
     setup.atom_abund = atom_data["abund"]
     setup.atom_info = atom_data["info"]
