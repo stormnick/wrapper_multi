@@ -140,7 +140,7 @@ if __name__ == '__main__':
             #[fut_dict] = client.scatter([setup], broadcast=True)
             #score_guide = lambda row: expensive_computation(fut_dict, row)
 
-            futures = [client.submit(run_serial_job, big_future)]
+            futures = [client.submit(launch_job, big_future)]
             #futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
