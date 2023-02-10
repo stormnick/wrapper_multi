@@ -1,6 +1,7 @@
 import sys
 import os
 from init_run import Setup, SerialJob
+from atom_package import read_atom
 from parallel_worker import run_serial_job, collect_output
 import time
 import numpy as np
@@ -56,8 +57,8 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
     return False
 
 
-def launch_job(job):
-    run_serial_job(setup, job)
+def launch_job(job, atom_data):
+    run_serial_job(setup, job, atom_data)
 
 
 if __name__ == '__main__':
@@ -74,8 +75,17 @@ if __name__ == '__main__':
         check_done_aux_files = False
         skip_fit = False
 
+
     """ Read config. file and distribute individual jobs """
     setup = Setup(file=config_file)
+
+    print("Reading model atom from %s" % setup.atom_path)
+    atom_data = read_atom(setup.atom_path + '/atom.' + setup.atom_id, setup.atom_comment)
+
+    setup.atom_abund = atom_data["abund"]
+    setup.atom_info = atom_data["info"]
+    setup.atom_element = atom_data["element"]
+
     jobs = setup.distribute_jobs()
     setup.atmos = None
     """ Start individual (serial) jobs in parallel """
@@ -143,31 +153,32 @@ if __name__ == '__main__':
 
     all_futures_combined = []
 
-    for one_jobs_split in chunks(jobs, setup.ncpu * MAX_TASKS_PER_CPU_AT_A_TIME):
-        futures = []
-        for one_job in one_jobs_split:
-            #big_future = client.scatter(args[i])  # good
-            if check_done_aux_files:
-                abund, atmo = jobs[one_job].abund, jobs[one_job].atmo
-                skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
+    #for one_jobs_split in chunks(jobs, setup.ncpu * MAX_TASKS_PER_CPU_AT_A_TIME):
+    futures = []
+    for one_job in jobs:
+        #big_future = client.scatter(args[i])  # good
+        if check_done_aux_files:
+            abund, atmo = one_job["abund"], one_job["atmo"]
+            skip_fit = check_same_element_loc_in_two_arrays(done_atmos, done_abunds, atmo, abund, setup.atmos_path)
 
-            if not skip_fit:
-                jobs_amount += 1
-                big_future = client.scatter(jobs[one_job])
-                #big_future_setup = client.scatter(setup, broadcast=True)
-                #[big_future_setup] = client.scatter([setup], broadcast=True)
+        if not skip_fit:
+            jobs_amount += 1
+            big_future = client.scatter(one_job)
+            #big_future_setup = client.scatter(setup, broadcast=True)
+            #[big_future_setup] = client.scatter([setup], broadcast=True)
 
-                #[fut_dict] = client.scatter([setup], broadcast=True)
-                #score_guide = lambda row: expensive_computation(fut_dict, row)
+            #[fut_dict] = client.scatter([setup], broadcast=True)
+            #score_guide = lambda row: expensive_computation(fut_dict, row)
+            [atom_big_futire] = client.scatter([atom_data], broadcast=True)
 
-                future = client.submit(launch_job, big_future)
-                futures.append(future)  # prepares to get values
+            future = client.submit(launch_job, big_future, atom_big_futire)
+            futures.append(future)  # prepares to get values
 
-        print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
-        futures = client.gather(futures)  # starts the calculations (takes a long time here)
-        print("Worker calculation done")  # when done, save values
-        all_futures_combined += futures
+    print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
+    futures = client.gather(futures)  # starts the calculations (takes a long time here)
+    print("Worker calculation done")  # when done, save values
+        #all_futures_combined += futures
 
     #setup.njobs = jobs_amount
 
-    collect_output(setup, all_futures_combined, jobs_amount)
+    collect_output(setup, futures, jobs_amount)

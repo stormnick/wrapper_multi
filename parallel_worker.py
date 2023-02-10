@@ -125,29 +125,28 @@ def setup_multi_job(setup, job, temporary_directory):
 
     #mkdir(temporary_directory)
 
-    job.output.update({'write_ew': setup.write_ew, 'write_ts': setup.write_ts})
     """ Save EWs """
-    if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
+    if setup.write_ew == 1 or setup.write_ew == 2:
         # create file to dump output
-        job.output.update({'file_ew': temporary_directory + '/output_EW.dat'})
+        job['file_ew'] = temporary_directory + '/output_EW.dat'
 
     """ Output for TS? """
-    if job.output['write_ts'] == 1:
+    if setup.write_ts == 1:
         # create a file to dump output from this serial job
         # array rec_len stores a length of the record in bytes
-        job.output.update({'file_4ts': temporary_directory + '/output_4TS.bin', \
-                           'file_4ts_aux': temporary_directory + '/auxdata_4TS.txt', \
-                           'rec_len': np.zeros(len(job.atmo), dtype=int)})
+        job['file_4ts_aux'] = temporary_directory + '/auxdata_4TS.txt'
+        job['file_4ts'] = temporary_directory + '/output_4TS.bin'
+        job['rec_len'] = np.zeros(len(job["atmo"]), dtype=int)
 
-    job.output.update({'save_idl1': setup.save_idl1})
+    """job.output.update({'save_idl1': setup.save_idl1})
     if setup.save_idl1 == 1:
-        job.output.update({'idl1_folder': setup.idl1_folder})
+        job.output.update({'idl1_folder': setup.idl1_folder})"""
 
     #lock.release()
     return job
 
 
-def run_multi(job, atom, atmos, temporary_directory, common_wd):
+def run_multi(job, atom_data, atmos, temporary_directory, common_wd, setup):
     """
     Run MULTI1D
     input:
@@ -160,7 +159,7 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd):
     """
 
     """ Create ATOM input file for M1D """
-    write_atom_noReFormatting(atom, temporary_directory + '/ATOM')
+    write_atom_noReFormatting(atom_data, temporary_directory + '/ATOM')
 
     """ Create ATMOS input file for M1D """
     write_atmos_m1d(atmos, temporary_directory + '/ATMOS')
@@ -176,13 +175,13 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd):
         out = m1d('./IDL1')
 
         """ print MULTI1D output to the temporary grid of EWs """
-        if job.output['write_ew'] > 0:
-            if job.output['write_ew'] == 1:
+        if setup.write_ew > 0:
+            if setup.write_ew == 1:
                 mask = np.arange(out.nline)
-            elif job.output['write_ew'] == 2:
+            elif setup.write_ew == 2:
                 mask = np.where(out.nq[:out.nline] == max(out.nq[:out.nline]))[0]
 
-            with open(job.output['file_ew'], 'a') as f:
+            with open(job['file_ew'], 'a') as f:
                 for kr in mask:
                     line = out.line[kr]
                     f.write("%10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %10.4f %20.10f %20.10f %20.4f # '%s'\n" \
@@ -190,30 +189,30 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd):
                                line.lam0, out.f[kr], out.weq[kr], out.weqlte[kr], np.mean(atmos.vturb), atmos.id))
 
         """ save  MULTI1D output in a common binary file in the format for TS """
-        if job.output['write_ts'] == 1:
-            faux = open(job.output['file_4ts_aux'], 'a')
+        if setup.write_ts == 1:
+            faux = open(job['file_4ts_aux'], 'a')
             # append record to binary grid file
             with np.errstate(divide='ignore'):
                 depart = np.array((out.n / out.nstar), dtype='f8')
                 # transpose to match Fortran order of things
                 # (nk, ndep)
                 depart = depart.T
-            record_len = addRec_to_NLTEbin(job.output['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
+            record_len = addRec_to_NLTEbin(job['file_4ts'], atmos.id, out.ndep, out.nk, out.tau, depart)
 
             faux.write(" '%s' %10.4f %10.4f %10.4f %10.4f %10.2f %10.2f %10.4f %60.0f \n" \
                        % (atmos.id, atmos.teff, atmos.logg, atmos.feh, atmos.alpha, atmos.mass, np.mean(atmos.vturb),
                           out.abnd, record_len))
             faux.close()
 
-        if job.output['save_idl1'] == 0:
+        if setup.save_idl1 == 0:
             os.remove('./IDL1')
-        elif job.output['save_idl1'] == 1:
-            destin = job.output['idl1_folder'] + "/idl1.%s_%s_A(X)_%5.5f" % (
-            atmos.id, atom.element.replace(' ', ''), atom.abund)
+        elif setup.save_idl1 == 1:
+            destin = setup.idl1_folder + "/idl1.%s_%s_A(X)_%5.5f" % (
+            atmos.id, setup.atom_element.replace(' ', ''), setup.atom_abund)
             shutil.move('./IDL1', destin)
     # no IDL1 file created after the run
     else:
-        print("IDL1 file not found for %s A(X)=%.2f" % (atmos.id, atom.abund))
+        print("IDL1 file not found for %s A(X)=%.2f" % (atmos.id, setup.atom_abund))
 
     out = None
     os.chdir(common_wd)
@@ -330,7 +329,7 @@ def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, n
             new_file_to_write.write(f"{element_name:<4}{elemental_abundance:5,.2f}\n")
 
 
-def run_serial_job(setup, job):
+def run_serial_job(setup, job, atom_data):
     #setup, job = args[0], args[1]
     #print(f"job # {job.id}: {len(job.atmos)} M1D runs")
     worker = get_worker()
@@ -341,19 +340,19 @@ def run_serial_job(setup, job):
 
 
     # model atom is only read once
-    atom = setup.atom
+    #atom = setup.atom
     atmos = ModelAtmosphere()
-    atmos.read(file=job.atmo, file_format=setup.atmos_format)
+    atmos.read(file=job["atmo"], file_format=setup.atmos_format)
     # scale abundance with [Fe/H] of the model atmosphere
     if np.isnan(atmos.feh):
         atmos.feh = 0.0
-    if not atom.element.lower() == 'h':
-        atom.abund = job.abund + atmos.feh
+    if not setup.atom_element.lower() == 'h':
+        setup.atom_abund = job["abund"] + atmos.feh
 
     write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"))
-    run_multi(job, atom, atmos, temporary_directory, setup.common_wd)
+    run_multi(job, atom_data, atmos, temporary_directory, setup.common_wd, setup)
 
-    job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
+    job_return_info = [job['file_ew'], job['file_4ts'], job['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
     job = None
     # shutil.rmtree(job['tmp_wd'])
     return job_return_info

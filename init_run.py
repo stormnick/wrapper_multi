@@ -1,7 +1,7 @@
 import sys
 import os
 import numpy as np
-from atom_package import model_atom
+from atom_package import ModelAtom
 import shutil
 # local
 from atmos_package import ModelAtmosphere, write_atmos_m1d, write_dscale_m1d
@@ -14,11 +14,9 @@ def mkdir(directory: str):
 
 
 class SerialJob:
-    def __init__(self, i: int):
-        self.id = i
-        #self.tmp_wd = parent.common_wd + '/job_%03d/' % self.id
-        self.atmo: str = None
-        self.abund: float = None
+    def __init__(self):
+        #self.atmo: str = None
+        #self.abund: float = None
         self.output = {}
 
 
@@ -46,6 +44,10 @@ class Setup:
         self.atmos_path: str = None
         self.atmos_list: str = None
         self.atmos_format: str = None
+
+        self.atom_abund: float = None
+        self.atom_info: str = None
+        self.atom_element: str = None
 
         print(f'Reading configuration file {file}')
         for line in open(file, 'r'):
@@ -146,7 +148,8 @@ class Setup:
         and model atom will be written in a temporary M1D formatted input file ATOM
          """
         print("Reading model atom from %s" % self.atom_path)
-        self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
+        #self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
+
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 
@@ -199,15 +202,14 @@ class Setup:
         atmos_list = atmos_list.flatten()
         abund_list = abund_list.flatten()
 
-        jobs = {}
+        jobs = []
 
         #job.atmos = atmos_list
         #job.abund = abund_list
 
         for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
-            jobs[i] = SerialJob(i)
+            jobs.append({"atmo": one_atmo, "abund": one_abund})
+            #jobs[i] = SerialJob()
             #self.jobs[i].id = i
-            jobs[i].atmo = one_atmo
-            jobs[i].abund = one_abund
 
         return jobs

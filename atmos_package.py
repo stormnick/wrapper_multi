@@ -19,69 +19,6 @@ periodic_table_element_names = [
 
 
 
-def write_atmos_m1d(atmos, file):
-    """
-    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
-    input:
-    (object of class model_atmosphere): atmos
-    (string) file: path to output file
-    """
-
-    with open(file, 'w') as f:
-        header = f"\
-* {atmos.header.strip()}\n\
-{atmos.id} \n\
-* Depth scale: log(tau500nm) (T), log(column mass) (M), height [km] (H)\n\
-{atmos.depth_scale_type} \n\
-*log(g) \n {atmos.logg:.3f} \n\
-*Teff = {atmos.teff}\n\
-*Number of depth points \n {atmos.ndep:.0f}\n\
-*depth scale, temperature, N_e, Vmac, Vturb \n\
-        "
-        f.write(header)
-        # write physical values
-        for i in range(len(atmos.depth_scale)):
-            f.write('    '.join(f"{atmos.__dict__[k][i]:15.5e}" for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb'] ) + '\n')
-
-def write_atmos_m1d4TS(atmos, file):
-    """
-    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
-    but very specific so that TS recognises it
-    input:
-    (object of class model_atmosphere): atmos
-    (string) file: path to output file
-    """
-
-    with open(file, 'w') as f:
-        header = f"\
-{atmos.id}\n\
-{atmos.depth_scale_type}\n\
-* LOG (G) \n {atmos.logg} \n\
-* NDEP \n {atmos.ndep} \n\
-* depth scale, temperature, N_e, Vmac, Vturb \n\
-        "
-        f.write(header)
-        # write structure
-        for i in range(len(atmos.depth_scale)):
-            f.write('    '.join(f"{atmos.__dict__[k][i]:15.5e}" for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb'] ) + '\n')
-
-def write_dscale_m1d(atmos, file):
-    """
-    Write MULTI1D DSCALE input file with depth scale to be used for NLTE computations
-    """
-    with open(file, 'w') as f:
-        header = f"\
-{atmos.id} \n\
-* Depth scale: log(tau500nm) (T), log(column mass) (M), height [km] (H) \n {atmos.depth_scale_type}\n\
-* Number of depth points, top point \n {atmos.ndep:.0f} {atmos.depth_scale[0]:10.5e}\n\
-"
-        # write formatted header
-        f.write(header)
-        # write structure
-        for i in range(len(atmos.depth_scale)):
-            f.write(f"{atmos.depth_scale[i]:15.5e}\n" )
-
-
 class ModelAtmosphere:
     def __init__(self, file=None, file_format=None):
         self.atmospheric_abundance: dict = None
@@ -245,4 +182,69 @@ class ModelAtmosphere:
         # add comments here
         self.header = "Read from M1D formatted model atmosphere {self.id}"
         return
+
+
+
+def write_atmos_m1d(atmos: ModelAtmosphere, file):
+    """
+    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
+    input:
+    (object of class model_atmosphere): atmos
+    (string) file: path to output file
+    """
+
+    with open(file, 'w') as f:
+        header = f"\
+* {atmos.header.strip()}\n\
+{atmos.id} \n\
+* Depth scale: log(tau500nm) (T), log(column mass) (M), height [km] (H)\n\
+{atmos.depth_scale_type} \n\
+*log(g) \n {atmos.logg:.3f} \n\
+*Teff = {atmos.teff}\n\
+*Number of depth points \n {atmos.ndep:.0f}\n\
+*depth scale, temperature, N_e, Vmac, Vturb \n\
+        "
+        f.write(header)
+        # write physical values
+        for i in range(len(atmos.depth_scale)):
+            f.write('    '.join(f"{atmos.__dict__[k][i]:15.5e}" for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb'] ) + '\n')
+
+def write_atmos_m1d4TS(atmos: ModelAtmosphere, file):
+    """
+    Write model atmosphere in MULTI 1D input format, i.e. atmos.*
+    but very specific so that TS recognises it
+    input:
+    (object of class model_atmosphere): atmos
+    (string) file: path to output file
+    """
+
+    with open(file, 'w') as f:
+        header = f"\
+{atmos.id}\n\
+{atmos.depth_scale_type}\n\
+* LOG (G) \n {atmos.logg} \n\
+* NDEP \n {atmos.ndep} \n\
+* depth scale, temperature, N_e, Vmac, Vturb \n\
+        "
+        f.write(header)
+        # write structure
+        for i in range(len(atmos.depth_scale)):
+            f.write('    '.join(f"{atmos.__dict__[k][i]:15.5e}" for k in ['depth_scale', 'temp', 'ne', 'vmac', 'vturb'] ) + '\n')
+
+def write_dscale_m1d(atmos: ModelAtmosphere, file):
+    """
+    Write MULTI1D DSCALE input file with depth scale to be used for NLTE computations
+    """
+    with open(file, 'w') as f:
+        header = f"\
+{atmos.id} \n\
+* Depth scale: log(tau500nm) (T), log(column mass) (M), height [km] (H) \n {atmos.depth_scale_type}\n\
+* Number of depth points, top point \n {atmos.ndep:.0f} {atmos.depth_scale[0]:10.5e}\n\
+"
+        # write formatted header
+        f.write(header)
+        # write structure
+        for i in range(len(atmos.depth_scale)):
+            f.write(f"{atmos.depth_scale[i]:15.5e}\n" )
+
 
