@@ -9,6 +9,12 @@ import socket
 import shutil
 import dask
 import math
+from itertools import islice
+
+def chunks(data, SIZE=1000):
+    it = iter(data)
+    for i in range(0, len(data), SIZE):
+        yield {k:data[k] for k in islice(it, SIZE)}
 
 def mkdir(directory: str):
     if os.path.isdir(directory):
@@ -131,11 +137,11 @@ if __name__ == '__main__':
 
     jobs_amount: int = 0
 
-    jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
+    #jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
     all_futures_combined = []
 
-    for one_jobs_split in jobs_split:
+    for one_jobs_split in chunks(jobs, 1000):
         futures = []
         for one_job in jobs:
             #big_future = client.scatter(args[i])  # good
