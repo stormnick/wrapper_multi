@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
     for one_jobs_split in chunks(jobs, setup.ncpu * MAX_TASKS_PER_CPU_AT_A_TIME):
         futures = []
-        for one_job in jobs:
+        for one_job in one_jobs_split:
             #big_future = client.scatter(args[i])  # good
             if check_done_aux_files:
                 abund, atmo = jobs[one_job].abund, jobs[one_job].atmo
