@@ -48,6 +48,8 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
     return False
 
 
+def launch_job(job):
+    run_serial_job(setup, job)
 
 
 if __name__ == '__main__':
@@ -133,12 +135,12 @@ if __name__ == '__main__':
             jobs_amount += 1
             big_future = client.scatter(jobs[one_job])
             #big_future_setup = client.scatter(setup, broadcast=True)
-            [big_future_setup] = client.scatter([setup], broadcast=True)
+            #[big_future_setup] = client.scatter([setup], broadcast=True)
 
             #[fut_dict] = client.scatter([setup], broadcast=True)
             #score_guide = lambda row: expensive_computation(fut_dict, row)
 
-            futures = [client.submit(run_serial_job, big_future_setup, big_future)]
+            futures = [client.submit(run_serial_job, big_future)]
             #futures.append(future)  # prepares to get values
 
     print("Start gathering")  # use http://localhost:8787/status to check status. the port might be different
