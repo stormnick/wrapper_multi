@@ -1,7 +1,6 @@
 import sys
 import os
 import numpy as np
-from atom_package import ModelAtom
 import shutil
 # local
 from atmos_package import ModelAtmosphere, write_atmos_m1d, write_dscale_m1d
