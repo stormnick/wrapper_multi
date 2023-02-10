@@ -147,7 +147,7 @@ def setup_multi_job(setup, job, temporary_directory):
     return job
 
 
-def run_multi(job, atom, atmos, temporary_directory):
+def run_multi(job, atom, atmos, temporary_directory, common_wd):
     """
     Run MULTI1D
     input:
@@ -216,7 +216,7 @@ def run_multi(job, atom, atmos, temporary_directory):
         print("IDL1 file not found for %s A(X)=%.2f" % (atmos.id, atom.abund))
 
     out = None
-    os.chdir(job.common_wd)
+    os.chdir(common_wd)
 
 
 def run_multi_exe():
@@ -351,7 +351,7 @@ def run_serial_job(setup, job):
         atom.abund = job.abund + atmos.feh
 
     write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"))
-    run_multi(job, atom, atmos, temporary_directory)
+    run_multi(job, atom, atmos, temporary_directory, setup.common_wd)
 
     job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
     job = None

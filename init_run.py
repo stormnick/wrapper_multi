@@ -14,9 +14,8 @@ def mkdir(directory: str):
 
 
 class SerialJob:
-    def __init__(self, parent, i: int):
+    def __init__(self, i: int):
         self.id = i
-        self.common_wd = parent.common_wd
         #self.tmp_wd = parent.common_wd + '/job_%03d/' % self.id
         self.atmo: str = None
         self.abund: float = None
@@ -206,7 +205,7 @@ class Setup:
         #job.abund = abund_list
 
         for i, (one_atmo, one_abund) in enumerate(zip(atmos_list, abund_list)):
-            jobs[i] = SerialJob(self, i)
+            jobs[i] = SerialJob(i)
             #self.jobs[i].id = i
             jobs[i].atmo = one_atmo
             jobs[i].abund = one_abund

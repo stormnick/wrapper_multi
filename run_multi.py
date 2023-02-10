@@ -7,6 +7,8 @@ import numpy as np
 from dask.distributed import Client, get_worker
 import socket
 import shutil
+import dask
+import math
 
 def mkdir(directory: str):
     if os.path.isdir(directory):
@@ -86,6 +88,11 @@ if __name__ == '__main__':
 
     #collect_output(set, jobs_with_result)
 
+    dask_temp_dir = os.path.join(os.getcwd(), 'tmp_dask_worker_space', '')
+    mkdir(dask_temp_dir)
+    with dask.config.set({'temporary_directory': dask_temp_dir}):
+        pass
+
     print("Preparing workers")
     client = Client(threads_per_worker=1,
                     n_workers=setup.ncpu)  # if # of threads are not equal to 1, then may break the program
@@ -124,7 +131,7 @@ if __name__ == '__main__':
 
     jobs_amount: int = 0
 
-    jobs_split = np.split(jobs, round(np.size(jobs) / 1000))
+    jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
     all_futures_combined = []
 
