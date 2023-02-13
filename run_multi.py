@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
             #[fut_dict] = client.scatter([setup], broadcast=True)
             #score_guide = lambda row: expensive_computation(fut_dict, row)
-            [atom_big_futire] = client.scatter([atom_data], broadcast=True)
+            atom_big_futire = client.scatter(atom_data, broadcast=True)
 
             future = client.submit(launch_job, big_future, atom_big_futire, setup_scatter)
             futures.append(future)  # prepares to get values
