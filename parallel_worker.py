@@ -7,6 +7,7 @@ from combine_grids import addRec_to_NLTEbin
 from m1d_output import m1d
 import datetime
 from dask.distributed import get_worker
+import pickle
 
 
 def mkdir(s):
@@ -23,6 +24,11 @@ def assign_temporary_directory(setup):
     except AttributeError:
         worker.temporary_directory = f"{setup.common_wd}/job_{np.random.random()}/"
         setup_temp_dirs(setup, worker.temporary_directory)
+    try:
+        _ = worker.atom_body
+    except AttributeError:
+        with open(os.path.join(setup.common_wd, "pickled_atom"), 'rb') as atom_pickled_body:
+            worker.atom_body = pickle.load(atom_pickled_body)
 
 
 def setup_temp_dirs(setup, temporary_directory):
@@ -147,7 +153,7 @@ def setup_multi_job(setup, job, temporary_directory):
     return job
 
 
-def run_multi(job, atom, atmos, temporary_directory, common_wd):
+def run_multi(job, atom, atmos, temporary_directory, common_wd, atom_body):
     """
     Run MULTI1D
     input:
@@ -160,7 +166,7 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd):
     """
 
     """ Create ATOM input file for M1D """
-    write_atom_noReFormatting(atom, temporary_directory + '/ATOM')
+    write_atom_noReFormatting(atom, temporary_directory + '/ATOM', atom_body)
 
     """ Create ATMOS input file for M1D """
     write_atmos_m1d(atmos, temporary_directory + '/ATMOS')
@@ -351,7 +357,7 @@ def run_serial_job(setup, job):
         atom.abund = job.abund + atmos.feh
 
     write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"))
-    run_multi(job, atom, atmos, temporary_directory, setup.common_wd)
+    run_multi(job, atom, atmos, temporary_directory, setup.common_wd, worker.atom_body)
 
     job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
     job = None

@@ -5,6 +5,7 @@ from atom_package import model_atom
 import shutil
 # local
 from atmos_package import ModelAtmosphere, write_atmos_m1d, write_dscale_m1d
+import pickle
 
 
 def mkdir(directory: str):
@@ -147,6 +148,9 @@ class Setup:
          """
         print("Reading model atom from %s" % self.atom_path)
         self.atom = model_atom(self.atom_path + '/atom.' + self.atom_id, self.atom_comment)
+        body_atom = self.atom.read_atom(self.atom_path + '/atom.' + self.atom_id)
+        with open(os.path.join(self.common_wd, "pickled_atom"), "wb") as atom_pickle_file:
+            pickle.dump(body_atom, atom_pickle_file)
         # M1D input file that comes with model atom
         self.m1d_input_file = self.atom_path + '/input.' + self.atom_id
 

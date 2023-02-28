@@ -140,14 +140,14 @@ Only for model atoms in MULTI format
 #        f.write("END")
 #    return
 # 
-def write_atom_noReFormatting(self, file):
+def write_atom_noReFormatting(self, file, atom_body):
     with open(file, 'w') as f:
         for li in self.header:
             f.write(li + '\n')
         f.write("%s \n" %(self.element))
         f.write("%10.2f %10.3f \n" %(self.abund, self.atomic_weight))
         f.write(f"{self.nk:.0f} {self.nline:.0f} {self.ncont:.0f} {self.nrfix:.0f} \n")
-        for line in self.body:
+        for line in atom_body:
             f.write(line + '\n')
 
 
@@ -155,7 +155,6 @@ def write_atom_noReFormatting(self, file):
 class model_atom(object) :
     def __init__(self, file, comment=''):
         self.abund = None
-        self.read_atom(file)
         """
         A small comment line from the config file.
         Written to the header of the NLTE binary grid
@@ -189,7 +188,7 @@ class model_atom(object) :
                     break
             else:
                 self.header.append(li)
-        self.body = data[c_all:]
+        return data[c_all:]
 
 class bbline():
     def __init__(self, com_line, data_line):

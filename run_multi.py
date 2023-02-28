@@ -57,7 +57,7 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
 
 
 def launch_job(job):
-    run_serial_job(setup, job)
+    return run_serial_job(setup, job)
 
 
 if __name__ == '__main__':
@@ -94,11 +94,11 @@ if __name__ == '__main__':
 
     #collect_output(set, jobs_with_result)
 
-    dask_temp_dir = os.path.join(os.getcwd(), 'tmp_dask_worker_space', '')
+    """dask_temp_dir = os.path.join(os.getcwd(), 'tmp_dask_worker_space', '')
     mkdir(dask_temp_dir)
     with dask.config.set({'temporary_directory': dask_temp_dir}):
         pass
-
+    """
     print("Preparing workers")
     client = Client(threads_per_worker=1,
                     n_workers=setup.ncpu)  # if # of threads are not equal to 1, then may break the program
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     #jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
-    MAX_TASKS_PER_CPU_AT_A_TIME = 16
+    MAX_TASKS_PER_CPU_AT_A_TIME = 1600
 
     all_futures_combined = []
 
