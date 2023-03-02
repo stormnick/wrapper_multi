@@ -108,7 +108,7 @@ class m1d:
             self.bp = f.read_reals(np.float32)
 
         self.nstar = f.read_reals(np.float32).reshape(self.ndep, self.nk)
-        self.n     = f.read_reals(np.float32).reshape(self.ndep, self.nk)
+        self.n     = f.read_reals(np.float32).reshape(self.ndep, self.nk) 
 
         self.iformat = iformat
         if iformat == 0:
