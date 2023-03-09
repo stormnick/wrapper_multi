@@ -175,7 +175,11 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd, atom_body):
     """ Go to directory and run MULTI 1D """
     os.chdir(temporary_directory)
 
-    run_multi_exe()
+    for attempt_index in range(50):
+        print(attempt_index)
+        run_multi_exe()
+        if os.path.isfile('./IDL1'):
+            break
 
     """ Read M1D output if M1D run was successful """
     if os.path.isfile('./IDL1'):

@@ -41,7 +41,7 @@ def check_same_element_loc_in_two_arrays(array1, array2_float, elem1: str, elem2
 
     array1 = np.asarray(array1)
     array2 = np.asarray(array2_float)
-    loc1 = np.where(array1 == f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '')}'")[0]
+    loc1 = np.where(array1 == f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '').replace('/', '')}'")[0]
     #loc2_closest_index = find_nearest_index(array2, elem2_float)
 
     #print(array1, array2, elem1, elem2_float, f"'{elem1.replace(str_to_add_array1, '').replace('.mod', '')}'")
