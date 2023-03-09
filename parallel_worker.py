@@ -63,7 +63,7 @@ def setup_temp_dirs(setup, temporary_directory):
     os.symlink(setup.m1d_input_file, os.path.join(temporary_directory, 'INPUT'))
 
     """ Link executable """
-    os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'multi1d.exe'))
+    os.symlink(setup.m1d_exe, os.path.join(temporary_directory, 'mul23lus.x'))
 
     """
     What kind of output from M1D should be saved?
@@ -230,7 +230,7 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd, atom_body):
 
 
 def run_multi_exe():
-    os.system('time ./multi1d.exe')
+    os.system('time ./mul23lus.x')
 
 
 def collect_output(setup, jobs, jobs_amount):
