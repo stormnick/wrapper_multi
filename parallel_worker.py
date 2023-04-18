@@ -322,7 +322,7 @@ def collect_output(setup, jobs, jobs_amount):
         print(10 * "-")
 
 
-def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, new_abund_file_locaiton: str):
+def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, new_abund_file_locaiton: str, atom_abund: float, atom_element: str):
     """
     Scales abundance according to the atmosphere. Either takes already atmospheric abundance or scaled the one in M1D
     according to metallicity (except H and He). Uses only elements that were already written in the M1D ABUND file
@@ -337,6 +337,10 @@ def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, n
                 elemental_abundance = elemental_abundance_m1d[element]
                 if element_name != "H" and element_name != "HE":
                     elemental_abundance += atmo.feh
+            if atom_element == "CH" and element_name == "C":
+                elemental_abundance = atom_abund
+            if atom_element == "CN" and element_name == "C":
+                elemental_abundance = atom_abund
             new_file_to_write.write(f"{element_name:<4}{elemental_abundance:5,.2f}\n")
 
 
@@ -360,7 +364,7 @@ def run_serial_job(setup, job):
     if not atom.element.lower() == 'h':
         atom.abund = job.abund + atmos.feh
 
-    write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"))
+    write_atmo_abundance(atmos, setup.elemental_abundance_m1d, os.path.join(temporary_directory, "ABUND"), atom.abund, atom.element)
     run_multi(job, atom, atmos, temporary_directory, setup.common_wd, worker.atom_body)
 
     job_return_info = [job.output['file_ew'], job.output['file_4ts'], job.output['file_4ts_aux']]   #{'file_ew': , 'file_4ts', 'file_4ts_aux'}
