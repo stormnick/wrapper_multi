@@ -339,7 +339,7 @@ def write_atmo_abundance(atmo: ModelAtmosphere, elemental_abundance_m1d: dict, n
                     elemental_abundance += atmo.feh
             if atom_element == "CH" and element_name == "C":
                 elemental_abundance = atom_abund
-            if atom_element == "CN" and element_name == "C":
+            if atom_element == "CN" and element_name == "N":
                 elemental_abundance = atom_abund
             new_file_to_write.write(f"{element_name:<4}{elemental_abundance:5,.2f}\n")
 
