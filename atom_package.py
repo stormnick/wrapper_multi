@@ -152,7 +152,7 @@ def write_atom_noReFormatting(self, file, atom_body):
 
 
 
-class model_atom(object) :
+class model_atom:
     def __init__(self, file, comment=''):
         self.abund = None
         """
@@ -164,6 +164,10 @@ class model_atom(object) :
             exit(1)
         else:
             self.info = comment
+        self.header = None
+        self.element = None
+        self.atomic_weight = None
+        self.nk, self.nline, self.ncont, self.nrfix = None, None, None, None
 
     def read_atom(self, file):
         data = []
@@ -180,7 +184,10 @@ class model_atom(object) :
             if not li.startswith('*') and li != '':
                 c_noncom += 1
                 if c_noncom == 1:
-                    self.element = li
+                    self.element = li.replace(" ", "")
+                    if len(self.element) > 2:
+                        print("Are you sure that the element name is correct? Stopped")
+                        exit(1)
                 elif c_noncom == 2:
                     self.abund, self.atomic_weight = np.array(li.split()).astype(float)
                 elif c_noncom == 3:
