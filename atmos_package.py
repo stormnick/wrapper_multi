@@ -243,6 +243,6 @@ class ModelAtmosphere:
         self.Z = np.nan
         self.mass = np.nan
         # add comments here
-        self.header = "Read from M1D formatted model atmosphere {self.id}"
+        self.header = f"Read from M1D formatted model atmosphere {self.id}"
         return
 
