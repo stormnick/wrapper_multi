@@ -136,6 +136,8 @@ def setup_multi_job(setup, job, temporary_directory):
     if job.output['write_ew'] == 1 or job.output['write_ew'] == 2:
         # create file to dump output
         job.output.update({'file_ew': temporary_directory + '/output_EW.dat'})
+    else:
+        job.output['file_ew'] = None
 
     """ Output for TS? """
     if job.output['write_ts'] == 1:
@@ -175,11 +177,7 @@ def run_multi(job, atom, atmos, temporary_directory, common_wd, atom_body):
     """ Go to directory and run MULTI 1D """
     os.chdir(temporary_directory)
 
-    for attempt_index in range(50):
-        print(attempt_index)
-        run_multi_exe()
-        if os.path.isfile('./IDL1'):
-            break
+    run_multi_exe()
 
     """ Read M1D output if M1D run was successful """
     if os.path.isfile('./IDL1'):
@@ -247,8 +245,8 @@ def collect_output(setup, jobs, jobs_amount):
 
     """ Collect all EW grids into one """
     datetime0 = datetime.datetime.now()
-    print("Collecting grids of EWs")
     if setup.write_ew > 0:
+        print("Collecting grids of EWs")
         with open(os.path.join(setup.common_wd, 'output_EWgrid_%s.dat' % (today)), 'w') as com_f:
             for job in jobs:
                 ew_file = job[0]
@@ -276,9 +274,9 @@ def collect_output(setup, jobs, jobs_amount):
         """ #TODO sort the grids of EWs """
 
     """ Collect all TS formatted NLTE grids into one """
-    print("Collecting TS formatted NLTE grids")
     datetime0 = datetime.datetime.now()
     if setup.write_ts > 0:
+        print("Collecting TS formatted NLTE grids")
         com_f = open(os.path.join(setup.common_wd, 'output_NLTEgrid4TS_%s.bin' % (today)), 'wb')
         com_aux = open(os.path.join(setup.common_wd, 'auxData_NLTEgrid4TS_%s.dat' % (today)), 'w')
 
