@@ -164,13 +164,17 @@ if __name__ == '__main__':
     with dask.config.set({'temporary_directory': dask_temp_dir}):
         pass
     """
-    client = get_dask_client(client_type='local', cluster_name='gemini-login.mpia.de', workers_amount_cpus=setup.ncpu,
-                             memory_per_core_gb=3.6, cores_per_job=32, jobs_nodes=1, time_limit_hours=(24*14 - 1),
-                             slurm_partition='long')
+
     slurm = False
     if slurm:
-        client = get_dask_client(client_type='slurm', cluster_name='gemini-login.mpia.de', workers_amount_cpus=setup.ncpu,
-                                 memory_per_core_gb=3.6, cores_per_job=32, jobs_nodes=4, time_limit_hours=(24*14 - 1),
+        client = get_dask_client(client_type='slurm', cluster_name='gemini-login.mpia.de',
+                                 workers_amount_cpus=setup.ncpu,
+                                 nodes=5, slurm_memory_per_core=3.6, time_limit_hours=(24 * 14 - 1),
+                                 slurm_partition='long')
+    else:
+        client = get_dask_client(client_type='local', cluster_name='gemini-login.mpia.de',
+                                 workers_amount_cpus=setup.ncpu,
+                                 nodes=1, slurm_memory_per_core=3.6, time_limit_hours=(24 * 14 - 1),
                                  slurm_partition='long')
 
     #print("Creating temporary directories")
