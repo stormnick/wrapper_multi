@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
     #jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
-    MAX_TASKS_PER_CPU_AT_A_TIME = 1600
+    MAX_TASKS_PER_CPU_AT_A_TIME = 16000
 
     all_futures_combined = []
 
