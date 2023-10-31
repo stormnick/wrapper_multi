@@ -1,15 +1,80 @@
 import sys
 import os
-from init_run import Setup, SerialJob
+from init_run import Setup
 from parallel_worker import run_serial_job, collect_output
-import time
-import numpy as np
-from dask.distributed import Client, get_worker
-import socket
 import shutil
-import dask
-import math
 from itertools import islice
+from dask.distributed import Client
+from dask_jobqueue import SLURMCluster
+import numpy as np
+import socket
+
+
+def get_dask_client(client_type: str, cluster_name: str, workers_amount_cpus: int, nodes=1, slurm_script_commands=None,
+                    slurm_memory_per_core=3.6, time_limit_hours=72, slurm_partition="debug", **kwargs):
+    if cluster_name is None:
+        cluster_name = "unknown"
+    print("Preparing workers")
+    if client_type == "local":
+        client = get_local_client(workers_amount_cpus)
+    elif client_type == "slurm":
+        client = get_slurm_cluster(workers_amount_cpus, nodes, slurm_memory_per_core,
+                                   script_commands=slurm_script_commands, time_limit_hours=time_limit_hours,
+                                   slurm_partition=slurm_partition, **kwargs)
+    else:
+        raise ValueError("client_type must be either local or slurm")
+
+    print(client)
+
+    host = client.run_on_scheduler(socket.gethostname)
+    port = client.scheduler_info()['services']['dashboard']
+    print(f"Assuming that the cluster is ran at {cluster_name} (change in config if not the case)")
+
+    print(f"ssh -N -L {port}:{host}:{port} {cluster_name}")
+    print(f"Then go to http://localhost:{port}/status to check the status of the workers")
+
+    print("Worker preparation complete")
+
+    return client
+
+
+def get_local_client(workers_amount, **kwargs):
+    if workers_amount > 1:
+        client = Client(threads_per_worker=1, n_workers=workers_amount, **kwargs)
+    else:
+        client = Client(threads_per_worker=1, **kwargs)
+    return client
+
+
+def get_slurm_cluster(cores_per_job: int, jobs_nodes: int, memory_per_core_gb: int, script_commands=None,
+                      time_limit_hours=72, slurm_partition='debug', **kwargs):
+    if script_commands is None:
+        script_commands = [            # Additional commands to run before starting dask worker
+            'module purge',
+            'module load basic-path',
+            'module load intel',
+            'module load anaconda3-py3.10']
+    # Create a SLURM cluster object
+    # split into days, hours in format: days-hh:mm:ss
+    days = time_limit_hours // 24
+    hours = time_limit_hours % 24
+    if days == 0:
+        time_limit_string = f"{int(hours):02d}:00:00"
+    else:
+        time_limit_string = f"{int(days)}-{int(hours):02d}:00:00"
+    print(time_limit_string)
+    cluster = SLURMCluster(
+        queue=slurm_partition,                      # Which queue/partition to submit jobs to
+        cores=cores_per_job,                     # Number of cores per job (so like cores/workers per node)
+        memory=f"{memory_per_core_gb * cores_per_job}GB",         # Amount of memory per job (also per node)
+        job_script_prologue=script_commands,     # Additional commands to run before starting dask worker
+        walltime=time_limit_string                      # Time limit for each job
+    )
+    cluster.scale(jobs=jobs_nodes)      # How many nodes
+    client = Client(cluster)
+
+    return client
+
 
 def chunks(data, SIZE=1000):
     it = iter(data)
@@ -99,19 +164,18 @@ if __name__ == '__main__':
     with dask.config.set({'temporary_directory': dask_temp_dir}):
         pass
     """
-    print("Preparing workers")
-    client = Client(threads_per_worker=1,
-                    n_workers=setup.ncpu)  # if # of threads are not equal to 1, then may break the program
-    print(client)
 
-    host = client.run_on_scheduler(socket.gethostname)
-    port = client.scheduler_info()['services']['dashboard']
-    print(f"Assuming that the cluster is ran at {login_node_address} (change in code if not the case)")
-
-    # print(logger.info(f"ssh -N -L {port}:{host}:{port} {login_node_address}"))
-    print(f"ssh -N -L {port}:{host}:{port} {login_node_address}")
-
-    print("Worker preparation complete")
+    slurm = False
+    if slurm:
+        client = get_dask_client(client_type='slurm', cluster_name='gemini-login.mpia.de',
+                                 workers_amount_cpus=setup.ncpu,
+                                 nodes=5, slurm_memory_per_core=3.6, time_limit_hours=(24 * 14 - 1),
+                                 slurm_partition='long')
+    else:
+        client = get_dask_client(client_type='local', cluster_name='gemini-login.mpia.de',
+                                 workers_amount_cpus=setup.ncpu,
+                                 nodes=1, slurm_memory_per_core=3.6, time_limit_hours=(24 * 14 - 1),
+                                 slurm_partition='long')
 
     #print("Creating temporary directories")
 
@@ -139,7 +203,7 @@ if __name__ == '__main__':
 
     #jobs_split = np.split(jobs, math.ceil(len(jobs) / 1000))
 
-    MAX_TASKS_PER_CPU_AT_A_TIME = 1600
+    MAX_TASKS_PER_CPU_AT_A_TIME = 16000
 
     all_futures_combined = []
 
